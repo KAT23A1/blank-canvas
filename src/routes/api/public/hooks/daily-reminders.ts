@@ -81,7 +81,56 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-async function sendReminderEmail(to: string, subject: string, html: string): Promise<boolean> {
+function buildEmailText(todayItems: CandidateItem[], tomorrowItems: CandidateItem[]): string {
+  const lines: string[] = ["UNMESS — here's what needs you.", ""];
+  if (todayItems.length > 0) {
+    lines.push("Due today:");
+    for (const i of todayItems) lines.push(`  - ${i.action}${i.when ? ` (${i.when})` : ""}`);
+    lines.push("");
+  }
+  if (tomorrowItems.length > 0) {
+    lines.push("Due tomorrow:");
+    for (const i of tomorrowItems) lines.push(`  - ${i.action}${i.when ? ` (${i.when})` : ""}`);
+    lines.push("");
+  }
+  lines.push("You're receiving this because you're an UNMESS Pro member with dated action items.");
+  return lines.join("\n");
+}
+
+async function sendReminderEmail(
+  to: string,
+  subject: string,
+  html: string,
+  text: string,
+): Promise<boolean> {
+  const gmailUser = process.env["GMAIL_USER"];
+  const gmailPass = process.env["GMAIL_APP_PASSWORD"]?.replace(/\s+/g, "");
+
+  // Preferred: Gmail SMTP (smtp.gmail.com:465 SSL), sender "UNMESS <you@gmail.com>".
+  if (gmailUser && gmailPass) {
+    try {
+      const nodemailer = await import("nodemailer");
+      const transport = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: { user: gmailUser, pass: gmailPass },
+      });
+      await transport.sendMail({
+        from: `UNMESS <${gmailUser}>`,
+        to,
+        subject,
+        text,
+        html,
+      });
+      return true;
+    } catch (err) {
+      console.error("gmail smtp error", err);
+      return false;
+    }
+  }
+
+  // Fallback: managed send-email edge function (until Gmail secrets are set).
   try {
     const base = process.env["SUPABASE_URL"]!;
     const serviceKey = process.env["SUPABASE_SERVICE_ROLE_KEY"]!;
@@ -205,6 +254,7 @@ export const Route = createFileRoute("/api/public/hooks/daily-reminders")({
             email,
             subject,
             buildEmailHtml(todayItems, tomorrowItems),
+            buildEmailText(todayItems, tomorrowItems),
           );
           if (!sent) continue;
 

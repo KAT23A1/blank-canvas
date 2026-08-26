@@ -30,13 +30,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "UNMESS turns your messy, unstructured thoughts into a clean, organized, prioritized plan.",
+          "Your brain is messy. Your plan doesn't have to be. UNMESS turns unstructured thoughts into a clean, prioritized plan.",
       },
       { property: "og:title", content: "UNMESS — Paste the mess. Get the plan." },
       {
         property: "og:description",
         content:
-          "UNMESS turns your messy, unstructured thoughts into a clean, organized, prioritized plan.",
+          "Your brain is messy. Your plan doesn't have to be. UNMESS turns unstructured thoughts into a clean, prioritized plan.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -45,23 +45,24 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+function groupByPriority(items: UnmessItem[]) {
+  return (["high", "medium", "low"] as const)
+    .map((priority) => ({
+      priority,
+      items: items.filter((i) => i.priority === priority),
+    }))
+    .filter((g) => g.items.length > 0);
+}
+
 function Index() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const fetchPlans = useServerFn(listPlans);
-  const fetchSubscription = useServerFn(getSubscription);
   const [user, setUser] = useState<User | null>(null);
-  const [input, setInput] = useState("");
-  const [items, setItems] = useState<UnmessItem[]>([]);
-  const [status, setStatus] = useState<Status>("idle");
-  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
-  const [showSignInPrompt, setShowSignInPrompt] = useState(false);
-  const [limitReached, setLimitReached] = useState(false);
-  const [upgrading, setUpgrading] = useState(false);
-  const [proComingSoon, setProComingSoon] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+      setAuthChecked(true);
+    });
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
@@ -71,61 +72,333 @@ function Index() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const { data: savedPlans } = useQuery({
+  if (!authChecked) {
+    return (
+      <main className="flex min-h-screen flex-col items-center px-6 pb-12 sm:px-8">
+        <div className="w-full max-w-2xl pt-24">
+          <div className="mx-auto h-10 w-40 animate-pulse rounded-xl bg-muted" />
+          <div className="mx-auto mt-4 h-5 w-64 animate-pulse rounded-lg bg-muted" />
+          <div className="mt-12 h-64 animate-pulse rounded-2xl border border-border bg-card" />
+        </div>
+      </main>
+    );
+  }
+
+  return user ? <AppHome user={user} /> : <Landing />;
+}
+
+/* ---------------------------------- shared --------------------------------- */
+
+function UnmessBox({
+  user,
+  input,
+  setInput,
+  status,
+  onSubmit,
+  usageLabel,
+}: {
+  user: User | null;
+  input: string;
+  setInput: (v: string) => void;
+  status: Status;
+  onSubmit: () => void;
+  usageLabel?: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+      <label htmlFor="mess-input" className="sr-only">
+        Dump everything on your mind
+      </label>
+      <textarea
+        id="mess-input"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Dump everything on your mind…"
+        className="min-h-[160px] w-full resize-y rounded-xl border border-input bg-background p-4 text-base leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30 sm:min-h-[220px] sm:p-5 sm:text-lg"
+      />
+      <div className="mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:items-center sm:justify-between">
+        <span className="text-xs text-muted-foreground sm:text-sm">{usageLabel ?? ""}</span>
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={status === "loading" || !input.trim()}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+        >
+          {status === "loading" ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
+              Unmessing…
+            </>
+          ) : (
+            "Unmess this"
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="mt-8 space-y-3">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="h-20 animate-pulse rounded-2xl border border-border bg-card"
+          style={{ animationDelay: `${i * 150}ms` }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ErrorNote() {
+  return (
+    <div className="mt-6 rounded-2xl border border-destructive/30 bg-destructive/5 p-5 text-center text-sm text-destructive">
+      Hmm, that didn't work. Take a breath and try again — your text is still
+      right where you left it.
+    </div>
+  );
+}
+
+function ResultGroups({ items }: { items: UnmessItem[] }) {
+  const groups = groupByPriority(items);
+  if (groups.length === 0) return null;
+  return (
+    <div className="space-y-8">
+      {groups.map(({ priority, items: groupItems }) => (
+        <section key={priority}>
+          <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <span className={`h-2.5 w-2.5 rounded-full ${priorityMeta[priority].dotClass}`} />
+            {priorityMeta[priority].label}
+          </h3>
+          <div className="space-y-3">
+            {groupItems.map((item, i) => (
+              <div
+                key={`${priority}-${i}`}
+                className="flex items-start justify-between gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"
+              >
+                <p className="text-base leading-relaxed text-foreground">{item.action}</p>
+                {item.when && item.when.toLowerCase() !== "no date" && (
+                  <span className="shrink-0 rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
+                    {item.when}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+/* --------------------------------- landing --------------------------------- */
+
+function Landing() {
+  const [input, setInput] = useState("");
+  const [items, setItems] = useState<UnmessItem[]>([]);
+  const [status, setStatus] = useState<Status>("idle");
+  const [showSignInPrompt, setShowSignInPrompt] = useState(false);
+
+  const handleSubmit = async () => {
+    const text = input.trim();
+    if (!text || status === "loading") return;
+    if (localStorage.getItem(FREE_UNMESS_KEY)) {
+      setShowSignInPrompt(true);
+      return;
+    }
+    setShowSignInPrompt(false);
+    setStatus("loading");
+    try {
+      const result = await unmessText({ data: { text } });
+      setItems(result);
+      setStatus("idle");
+      localStorage.setItem(FREE_UNMESS_KEY, "1");
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  return (
+    <main className="flex min-h-screen flex-col items-center px-6 pb-12 sm:px-8">
+      <header className="flex w-full max-w-2xl items-center justify-between py-5">
+        <span className="text-lg font-bold tracking-tight text-foreground">UNMESS</span>
+        <Link
+          to="/auth"
+          className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
+        >
+          Sign in
+        </Link>
+      </header>
+
+      <div className="w-full max-w-2xl">
+        <div className="mb-10 mt-8 text-center sm:mb-12 sm:mt-14">
+          <h1 className="text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
+            Your brain is messy.
+            <br />
+            Your plan doesn't have to be.
+          </h1>
+          <p className="mx-auto mt-4 max-w-md text-lg text-muted-foreground">
+            Paste the mess — tasks, deadlines, errands, reminders — and get a
+            clean, prioritized plan. Try it right now, no account needed.
+          </p>
+        </div>
+
+        <UnmessBox
+          user={null}
+          input={input}
+          setInput={setInput}
+          status={status}
+          onSubmit={handleSubmit}
+          usageLabel="First unmess is free — no account needed"
+        />
+
+        {showSignInPrompt && (
+          <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-5 text-center text-sm text-foreground">
+            You've used your free unmess.{" "}
+            <Link to="/auth" className="font-medium text-primary underline-offset-4 hover:underline">
+              Create a free account
+            </Link>{" "}
+            to keep going and save your plans.
+          </div>
+        )}
+
+        {status === "error" && <ErrorNote />}
+        {status === "loading" && <LoadingSkeleton />}
+
+        {status === "idle" && items.length > 0 && (
+          <div className="mt-10">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <h2 className="text-xl font-semibold text-foreground">Your plan</h2>
+              <Link
+                to="/auth"
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
+              >
+                Sign up to save
+              </Link>
+            </div>
+            <ResultGroups items={items} />
+          </div>
+        )}
+
+        {/* Free vs Pro */}
+        <section className="mt-20">
+          <h2 className="text-center text-2xl font-bold tracking-tight text-foreground">
+            Simple pricing
+          </h2>
+          <p className="mt-2 text-center text-sm text-muted-foreground">
+            Start free. Upgrade when life gets messier.
+          </p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                Free
+              </p>
+              <p className="mt-2 text-3xl font-bold text-foreground">
+                $0
+                <span className="text-base font-normal text-muted-foreground">/month</span>
+              </p>
+              <ul className="mt-4 space-y-2 text-sm text-foreground">
+                <li>5 unmesses per month</li>
+                <li>Prioritized action plans</li>
+                <li>Saved history</li>
+                <li>Today dashboard</li>
+              </ul>
+              <Link
+                to="/auth"
+                className="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+              >
+                Sign up free
+              </Link>
+            </div>
+            <div className="rounded-2xl border border-primary/40 bg-card p-6 shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+                Pro
+              </p>
+              <p className="mt-2 text-3xl font-bold text-foreground">
+                $5
+                <span className="text-base font-normal text-muted-foreground">/month</span>
+              </p>
+              <ul className="mt-4 space-y-2 text-sm text-foreground">
+                <li>Unlimited unmesses</li>
+                <li>Everything in Free</li>
+                <li>Email reminders for dated items</li>
+                <li>Support an indie tool</li>
+              </ul>
+              <Link
+                to="/auth"
+                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+              >
+                Upgrade to Pro
+              </Link>
+            </div>
+          </div>
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            <Link to="/pricing" className="underline-offset-4 hover:underline">
+              Compare plans in detail
+            </Link>
+          </p>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+/* --------------------------------- app home -------------------------------- */
+
+function AppHome({ user }: { user: User }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const fetchPlans = useServerFn(listPlans);
+  const fetchSubscription = useServerFn(getSubscription);
+  const [input, setInput] = useState("");
+  const [items, setItems] = useState<UnmessItem[]>([]);
+  const [status, setStatus] = useState<Status>("idle");
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [limitReached, setLimitReached] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
+  const [proComingSoon, setProComingSoon] = useState(false);
+
+  const { data: savedPlans, isLoading: plansLoading } = useQuery({
     queryKey: ["plans"],
     queryFn: () => fetchPlans(),
-    enabled: !!user,
   });
 
   const { data: usage } = useQuery({
     queryKey: ["subscription"],
     queryFn: () => fetchSubscription(),
-    enabled: !!user,
   });
 
   const handleSignOut = async () => {
     await queryClient.cancelQueries();
     queryClient.clear();
     await supabase.auth.signOut();
-    setUser(null);
     navigate({ to: "/", replace: true });
   };
 
   const handleSubmit = async () => {
     const text = input.trim();
     if (!text || status === "loading") return;
-    if (!user && localStorage.getItem(FREE_UNMESS_KEY)) {
-      setShowSignInPrompt(true);
-      return;
-    }
-    setShowSignInPrompt(false);
     setLimitReached(false);
     setStatus("loading");
     try {
-      if (user) {
-        const result = await unmessTextAuthed({ data: { text } });
-        queryClient.invalidateQueries({ queryKey: ["subscription"] });
-        if (!result.allowed) {
-          setLimitReached(true);
-          setStatus("idle");
-          return;
-        }
-        setItems(result.items);
+      const result = await unmessTextAuthed({ data: { text } });
+      queryClient.invalidateQueries({ queryKey: ["subscription"] });
+      if (!result.allowed) {
+        setLimitReached(true);
         setStatus("idle");
-        setSaveStatus("saving");
-        try {
-          await savePlan({ data: { rawText: text, items: result.items } });
-          setSaveStatus("saved");
-          queryClient.invalidateQueries({ queryKey: ["plans"] });
-        } catch {
-          setSaveStatus("error");
-        }
-      } else {
-        const result = await unmessText({ data: { text } });
-        setItems(result);
-        setStatus("idle");
-        setSaveStatus("idle");
-        localStorage.setItem(FREE_UNMESS_KEY, "1");
+        return;
+      }
+      setItems(result.items);
+      setStatus("idle");
+      setSaveStatus("saving");
+      try {
+        await savePlan({ data: { rawText: text, items: result.items } });
+        setSaveStatus("saved");
+        queryClient.invalidateQueries({ queryKey: ["plans"] });
+      } catch {
+        setSaveStatus("error");
       }
     } catch {
       setStatus("error");
@@ -150,50 +423,54 @@ function Index() {
     }
   };
 
-  const groups = (["high", "medium", "low"] as const)
-    .map((priority) => ({
-      priority,
-      items: items.filter((i) => i.priority === priority),
-    }))
-    .filter((g) => g.items.length > 0);
+  const initial = (user.email?.[0] ?? "?").toUpperCase();
 
-  const initial = (user?.email?.[0] ?? "?").toUpperCase();
+  const usageLabel = !usage ? (
+    ""
+  ) : usage.plan === "pro" ? (
+    <span className="inline-flex items-center gap-3">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+        ✦ Pro — unlimited
+      </span>
+      <a
+        href="https://app.lemonsqueezy.com/my-orders"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+      >
+        Manage subscription
+      </a>
+    </span>
+  ) : (
+    `${Math.max(0, (usage.limit ?? 5) - usage.used)} of ${usage.limit ?? 5} free unmesses left this month`
+  );
 
   return (
     <main className="flex min-h-screen flex-col items-center px-6 pb-12 sm:px-8">
       <header className="flex w-full max-w-2xl items-center justify-end py-5">
-        {user ? (
-          <div className="flex items-center gap-3">
-            <Link
-              to="/today"
-              className="rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              Today
-            </Link>
-            <div className="flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-4 shadow-sm">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-                {initial}
-              </span>
-              <span className="max-w-[160px] truncate text-sm text-foreground">
-                {user.email}
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              Log out
-            </button>
-          </div>
-        ) : (
+        <div className="flex items-center gap-3">
           <Link
-            to="/auth"
-            className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
+            to="/today"
+            className="rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
-            Sign in
+            Today
           </Link>
-        )}
+          <div className="flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-4 shadow-sm">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+              {initial}
+            </span>
+            <span className="max-w-[160px] truncate text-sm text-foreground">
+              {user.email}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            Log out
+          </button>
+        </div>
       </header>
 
       <div className="flex w-full max-w-2xl flex-1 flex-col justify-center">
@@ -206,71 +483,16 @@ function Index() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
-          <label htmlFor="mess-input" className="sr-only">
-            Dump everything on your mind
-          </label>
-          <textarea
-            id="mess-input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Dump everything on your mind…"
-            className="min-h-[180px] w-full resize-y rounded-xl border border-input bg-background p-4 text-base leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30 sm:min-h-[220px] sm:p-5 sm:text-lg"
-          />
-          <div className="mt-4 flex items-center justify-between gap-3 sm:mt-5">
-            {user && usage ? (
-              usage.plan === "pro" ? (
-                <span className="inline-flex items-center gap-3">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                    ✦ Pro — unlimited
-                  </span>
-                  <a
-                    href="https://app.lemonsqueezy.com/my-orders"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                  >
-                    Manage subscription
-                  </a>
-                </span>
-              ) : (
-                <span className="text-xs text-muted-foreground sm:text-sm">
-                  {Math.max(0, (usage.limit ?? 5) - usage.used)} of {usage.limit ?? 5} free
-                  unmesses left this month
-                </span>
-              )
-            ) : (
-              <span />
-            )}
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={status === "loading" || !input.trim()}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-            >
-              {status === "loading" ? (
-                <>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
-                  Unmessing…
-                </>
-              ) : (
-                "Unmess this"
-              )}
-            </button>
-          </div>
-        </div>
+        <UnmessBox
+          user={user}
+          input={input}
+          setInput={setInput}
+          status={status}
+          onSubmit={handleSubmit}
+          usageLabel={usageLabel}
+        />
 
-        {showSignInPrompt && !user && (
-          <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-5 text-center text-sm text-foreground">
-            You've used your free unmess.{" "}
-            <Link to="/auth" className="font-medium text-primary underline-offset-4 hover:underline">
-              Create a free account
-            </Link>{" "}
-            to keep going and save your plans.
-          </div>
-        )}
-
-        {limitReached && user && (
+        {limitReached && (
           <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center">
             <p className="text-sm leading-relaxed text-foreground sm:text-base">
               You've used your 5 free unmesses this month. Upgrade to UNMESS Pro
@@ -299,86 +521,51 @@ function Index() {
           </div>
         )}
 
-        {status === "error" && (
-          <div className="mt-6 rounded-2xl border border-destructive/30 bg-destructive/5 p-5 text-center text-sm text-destructive">
-            Hmm, that didn't work. Take a breath and try again — your text is
-            still right where you left it.
-          </div>
-        )}
+        {status === "error" && <ErrorNote />}
+        {status === "loading" && <LoadingSkeleton />}
 
-        {status === "loading" && (
-          <div className="mt-8 space-y-3">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="h-20 animate-pulse rounded-2xl border border-border bg-card"
-                style={{ animationDelay: `${i * 150}ms` }}
-              />
-            ))}
-          </div>
-        )}
-
-        {status === "idle" && groups.length > 0 && (
-          <div className="mt-10 space-y-8">
-            <div className="flex items-center justify-between gap-4">
+        {status === "idle" && items.length > 0 && (
+          <div className="mt-10">
+            <div className="mb-6 flex items-center justify-between gap-4">
               <h2 className="text-xl font-semibold text-foreground">Your plan</h2>
-              {user ? (
-                <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                  {saveStatus === "saving" && (
-                    <>
-                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-foreground/30 border-t-foreground" />
-                      Saving…
-                    </>
-                  )}
-                  {saveStatus === "saved" && (
-                    <span className="font-medium text-primary">✓ Saved to your account</span>
-                  )}
-                  {saveStatus === "error" && (
-                    <span className="text-destructive">Couldn't save this plan.</span>
-                  )}
-                </span>
-              ) : (
-                <Link
-                  to="/auth"
-                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
-                >
-                  Sign up to save
-                </Link>
-              )}
+              <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                {saveStatus === "saving" && (
+                  <>
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-foreground/30 border-t-foreground" />
+                    Saving…
+                  </>
+                )}
+                {saveStatus === "saved" && (
+                  <span className="font-medium text-primary">✓ Saved to your account</span>
+                )}
+                {saveStatus === "error" && (
+                  <span className="text-destructive">Couldn't save this plan.</span>
+                )}
+              </span>
             </div>
-            {groups.map(({ priority, items: groupItems }) => (
-              <section key={priority}>
-                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                  <span
-                    className={`h-2.5 w-2.5 rounded-full ${priorityMeta[priority].dotClass}`}
-                  />
-                  {priorityMeta[priority].label}
-                </h3>
-                <div className="space-y-3">
-                  {groupItems.map((item, i) => (
-                    <div
-                      key={`${priority}-${i}`}
-                      className="flex items-start justify-between gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"
-                    >
-                      <p className="text-base leading-relaxed text-foreground">
-                        {item.action}
-                      </p>
-                      {item.when && item.when.toLowerCase() !== "no date" && (
-                        <span className="shrink-0 rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
-                          {item.when}
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ))}
+            <ResultGroups items={items} />
           </div>
         )}
 
-        {user && savedPlans && savedPlans.length > 0 && (
-          <section className="mt-14">
-            <h2 className="mb-4 text-xl font-semibold text-foreground">Saved</h2>
+        <section className="mt-14">
+          <h2 className="mb-4 text-xl font-semibold text-foreground">Saved</h2>
+          {plansLoading ? (
+            <div className="space-y-3">
+              {[0, 1].map((i) => (
+                <div
+                  key={i}
+                  className="h-24 animate-pulse rounded-2xl border border-border bg-card"
+                  style={{ animationDelay: `${i * 150}ms` }}
+                />
+              ))}
+            </div>
+          ) : !savedPlans || savedPlans.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border p-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                Nothing saved yet. Unmess something above and it will live here.
+              </p>
+            </div>
+          ) : (
             <div className="space-y-3">
               {savedPlans.map((plan) => (
                 <Link
@@ -404,8 +591,8 @@ function Index() {
                 </Link>
               ))}
             </div>
-          </section>
-        )}
+          )}
+        </section>
       </div>
     </main>
   );
