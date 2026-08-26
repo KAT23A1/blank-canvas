@@ -612,7 +612,7 @@ function AppHome({ user }: { user: User }) {
           <button
             type="button"
             onClick={handleSignOut}
-            className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="glow rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             Log out
           </button>
