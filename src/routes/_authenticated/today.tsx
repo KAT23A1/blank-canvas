@@ -54,6 +54,26 @@ export const Route = createFileRoute("/_authenticated/today")({
     </div>
   ),
   notFoundComponent: () => <div className="p-8 text-center">Not found.</div>,
+  pendingComponent: () => (
+    <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col px-6 pb-16 sm:px-8">
+      <div className="py-5">
+        <div className="h-6 w-28 animate-pulse rounded-lg bg-muted" />
+      </div>
+      <div className="mb-8 mt-4">
+        <div className="h-9 w-32 animate-pulse rounded-lg bg-muted" />
+        <div className="mt-2 h-4 w-48 animate-pulse rounded-lg bg-muted" />
+      </div>
+      <div className="space-y-3">
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="h-20 animate-pulse rounded-2xl border border-border bg-card"
+            style={{ animationDelay: `${i * 150}ms` }}
+          />
+        ))}
+      </div>
+    </main>
+  ),
   component: TodayPage,
 });
 
