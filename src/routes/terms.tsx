@@ -110,6 +110,19 @@ function TermsPage() {
             constitutes acceptance.
           </p>
         </Section>
+
+        <Section title="Contact">
+          <p>
+            Questions about these terms? Email us at{" "}
+            <a
+              href="mailto:icecomparison230@gmail.com"
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
+              icecomparison230@gmail.com
+            </a>
+            .
+          </p>
+        </Section>
       </article>
     </main>
   );
