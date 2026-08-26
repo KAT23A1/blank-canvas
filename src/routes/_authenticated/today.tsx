@@ -4,7 +4,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { listActionItems, togglePlanItem } from "@/lib/plans.functions";
-import { getSubscription, upgradeToPro } from "@/lib/usage.functions";
+import { getSubscription } from "@/lib/usage.functions";
+import { createProCheckout } from "@/lib/billing.functions";
 import { classifyWhen, type Urgency } from "@/lib/dates";
 
 type ActionItem = Awaited<ReturnType<typeof listActionItems>>[number];
@@ -85,18 +86,24 @@ function TodayPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const toggle = useServerFn(togglePlanItem);
-  const upgrade = useServerFn(upgradeToPro);
+  const checkout = useServerFn(createProCheckout);
   const { data: items = [] } = useQuery(todayQueryOptions);
   const { data: subscription } = useQuery(subscriptionQueryOptions);
   const [upgrading, setUpgrading] = useState(false);
+  const [proComingSoon, setProComingSoon] = useState(false);
 
   const groups = groupItems(items);
 
   const handleUpgrade = async () => {
     setUpgrading(true);
+    setProComingSoon(false);
     try {
-      await upgrade();
-      await queryClient.invalidateQueries({ queryKey: ["subscription"] });
+      const result = await checkout();
+      if (result.url) {
+        window.location.href = result.url;
+        return;
+      }
+      setProComingSoon(true);
     } finally {
       setUpgrading(false);
     }
