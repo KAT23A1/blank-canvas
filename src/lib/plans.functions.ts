@@ -59,6 +59,26 @@ export const listPlans = createServerFn({ method: "GET" })
     }));
   });
 
+export const listActionItems = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("plan_items")
+      .select("id, action, when_text, priority, done, sort_order, plans!inner(id, created_at)")
+      .order("sort_order", { ascending: true });
+
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((i) => ({
+      id: i.id as string,
+      action: i.action as string,
+      when: (i.when_text ?? "") as string,
+      priority: i.priority as "high" | "medium" | "low",
+      done: i.done as boolean,
+      planId: (i.plans as unknown as { id: string }).id,
+      planCreatedAt: (i.plans as unknown as { created_at: string }).created_at,
+    }));
+  });
+
 export const getPlan = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ id: z.string() }).parse(data))
