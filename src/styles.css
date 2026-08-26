@@ -145,6 +145,17 @@
   }
 }
 
+@layer components {
+  .glow {
+    @apply transition-all duration-200;
+  }
+
+  .glow:hover:not(:disabled):not([aria-disabled="true"]),
+  .glow:focus-visible:not(:disabled):not([aria-disabled="true"]) {
+    box-shadow: 0 0 20px -4px var(--color-primary);
+  }
+}
+
 /* Spinner used by the Spline scene fallback */
 .loader {
   width: 32px;
