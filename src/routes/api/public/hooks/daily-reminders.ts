@@ -38,7 +38,7 @@ const priorityDot: Record<string, string> = {
 };
 
 function itemRow(item: CandidateItem): string {
-  const dot = priorityDot[item.priority] ?? priorityDot.low;
+  const dot = priorityDot[item.priority] ?? priorityDot["low"];
   const when =
     item.when && item.when.toLowerCase() !== "no date"
       ? `<span style="color:#78716c;font-size:13px;"> — ${escapeHtml(item.when)}</span>`
