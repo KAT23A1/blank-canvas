@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.consume_unmess(uuid) FROM authenticated, anon, PUBLIC;

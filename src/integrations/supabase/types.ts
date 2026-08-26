@@ -76,6 +76,38 @@ export type Database = {
         }
         Relationships: []
       }
+      reminder_sends: {
+        Row: {
+          id: string
+          item_id: string
+          kind: string
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          item_id: string
+          kind: string
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          item_id?: string
+          kind?: string
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminder_sends_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "plan_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           created_at: string
