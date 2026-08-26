@@ -245,6 +245,30 @@ function Index() {
           </div>
         )}
 
+        {limitReached && user && (
+          <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center">
+            <p className="text-sm leading-relaxed text-foreground sm:text-base">
+              You've used your 5 free unmesses this month. Upgrade to UNMESS Pro
+              for unlimited.
+            </p>
+            <button
+              type="button"
+              onClick={handleUpgrade}
+              disabled={upgrading}
+              className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {upgrading ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
+                  Upgrading…
+                </>
+              ) : (
+                "Upgrade to Pro"
+              )}
+            </button>
+          </div>
+        )}
+
         {status === "error" && (
           <div className="mt-6 rounded-2xl border border-destructive/30 bg-destructive/5 p-5 text-center text-sm text-destructive">
             Hmm, that didn't work. Take a breath and try again — your text is
