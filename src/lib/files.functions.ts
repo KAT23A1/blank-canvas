@@ -12,6 +12,16 @@ export const extractFile = createServerFn({ method: "POST" })
       })
       .parse(data),
   )
-  .handler(async ({ data }): Promise<{ text: string }> => ({
-    text: await extractFileText(data),
-  }));
+  .handler(async ({ data }): Promise<{ text: string; error?: string }> => {
+    try {
+      return { text: await extractFileText(data) };
+    } catch (error) {
+      return {
+        text: "",
+        error:
+          error instanceof Error && error.message
+            ? error.message.replace(/^Error:\s*/, "")
+            : "We couldn't read that file. Try another one.",
+      };
+    }
+  });
