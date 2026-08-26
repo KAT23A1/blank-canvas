@@ -75,7 +75,7 @@ function TodayPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const toggle = useServerFn(togglePlanItem);
-  const { data: items } = useQuery({ ...todayQueryOptions, initialData: Route.useLoaderData() });
+  const { data: items = [] } = useQuery(todayQueryOptions);
 
   const groups = groupItems(items);
 
