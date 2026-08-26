@@ -31,7 +31,7 @@ export const Route = createFileRoute("/pricing")({
 
 const freeFeatures = [
   "5 unmesses per calendar month",
-  "AI-powered prioritized plans",
+  "AI-powered prioritised plans",
   "Saved history of every unmess",
   "Today dashboard across all plans",
 ];

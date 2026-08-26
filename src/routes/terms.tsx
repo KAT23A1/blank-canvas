@@ -54,7 +54,7 @@ function TermsPage() {
 
         <Section title="The service">
           <p>
-            UNMESS turns unstructured text you provide into an organized, prioritized
+            UNMESS turns unstructured text you provide into an organised, prioritised
             plan using AI. The output is a best-effort interpretation of your input — you
             are responsible for reviewing it before acting on it.
           </p>
@@ -90,7 +90,7 @@ function TermsPage() {
         <Section title="Your content">
           <p>
             You retain ownership of everything you paste into UNMESS. You grant us a
-            limited license to process and store it solely to provide the service to you.
+            limited licence to process and store it solely to provide the service to you.
           </p>
         </Section>
 
@@ -108,6 +108,19 @@ function TermsPage() {
             We may update these terms as the service evolves. Material changes will be
             announced in the app before they take effect. Continued use after that
             constitutes acceptance.
+          </p>
+        </Section>
+
+        <Section title="Contact">
+          <p>
+            Questions about these terms? Email us at{" "}
+            <a
+              href="mailto:icecomparison230@gmail.com"
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
+              icecomparison230@gmail.com
+            </a>
+            .
           </p>
         </Section>
       </article>

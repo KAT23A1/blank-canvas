@@ -71,7 +71,7 @@ function PrivacyPage() {
 
         <Section title="How we use it">
           <p>
-            Your pasted text is sent to an AI model solely to extract and organize your
+            Your pasted text is sent to an AI model solely to extract and organise your
             action items. We use your email address to sign you in and, if you're a Pro
             member, to send reminder emails about your dated action items.
           </p>
@@ -90,8 +90,14 @@ function PrivacyPage() {
         <Section title="Your choices">
           <p>
             You can delete individual plans and action items at any time. To delete your
-            account and all associated data, contact us and we'll remove everything
-            within 30 days.
+            account and all associated data, contact us at{" "}
+            <a
+              href="mailto:icecomparison230@gmail.com"
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
+              icecomparison230@gmail.com
+            </a>{" "}
+            and we'll remove everything within 30 days.
           </p>
         </Section>
 
@@ -105,8 +111,14 @@ function PrivacyPage() {
 
         <Section title="Contact">
           <p>
-            Questions about this policy? Reach out via the email address shown on your
-            receipts or reminder emails.
+            Questions about this policy? Email us at{" "}
+            <a
+              href="mailto:icecomparison230@gmail.com"
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
+              icecomparison230@gmail.com
+            </a>
+            .
           </p>
         </Section>
       </article>

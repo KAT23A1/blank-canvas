@@ -20,7 +20,7 @@ export function SplineSceneBasic() {
           </h2>
           <p className="mt-4 max-w-md text-muted-foreground">
             Dump the chaos above and this little one turns it into a clean,
-            prioritized plan — high, medium, low. No account needed for your
+            prioritised plan — high, medium, low. No account needed for your
             first unmess.
           </p>
         </div>

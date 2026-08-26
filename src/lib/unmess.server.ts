@@ -33,7 +33,7 @@ export async function callUnmessAI(text: string): Promise<UnmessItem[]> {
           type: "function",
           function: {
             name: "unmess_plan",
-            description: "Return the organized plan extracted from the user's text.",
+            description: "Return the organised plan extracted from the user's text.",
             parameters: {
               type: "object",
               properties: {
