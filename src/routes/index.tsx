@@ -6,6 +6,12 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { unmessText, type UnmessItem } from "@/lib/unmess.functions";
 import { savePlan, listPlans } from "@/lib/plans.functions";
+import {
+  getSubscription,
+  unmessTextAuthed,
+  upgradeToPro,
+  type UsageInfo,
+} from "@/lib/usage.functions";
 
 type Status = "idle" | "loading" | "error";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -47,12 +53,15 @@ function Index() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const fetchPlans = useServerFn(listPlans);
+  const fetchSubscription = useServerFn(getSubscription);
   const [user, setUser] = useState<User | null>(null);
   const [input, setInput] = useState("");
   const [items, setItems] = useState<UnmessItem[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
@@ -68,6 +77,12 @@ function Index() {
   const { data: savedPlans } = useQuery({
     queryKey: ["plans"],
     queryFn: () => fetchPlans(),
+    enabled: !!user,
+  });
+
+  const { data: usage } = useQuery({
+    queryKey: ["subscription"],
+    queryFn: () => fetchSubscription(),
     enabled: !!user,
   });
 
@@ -87,26 +102,50 @@ function Index() {
       return;
     }
     setShowSignInPrompt(false);
+    setLimitReached(false);
     setStatus("loading");
     try {
-      const result = await unmessText({ data: { text } });
-      setItems(result);
-      setStatus("idle");
       if (user) {
+        const result = await unmessTextAuthed({ data: { text } });
+        queryClient.invalidateQueries({ queryKey: ["subscription"] });
+        if (!result.allowed) {
+          setLimitReached(true);
+          setStatus("idle");
+          return;
+        }
+        setItems(result.items);
+        setStatus("idle");
         setSaveStatus("saving");
         try {
-          await savePlan({ data: { rawText: text, items: result } });
+          await savePlan({ data: { rawText: text, items: result.items } });
           setSaveStatus("saved");
           queryClient.invalidateQueries({ queryKey: ["plans"] });
         } catch {
           setSaveStatus("error");
         }
       } else {
+        const result = await unmessText({ data: { text } });
+        setItems(result);
+        setStatus("idle");
         setSaveStatus("idle");
         localStorage.setItem(FREE_UNMESS_KEY, "1");
       }
     } catch {
       setStatus("error");
+    }
+  };
+
+  const handleUpgrade = async () => {
+    if (upgrading) return;
+    setUpgrading(true);
+    try {
+      await upgradeToPro();
+      setLimitReached(false);
+      queryClient.invalidateQueries({ queryKey: ["subscription"] });
+    } catch {
+      // leave the prompt in place; user can retry
+    } finally {
+      setUpgrading(false);
     }
   };
 
@@ -177,7 +216,21 @@ function Index() {
             placeholder="Dump everything on your mind…"
             className="min-h-[180px] w-full resize-y rounded-xl border border-input bg-background p-4 text-base leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30 sm:min-h-[220px] sm:p-5 sm:text-lg"
           />
-          <div className="mt-4 flex items-center justify-end sm:mt-5">
+          <div className="mt-4 flex items-center justify-between gap-3 sm:mt-5">
+            {user && usage ? (
+              usage.plan === "pro" ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  ✦ Pro — unlimited
+                </span>
+              ) : (
+                <span className="text-xs text-muted-foreground sm:text-sm">
+                  {Math.max(0, (usage.limit ?? 5) - usage.used)} of {usage.limit ?? 5} free
+                  unmesses left this month
+                </span>
+              )
+            ) : (
+              <span />
+            )}
             <button
               type="button"
               onClick={handleSubmit}
@@ -203,6 +256,30 @@ function Index() {
               Create a free account
             </Link>{" "}
             to keep going and save your plans.
+          </div>
+        )}
+
+        {limitReached && user && (
+          <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center">
+            <p className="text-sm leading-relaxed text-foreground sm:text-base">
+              You've used your 5 free unmesses this month. Upgrade to UNMESS Pro
+              for unlimited.
+            </p>
+            <button
+              type="button"
+              onClick={handleUpgrade}
+              disabled={upgrading}
+              className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {upgrading ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
+                  Upgrading…
+                </>
+              ) : (
+                "Upgrade to Pro"
+              )}
+            </button>
           </div>
         )}
 

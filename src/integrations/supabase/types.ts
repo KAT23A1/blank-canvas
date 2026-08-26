@@ -76,12 +76,44 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          created_at: string
+          id: string
+          period_start: string
+          plan: string
+          unmess_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          period_start?: string
+          plan?: string
+          unmess_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          period_start?: string
+          plan?: string
+          unmess_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      consume_unmess:
+        | { Args: never; Returns: Json }
+        | { Args: { _user_id: string }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
