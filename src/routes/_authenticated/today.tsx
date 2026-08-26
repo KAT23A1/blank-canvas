@@ -163,7 +163,7 @@ function TodayPage() {
           <button
             type="button"
             onClick={handleSignOut}
-            className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="glow rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             Log out
           </button>
@@ -213,7 +213,7 @@ function TodayPage() {
                   type="button"
                   onClick={handleUpgrade}
                   disabled={upgrading}
-                  className="shrink-0 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-60"
+                  className="glow shrink-0 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-60"
                 >
                   {upgrading ? "One moment…" : "Upgrade to Pro"}
                 </button>
@@ -236,7 +236,7 @@ function TodayPage() {
           </p>
           <Link
             to="/"
-            className="mt-5 inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90"
+            className="glow mt-5 inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90"
           >
             Unmess something
           </Link>
@@ -307,7 +307,7 @@ function Section({
                 type="button"
                 onClick={() => onToggle(item)}
                 aria-label={`Mark "${item.action}" as done`}
-                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-muted-foreground/40 text-transparent transition-colors hover:border-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+                className="glow flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-muted-foreground/40 text-transparent transition-colors hover:border-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
               >
                 ✓
               </button>
@@ -329,7 +329,7 @@ function Section({
               <Link
                 to="/plans/$planId"
                 params={{ planId: item.planId }}
-                className="shrink-0 rounded-full px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                className="glow shrink-0 rounded-full px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 View
               </Link>

@@ -194,7 +194,7 @@ function ItemRow({
         onClick={onToggle}
         aria-label={item.done ? "Mark as not done" : "Mark as done"}
         aria-pressed={item.done}
-        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring ${
+        className={`glow mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring ${
           item.done
             ? "border-primary bg-primary text-primary-foreground"
             : "border-input bg-background hover:border-primary"
@@ -238,7 +238,7 @@ function ItemRow({
         type="button"
         onClick={onDelete}
         aria-label="Delete item"
-        className="shrink-0 rounded-full p-1.5 text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive focus:outline-none focus:ring-2 focus:ring-ring"
+        className="glow shrink-0 rounded-full p-1.5 text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive focus:outline-none focus:ring-2 focus:ring-ring"
       >
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path

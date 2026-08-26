@@ -194,6 +194,12 @@ function UnmessBox({
         id="mess-input"
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            if (canSubmit) onSubmit(attachment?.text);
+          }
+        }}
         placeholder="Dump everything on your mind…"
         className="min-h-[160px] w-full resize-y rounded-xl border border-input bg-background p-4 text-base leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30 sm:min-h-[220px] sm:p-5 sm:text-lg"
       />
@@ -226,7 +232,7 @@ function UnmessBox({
                 type="button"
                 aria-label={`Remove ${attachment.name}`}
                 onClick={() => setAttachment(null)}
-                className="shrink-0 rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+                className="glow shrink-0 rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -246,7 +252,7 @@ function UnmessBox({
             disabled={reading}
             aria-label="Attach a file"
             title="Attach an image, PDF, .txt or .docx"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
+            className="glow inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
           >
             <Paperclip className="h-4 w-4" />
           </button>
@@ -256,7 +262,7 @@ function UnmessBox({
           type="button"
           onClick={() => onSubmit(attachment?.text)}
           disabled={status === "loading" || reading || !canSubmit}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          className="glow inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
           {status === "loading" ? (
             <>
@@ -361,7 +367,7 @@ function Landing() {
         <span className="text-lg font-bold tracking-tight text-foreground">UNMESS</span>
         <Link
           to="/auth"
-          className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
+          className="glow rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
         >
           Sign in
         </Link>
@@ -408,7 +414,7 @@ function Landing() {
               <h2 className="text-xl font-semibold text-foreground">Your plan</h2>
               <Link
                 to="/auth"
-                className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
+                className="glow inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
               >
                 Sign up to save
               </Link>
@@ -447,7 +453,7 @@ function Landing() {
               </ul>
               <Link
                 to="/auth"
-                className="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+                className="glow mt-6 inline-flex w-full items-center justify-center rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
               >
                 Sign up free
               </Link>
@@ -468,7 +474,7 @@ function Landing() {
               </ul>
               <Link
                 to="/auth"
-                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                className="glow mt-6 inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
               >
                 Upgrade to Pro
               </Link>
@@ -606,7 +612,7 @@ function AppHome({ user }: { user: User }) {
           <button
             type="button"
             onClick={handleSignOut}
-            className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="glow rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             Log out
           </button>
@@ -642,7 +648,7 @@ function AppHome({ user }: { user: User }) {
               type="button"
               onClick={handleUpgrade}
               disabled={upgrading}
-              className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="glow mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {upgrading ? (
                 <>
