@@ -6,6 +6,12 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { unmessText, type UnmessItem } from "@/lib/unmess.functions";
 import { savePlan, listPlans } from "@/lib/plans.functions";
+import {
+  getSubscription,
+  unmessTextAuthed,
+  upgradeToPro,
+  type UsageInfo,
+} from "@/lib/usage.functions";
 
 type Status = "idle" | "loading" | "error";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -47,6 +53,7 @@ function Index() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const fetchPlans = useServerFn(listPlans);
+  const fetchSubscription = useServerFn(getSubscription);
   const [user, setUser] = useState<User | null>(null);
   const [input, setInput] = useState("");
   const [items, setItems] = useState<UnmessItem[]>([]);
