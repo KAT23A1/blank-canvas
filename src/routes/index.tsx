@@ -232,7 +232,7 @@ function UnmessBox({
                 type="button"
                 aria-label={`Remove ${attachment.name}`}
                 onClick={() => setAttachment(null)}
-                className="shrink-0 rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+                className="glow shrink-0 rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
