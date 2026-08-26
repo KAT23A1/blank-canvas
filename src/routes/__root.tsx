@@ -127,6 +127,22 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function SiteFooter() {
+  return (
+    <footer className="flex items-center justify-center gap-5 px-6 pb-8 pt-4 text-xs text-muted-foreground">
+      <Link to="/pricing" className="underline-offset-4 transition-colors hover:text-foreground hover:underline">
+        Pricing
+      </Link>
+      <Link to="/privacy" className="underline-offset-4 transition-colors hover:text-foreground hover:underline">
+        Privacy
+      </Link>
+      <Link to="/terms" className="underline-offset-4 transition-colors hover:text-foreground hover:underline">
+        Terms
+      </Link>
+    </footer>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
@@ -134,6 +150,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <SiteFooter />
     </QueryClientProvider>
   );
 }
