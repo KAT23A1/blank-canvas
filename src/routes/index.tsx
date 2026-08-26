@@ -281,6 +281,11 @@ function Index() {
                 "Upgrade to Pro"
               )}
             </button>
+            {proComingSoon && (
+              <p className="mt-3 text-sm text-muted-foreground">
+                Pro is coming soon — we're putting the finishing touches on checkout.
+              </p>
+            )}
           </div>
         )}
 
