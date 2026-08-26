@@ -194,6 +194,12 @@ function UnmessBox({
         id="mess-input"
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            if (canSubmit) onSubmit(attachment?.text);
+          }
+        }}
         placeholder="Dump everything on your mind…"
         className="min-h-[160px] w-full resize-y rounded-xl border border-input bg-background p-4 text-base leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30 sm:min-h-[220px] sm:p-5 sm:text-lg"
       />
