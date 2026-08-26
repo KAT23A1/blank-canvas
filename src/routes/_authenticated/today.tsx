@@ -192,8 +192,8 @@ function TodayPage() {
                 </div>
               </div>
               <ManageSubscriptionButton
-                className="shrink-0 rounded-full px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-60"
-                noteClassName="px-3 text-xs text-muted-foreground"
+                className="glow inline-flex shrink-0 items-center justify-center rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground shadow-sm transition-all hover:bg-accent hover:shadow-md disabled:opacity-60"
+                noteClassName="text-xs text-muted-foreground"
               />
             </div>
           ) : (
