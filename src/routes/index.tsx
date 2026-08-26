@@ -252,7 +252,7 @@ function UnmessBox({
             disabled={reading}
             aria-label="Attach a file"
             title="Attach an image, PDF, .txt or .docx"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
+            className="glow inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
           >
             <Paperclip className="h-4 w-4" />
           </button>
