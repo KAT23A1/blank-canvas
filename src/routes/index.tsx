@@ -225,7 +225,7 @@ function Landing() {
     <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-6 pb-12 sm:px-8">
       {/* Ambient 3D background — subtle so the calm look stays intact */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-30"
+        className="pointer-events-none absolute inset-0 -z-10 opacity-30"
         aria-hidden="true"
       >
         <SplineScene
