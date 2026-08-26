@@ -372,7 +372,9 @@ function Landing() {
   return (
     <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-6 pb-12 sm:px-8">
       <header className="flex w-full max-w-2xl items-center justify-between py-5">
-        <span className="text-lg font-bold tracking-tight text-foreground">UNMESS</span>
+        <Link to="/" className="bounce-button text-base">
+          UNMESS
+        </Link>
         <Link
           to="/auth"
           className="glow rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"

@@ -88,11 +88,8 @@ function SettingsPage() {
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Home
         </Link>
-        <Link
-          to="/today"
-          className="rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-        >
-          Today
+        <Link to="/today" className="bounce-button">
+          TODAY
         </Link>
       </header>
 
