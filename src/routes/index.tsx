@@ -1,9 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { unmessText, type UnmessItem } from "@/lib/unmess.functions";
-import { savePlan } from "@/lib/plans.functions";
+import { savePlan, listPlans } from "@/lib/plans.functions";
 
 type Status = "idle" | "loading" | "error";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -43,12 +45,13 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const fetchPlans = useServerFn(listPlans);
   const [user, setUser] = useState<User | null>(null);
   const [input, setInput] = useState("");
   const [items, setItems] = useState<UnmessItem[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
-  const [savedText, setSavedText] = useState<string | null>(null);
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
 
   useEffect(() => {
@@ -62,7 +65,15 @@ function Index() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const { data: savedPlans } = useQuery({
+    queryKey: ["plans"],
+    queryFn: () => fetchPlans(),
+    enabled: !!user,
+  });
+
   const handleSignOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
     await supabase.auth.signOut();
     setUser(null);
     navigate({ to: "/", replace: true });
@@ -80,27 +91,22 @@ function Index() {
     try {
       const result = await unmessText({ data: { text } });
       setItems(result);
-      setSavedText(text);
-      setSaveStatus("idle");
       setStatus("idle");
-      if (!user) localStorage.setItem(FREE_UNMESS_KEY, "1");
+      if (user) {
+        setSaveStatus("saving");
+        try {
+          await savePlan({ data: { rawText: text, items: result } });
+          setSaveStatus("saved");
+          queryClient.invalidateQueries({ queryKey: ["plans"] });
+        } catch {
+          setSaveStatus("error");
+        }
+      } else {
+        setSaveStatus("idle");
+        localStorage.setItem(FREE_UNMESS_KEY, "1");
+      }
     } catch {
       setStatus("error");
-    }
-  };
-
-  const handleSave = async () => {
-    if (!user) {
-      navigate({ to: "/auth" });
-      return;
-    }
-    if (saveStatus === "saving" || saveStatus === "saved" || !savedText) return;
-    setSaveStatus("saving");
-    try {
-      await savePlan({ data: { rawText: savedText, items } });
-      setSaveStatus("saved");
-    } catch {
-      setSaveStatus("error");
     }
   };
 
@@ -217,32 +223,29 @@ function Index() {
           <div className="mt-10 space-y-8">
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-xl font-semibold text-foreground">Your plan</h2>
-              <div className="flex items-center gap-3">
-                {saveStatus === "error" && (
-                  <span className="text-xs text-destructive">
-                    Couldn't save — try again.
-                  </span>
-                )}
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={saveStatus === "saving" || saveStatus === "saved"}
-                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-all hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {saveStatus === "saving" ? (
+              {user ? (
+                <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                  {saveStatus === "saving" && (
                     <>
                       <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-foreground/30 border-t-foreground" />
                       Saving…
                     </>
-                  ) : saveStatus === "saved" ? (
-                    <>✓ Saved</>
-                  ) : user ? (
-                    "Save plan"
-                  ) : (
-                    "Sign up to save"
                   )}
-                </button>
-              </div>
+                  {saveStatus === "saved" && (
+                    <span className="font-medium text-primary">✓ Saved to your account</span>
+                  )}
+                  {saveStatus === "error" && (
+                    <span className="text-destructive">Couldn't save this plan.</span>
+                  )}
+                </span>
+              ) : (
+                <Link
+                  to="/auth"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
+                >
+                  Sign up to save
+                </Link>
+              )}
             </div>
             {groups.map(({ priority, items: groupItems }) => (
               <section key={priority}>
@@ -272,6 +275,37 @@ function Index() {
               </section>
             ))}
           </div>
+        )}
+
+        {user && savedPlans && savedPlans.length > 0 && (
+          <section className="mt-14">
+            <h2 className="mb-4 text-xl font-semibold text-foreground">Saved</h2>
+            <div className="space-y-3">
+              {savedPlans.map((plan) => (
+                <Link
+                  key={plan.id}
+                  to="/plans/$planId"
+                  params={{ planId: plan.id }}
+                  className="block rounded-2xl border border-border bg-card p-4 shadow-sm transition-colors hover:bg-accent/50 sm:p-5"
+                >
+                  <p className="line-clamp-2 text-base leading-relaxed text-foreground">
+                    {plan.rawText}
+                  </p>
+                  <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                    <span>
+                      {new Date(plan.createdAt).toLocaleString(undefined, {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
+                    </span>
+                    <span className="shrink-0 rounded-full bg-secondary px-2.5 py-0.5 font-medium text-secondary-foreground">
+                      {plan.doneCount}/{plan.total} done
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
         )}
       </div>
     </main>
