@@ -453,7 +453,7 @@ function Landing() {
               </ul>
               <Link
                 to="/auth"
-                className="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+                className="glow mt-6 inline-flex w-full items-center justify-center rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
               >
                 Sign up free
               </Link>
