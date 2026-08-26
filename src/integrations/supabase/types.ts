@@ -111,7 +111,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      consume_unmess: { Args: { _user_id: string }; Returns: Json }
+      consume_unmess:
+        | { Args: never; Returns: Json }
+        | { Args: { _user_id: string }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
