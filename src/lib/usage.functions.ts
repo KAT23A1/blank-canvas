@@ -42,8 +42,14 @@ export const unmessTextAuthed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ text: z.string().min(1) }).parse(data))
   .handler(async ({ context, data }): Promise<UnmessAuthedResult> => {
-    const { data: result, error } = await context.supabase.rpc("consume_unmess");
+    const { data: raw, error } = await context.supabase.rpc("consume_unmess");
     if (error) throw new Error(error.message);
+    const result = raw as {
+      allowed?: boolean;
+      plan?: string;
+      used?: number;
+      limit?: number | null;
+    } | null;
 
     const usage = {
       plan: (result?.plan === "pro" ? "pro" : "free") as "free" | "pro",
