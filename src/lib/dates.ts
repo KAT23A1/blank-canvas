@@ -46,9 +46,16 @@ export function parseWhen(when: string): Date | null {
     }
   }
 
-  // Fall back to native parsing for strings like "Aug 30" or "2026-09-01"
-  const parsed = Date.parse(when);
-  if (!Number.isNaN(parsed)) return startOfDay(new Date(parsed));
+  // Fall back to native parsing for strings like "Aug 30" or "2026-09-01".
+  // If extra words ("by noon", "evening") break parsing, trim trailing words and retry.
+  let candidate = when.trim();
+  while (candidate) {
+    const parsed = Date.parse(candidate);
+    if (!Number.isNaN(parsed)) return startOfDay(new Date(parsed));
+    const trimmed = candidate.replace(/\s+\S+$/, "");
+    if (trimmed === candidate) break;
+    candidate = trimmed;
+  }
 
   return null;
 }
