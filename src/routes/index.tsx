@@ -496,8 +496,6 @@ function Landing() {
           </p>
         </section>
       </div>
-
-      {showTour && <Tour steps={TOUR_STEPS} onClose={finishTour} />}
     </main>
   );
 }
@@ -772,6 +770,8 @@ function AppHome({ user }: { user: User }) {
           )}
         </section>
       </div>
+
+      {showTour && <Tour steps={TOUR_STEPS} onClose={finishTour} />}
     </main>
   );
 }
