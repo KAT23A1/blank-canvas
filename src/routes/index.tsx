@@ -6,12 +6,8 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { unmessText, type UnmessItem } from "@/lib/unmess.functions";
 import { savePlan, listPlans } from "@/lib/plans.functions";
-import {
-  getSubscription,
-  unmessTextAuthed,
-  upgradeToPro,
-  type UsageInfo,
-} from "@/lib/usage.functions";
+import { getSubscription, unmessTextAuthed } from "@/lib/usage.functions";
+import { createProCheckout } from "@/lib/billing.functions";
 
 type Status = "idle" | "loading" | "error";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -62,6 +58,7 @@ function Index() {
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
   const [upgrading, setUpgrading] = useState(false);
+  const [proComingSoon, setProComingSoon] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
@@ -138,10 +135,14 @@ function Index() {
   const handleUpgrade = async () => {
     if (upgrading) return;
     setUpgrading(true);
+    setProComingSoon(false);
     try {
-      await upgradeToPro();
-      setLimitReached(false);
-      queryClient.invalidateQueries({ queryKey: ["subscription"] });
+      const result = await createProCheckout();
+      if (result.url) {
+        window.location.href = result.url;
+        return;
+      }
+      setProComingSoon(true);
     } catch {
       // leave the prompt in place; user can retry
     } finally {
@@ -219,8 +220,18 @@ function Index() {
           <div className="mt-4 flex items-center justify-between gap-3 sm:mt-5">
             {user && usage ? (
               usage.plan === "pro" ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                  ✦ Pro — unlimited
+                <span className="inline-flex items-center gap-3">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    ✦ Pro — unlimited
+                  </span>
+                  <a
+                    href="https://app.lemonsqueezy.com/my-orders"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                  >
+                    Manage subscription
+                  </a>
                 </span>
               ) : (
                 <span className="text-xs text-muted-foreground sm:text-sm">
@@ -280,6 +291,11 @@ function Index() {
                 "Upgrade to Pro"
               )}
             </button>
+            {proComingSoon && (
+              <p className="mt-3 text-sm text-muted-foreground">
+                Pro is coming soon — we're putting the finishing touches on checkout.
+              </p>
+            )}
           </div>
         )}
 

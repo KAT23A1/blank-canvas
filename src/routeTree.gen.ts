@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedTodayRouteImport } from './routes/_authenticated/today'
 import { Route as AuthenticatedPlansPlanIdRouteImport } from './routes/_authenticated/plans.$planId'
 import { Route as ApiPublicHooksDailyRemindersRouteImport } from './routes/api/public/hooks/daily-reminders'
+import { Route as ApiPublicHooksLemonsqueezyRouteImport } from './routes/api/public/hooks/lemonsqueezy'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,6 +48,12 @@ const ApiPublicHooksDailyRemindersRoute =
     path: '/api/public/hooks/daily-reminders',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksLemonsqueezyRoute =
+  ApiPublicHooksLemonsqueezyRouteImport.update({
+    id: '/api/public/hooks/lemonsqueezy',
+    path: '/api/public/hooks/lemonsqueezy',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByFullPath {
   '/today': typeof AuthenticatedTodayRoute
   '/plans/$planId': typeof AuthenticatedPlansPlanIdRoute
   '/api/public/hooks/daily-reminders': typeof ApiPublicHooksDailyRemindersRoute
+  '/api/public/hooks/lemonsqueezy': typeof ApiPublicHooksLemonsqueezyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,6 +69,7 @@ export interface FileRoutesByTo {
   '/today': typeof AuthenticatedTodayRoute
   '/plans/$planId': typeof AuthenticatedPlansPlanIdRoute
   '/api/public/hooks/daily-reminders': typeof ApiPublicHooksDailyRemindersRoute
+  '/api/public/hooks/lemonsqueezy': typeof ApiPublicHooksLemonsqueezyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,6 +79,7 @@ export interface FileRoutesById {
   '/_authenticated/today': typeof AuthenticatedTodayRoute
   '/_authenticated/plans/$planId': typeof AuthenticatedPlansPlanIdRoute
   '/api/public/hooks/daily-reminders': typeof ApiPublicHooksDailyRemindersRoute
+  '/api/public/hooks/lemonsqueezy': typeof ApiPublicHooksLemonsqueezyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -79,6 +89,7 @@ export interface FileRouteTypes {
     | '/today'
     | '/plans/$planId'
     | '/api/public/hooks/daily-reminders'
+    | '/api/public/hooks/lemonsqueezy'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -86,6 +97,7 @@ export interface FileRouteTypes {
     | '/today'
     | '/plans/$planId'
     | '/api/public/hooks/daily-reminders'
+    | '/api/public/hooks/lemonsqueezy'
   id:
     | '__root__'
     | '/'
@@ -94,6 +106,7 @@ export interface FileRouteTypes {
     | '/_authenticated/today'
     | '/_authenticated/plans/$planId'
     | '/api/public/hooks/daily-reminders'
+    | '/api/public/hooks/lemonsqueezy'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -101,6 +114,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ApiPublicHooksDailyRemindersRoute: typeof ApiPublicHooksDailyRemindersRoute
+  ApiPublicHooksLemonsqueezyRoute: typeof ApiPublicHooksLemonsqueezyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -147,6 +161,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksDailyRemindersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/lemonsqueezy': {
+      id: '/api/public/hooks/lemonsqueezy'
+      path: '/api/public/hooks/lemonsqueezy'
+      fullPath: '/api/public/hooks/lemonsqueezy'
+      preLoaderRoute: typeof ApiPublicHooksLemonsqueezyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -168,6 +189,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiPublicHooksDailyRemindersRoute: ApiPublicHooksDailyRemindersRoute,
+  ApiPublicHooksLemonsqueezyRoute: ApiPublicHooksLemonsqueezyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

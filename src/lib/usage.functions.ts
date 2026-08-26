@@ -65,13 +65,3 @@ export const unmessTextAuthed = createServerFn({ method: "POST" })
     return { allowed: true, items, usage };
   });
 
-export const upgradeToPro = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<UsageInfo> => {
-    const { error } = await context.supabase
-      .from("subscriptions")
-      .update({ plan: "pro" })
-      .eq("user_id", context.userId);
-    if (error) throw new Error(error.message);
-    return { plan: "pro", used: 0, limit: null };
-  });

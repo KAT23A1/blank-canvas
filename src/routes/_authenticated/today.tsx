@@ -4,7 +4,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { listActionItems, togglePlanItem } from "@/lib/plans.functions";
-import { getSubscription, upgradeToPro } from "@/lib/usage.functions";
+import { getSubscription } from "@/lib/usage.functions";
+import { createProCheckout } from "@/lib/billing.functions";
 import { classifyWhen, type Urgency } from "@/lib/dates";
 
 type ActionItem = Awaited<ReturnType<typeof listActionItems>>[number];
@@ -85,18 +86,24 @@ function TodayPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const toggle = useServerFn(togglePlanItem);
-  const upgrade = useServerFn(upgradeToPro);
+  const checkout = useServerFn(createProCheckout);
   const { data: items = [] } = useQuery(todayQueryOptions);
   const { data: subscription } = useQuery(subscriptionQueryOptions);
   const [upgrading, setUpgrading] = useState(false);
+  const [proComingSoon, setProComingSoon] = useState(false);
 
   const groups = groupItems(items);
 
   const handleUpgrade = async () => {
     setUpgrading(true);
+    setProComingSoon(false);
     try {
-      await upgrade();
-      await queryClient.invalidateQueries({ queryKey: ["subscription"] });
+      const result = await checkout();
+      if (result.url) {
+        window.location.href = result.url;
+        return;
+      }
+      setProComingSoon(true);
     } finally {
       setUpgrading(false);
     }
@@ -151,34 +158,51 @@ function TodayPage() {
       {subscription && (
         <div className="mb-10">
           {subscription.plan === "pro" ? (
-            <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-              <span aria-hidden className="mt-0.5 text-base">🔔</span>
-              <div>
-                <p className="text-sm font-medium text-foreground">Reminders on</p>
-                <p className="mt-0.5 text-sm text-muted-foreground">
-                  We'll email you the morning something is due — and the day before.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-border bg-card/60 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+            <div className="flex items-start justify-between gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
               <div className="flex items-start gap-3">
-                <span aria-hidden className="mt-0.5 text-base opacity-60">🔒</span>
+                <span aria-hidden className="mt-0.5 text-base">🔔</span>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Reminders</p>
+                  <p className="text-sm font-medium text-foreground">Reminders on</p>
                   <p className="mt-0.5 text-sm text-muted-foreground">
-                    Get an email the morning something is due, and the day before. A Pro feature.
+                    We'll email you the morning something is due — and the day before.
                   </p>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={handleUpgrade}
-                disabled={upgrading}
-                className="shrink-0 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-60"
+              <a
+                href="https://app.lemonsqueezy.com/my-orders"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 rounded-full px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
-                {upgrading ? "Upgrading…" : "Upgrade to Pro"}
-              </button>
+                Manage subscription
+              </a>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-border bg-card/60 p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-3">
+                  <span aria-hidden className="mt-0.5 text-base opacity-60">🔒</span>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Reminders</p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">
+                      Get an email the morning something is due, and the day before. A Pro feature.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleUpgrade}
+                  disabled={upgrading}
+                  className="shrink-0 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-60"
+                >
+                  {upgrading ? "One moment…" : "Upgrade to Pro"}
+                </button>
+              </div>
+              {proComingSoon && (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Pro is coming soon — we're putting the finishing touches on checkout.
+                </p>
+              )}
             </div>
           )}
         </div>
