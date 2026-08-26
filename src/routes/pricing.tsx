@@ -185,7 +185,7 @@ function PricingPage() {
                   type="button"
                   onClick={handleUpgrade}
                   disabled={upgrading}
-                  className="glow mt-7 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-60"
+                  className="upgrade-cta mt-7 w-full"
                 >
                   {upgrading && (
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />

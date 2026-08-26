@@ -129,15 +129,30 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function SiteFooter() {
   return (
-    <footer className="flex items-center justify-center gap-5 px-6 pb-8 pt-4 text-xs text-muted-foreground">
-      <Link to="/pricing" className="underline-offset-4 transition-colors hover:text-foreground hover:underline">
+    <footer className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 px-6 pb-8 pt-4 text-sm">
+      <Link
+        to="/pricing"
+        className="font-semibold text-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
+      >
         Pricing
       </Link>
-      <Link to="/privacy" className="underline-offset-4 transition-colors hover:text-foreground hover:underline">
+      <Link
+        to="/privacy"
+        className="font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline"
+      >
         Privacy
       </Link>
-      <Link to="/terms" className="underline-offset-4 transition-colors hover:text-foreground hover:underline">
+      <Link
+        to="/terms"
+        className="font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline"
+      >
         Terms
+      </Link>
+      <Link
+        to="/settings"
+        className="font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline"
+      >
+        Settings
       </Link>
     </footer>
   );
