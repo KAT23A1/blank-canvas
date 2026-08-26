@@ -156,6 +156,10 @@ function UnmessBox({
       const { text } = await extractFile({
         data: { name: file.name, mimeType: file.type || "application/octet-stream", base64 },
       });
+      if (!text) {
+        setFileError("We couldn't read that file. Try another one.");
+        return;
+      }
       setAttachment({ name: file.name, text });
     } catch (err) {
       setFileError(
