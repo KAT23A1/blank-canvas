@@ -102,26 +102,50 @@ function Index() {
       return;
     }
     setShowSignInPrompt(false);
+    setLimitReached(false);
     setStatus("loading");
     try {
-      const result = await unmessText({ data: { text } });
-      setItems(result);
-      setStatus("idle");
       if (user) {
+        const result = await unmessTextAuthed({ data: { text } });
+        queryClient.invalidateQueries({ queryKey: ["subscription"] });
+        if (!result.allowed) {
+          setLimitReached(true);
+          setStatus("idle");
+          return;
+        }
+        setItems(result.items);
+        setStatus("idle");
         setSaveStatus("saving");
         try {
-          await savePlan({ data: { rawText: text, items: result } });
+          await savePlan({ data: { rawText: text, items: result.items } });
           setSaveStatus("saved");
           queryClient.invalidateQueries({ queryKey: ["plans"] });
         } catch {
           setSaveStatus("error");
         }
       } else {
+        const result = await unmessText({ data: { text } });
+        setItems(result);
+        setStatus("idle");
         setSaveStatus("idle");
         localStorage.setItem(FREE_UNMESS_KEY, "1");
       }
     } catch {
       setStatus("error");
+    }
+  };
+
+  const handleUpgrade = async () => {
+    if (upgrading) return;
+    setUpgrading(true);
+    try {
+      await upgradeToPro();
+      setLimitReached(false);
+      queryClient.invalidateQueries({ queryKey: ["subscription"] });
+    } catch {
+      // leave the prompt in place; user can retry
+    } finally {
+      setUpgrading(false);
     }
   };
 
