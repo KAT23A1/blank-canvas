@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { GradientBackground } from "@/components/ui/gradient-backgrounds";
 
 function NotFoundComponent() {
   return (
@@ -119,7 +120,7 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="bg-background text-foreground antialiased">
         {children}
         <Scripts />
       </body>
@@ -129,7 +130,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function SiteFooter() {
   return (
-    <footer className="flex items-center justify-center gap-5 px-6 pb-8 pt-4 text-xs text-muted-foreground">
+    <footer className="relative flex items-center justify-center gap-5 px-6 pb-8 pt-4 text-xs text-muted-foreground">
       <Link to="/pricing" className="underline-offset-4 transition-colors hover:text-foreground hover:underline">
         Pricing
       </Link>
@@ -148,6 +149,8 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      {/* Global decorative gradient background — spans every page. */}
+      <GradientBackground intensity="subtle" />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <SiteFooter />
