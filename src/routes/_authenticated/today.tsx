@@ -41,7 +41,11 @@ export const Route = createFileRoute("/_authenticated/today")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(todayQueryOptions),
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(todayQueryOptions),
+      context.queryClient.ensureQueryData(subscriptionQueryOptions),
+    ]),
   errorComponent: ({ error }) => (
     <div role="alert" className="p-8 text-center text-sm text-destructive">
       Couldn't load your items: {error.message}
@@ -80,9 +84,22 @@ function TodayPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const toggle = useServerFn(togglePlanItem);
+  const upgrade = useServerFn(upgradeToPro);
   const { data: items = [] } = useQuery(todayQueryOptions);
+  const { data: subscription } = useQuery(subscriptionQueryOptions);
+  const [upgrading, setUpgrading] = useState(false);
 
   const groups = groupItems(items);
+
+  const handleUpgrade = async () => {
+    setUpgrading(true);
+    try {
+      await upgrade();
+      await queryClient.invalidateQueries({ queryKey: ["subscription"] });
+    } finally {
+      setUpgrading(false);
+    }
+  };
 
   const handleToggle = async (item: ActionItem) => {
     await toggle({ data: { itemId: item.id, done: true } });
