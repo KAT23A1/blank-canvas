@@ -86,12 +86,75 @@ function Index() {
           <div className="mt-4 flex items-center justify-end sm:mt-5">
             <button
               type="button"
-              className="inline-flex w-full items-center justify-center rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] sm:w-auto"
+              onClick={handleSubmit}
+              disabled={status === "loading" || !input.trim()}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             >
-              Unmess this
+              {status === "loading" ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
+                  Unmessing…
+                </>
+              ) : (
+                "Unmess this"
+              )}
             </button>
           </div>
         </div>
+
+        {status === "error" && (
+          <div className="mt-6 rounded-2xl border border-destructive/30 bg-destructive/5 p-5 text-center text-sm text-destructive">
+            Hmm, that didn't work. Take a breath and try again — your text is
+            still right where you left it.
+          </div>
+        )}
+
+        {status === "loading" && (
+          <div className="mt-8 space-y-3">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="h-20 animate-pulse rounded-2xl border border-border bg-card"
+                style={{ animationDelay: `${i * 150}ms` }}
+              />
+            ))}
+          </div>
+        )}
+
+        {status === "idle" && groups.length > 0 && (
+          <div className="mt-10 space-y-8">
+            <h2 className="text-center text-xl font-semibold text-foreground">
+              Your plan
+            </h2>
+            {groups.map(({ priority, items: groupItems }) => (
+              <section key={priority}>
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                  <span
+                    className={`h-2.5 w-2.5 rounded-full ${priorityMeta[priority].dotClass}`}
+                  />
+                  {priorityMeta[priority].label}
+                </h3>
+                <div className="space-y-3">
+                  {groupItems.map((item, i) => (
+                    <div
+                      key={`${priority}-${i}`}
+                      className="flex items-start justify-between gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"
+                    >
+                      <p className="text-base leading-relaxed text-foreground">
+                        {item.action}
+                      </p>
+                      {item.when && item.when.toLowerCase() !== "no date" && (
+                        <span className="shrink-0 rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
+                          {item.when}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );
