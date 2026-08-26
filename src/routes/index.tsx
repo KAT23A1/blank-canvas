@@ -619,29 +619,30 @@ function AppHome({ user }: { user: User }) {
 
   return (
     <main className="flex min-h-screen flex-col items-center px-6 pb-12 sm:px-8">
-      <header className="flex w-full max-w-2xl items-center justify-end py-5">
-        <div className="flex items-center gap-3">
+      <header className="flex w-full max-w-2xl flex-wrap items-center justify-end gap-y-2 py-5">
+        <div className="flex min-w-0 flex-wrap items-center justify-end gap-2 sm:gap-3">
           <Link
             to="/today"
             data-tour="today-link"
-            className="rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="shrink-0 rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             Today
           </Link>
           <Link
             to="/settings"
-            className="rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="shrink-0 rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             Settings
           </Link>
-          <div className="flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-4 shadow-sm">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+          <div className="flex min-w-0 items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-4 shadow-sm">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
               {initial}
             </span>
-            <span className="max-w-[160px] truncate text-sm text-foreground">
+            <span className="max-w-[120px] truncate text-sm text-foreground sm:max-w-[160px]">
               {user.email}
             </span>
           </div>
+
           <button
             type="button"
             onClick={handleSignOut}
