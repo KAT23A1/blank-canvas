@@ -54,8 +54,7 @@ function groupItems(items: ActionItem[]) {
   };
   const urgencyOrder: Record<Urgency, number> = { overdue: 0, today: 1, upcoming: 2, someday: 3 };
   for (const item of open) {
-    const { urgency, date } = classifyWhen(item.when);
-    item._date = date;
+    const { urgency } = classifyWhen(item.when);
     if (urgency === "overdue" || urgency === "today") groups.attention.push(item);
     else if (urgency === "upcoming") groups.upcoming.push(item);
     else groups.someday.push(item);
