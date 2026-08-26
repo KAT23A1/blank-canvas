@@ -6,12 +6,8 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { unmessText, type UnmessItem } from "@/lib/unmess.functions";
 import { savePlan, listPlans } from "@/lib/plans.functions";
-import {
-  getSubscription,
-  unmessTextAuthed,
-  upgradeToPro,
-  type UsageInfo,
-} from "@/lib/usage.functions";
+import { getSubscription, unmessTextAuthed } from "@/lib/usage.functions";
+import { createProCheckout } from "@/lib/billing.functions";
 
 type Status = "idle" | "loading" | "error";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
