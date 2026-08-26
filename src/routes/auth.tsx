@@ -88,10 +88,7 @@ function AuthPage() {
     <main className="flex min-h-screen flex-col items-center justify-center px-6 py-12 sm:px-8">
       <div className="w-full max-w-md">
         <div className="mb-10 text-center">
-          <Link
-            to="/"
-            className="text-3xl font-bold tracking-tight text-foreground transition-opacity hover:opacity-80"
-          >
+          <Link to="/" className="bounce-button text-2xl px-5 py-2.5">
             UNMESS
           </Link>
           <p className="mt-2 text-muted-foreground">
