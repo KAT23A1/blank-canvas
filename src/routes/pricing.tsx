@@ -6,6 +6,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { getSubscription } from "@/lib/usage.functions";
 import { createProCheckout } from "@/lib/billing.functions";
+import { ManageSubscriptionButton } from "@/components/manage-subscription";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -171,14 +172,12 @@ function PricingPage() {
                 Sign up, then upgrade
               </Link>
             ) : isPro ? (
-              <a
-                href="https://app.lemonsqueezy.com/my-orders"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="glow mt-7 inline-flex w-full items-center justify-center rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
-              >
-                Manage subscription
-              </a>
+              <div className="mt-7 w-full">
+                <ManageSubscriptionButton
+                  className="glow inline-flex w-full items-center justify-center rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent disabled:opacity-60"
+                  noteClassName="mt-2 w-full text-center text-xs text-muted-foreground"
+                />
+              </div>
             ) : (
               <>
                 <button

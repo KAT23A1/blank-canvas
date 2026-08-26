@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { tourStorageKey, TOUR_REPLAY_KEY } from "@/components/tour";
 import { getSubscription } from "@/lib/usage.functions";
 import { createProCheckout } from "@/lib/billing.functions";
+import { ManageSubscriptionButton } from "@/components/manage-subscription";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
@@ -128,14 +129,10 @@ function SettingsPage() {
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1.5 text-sm font-semibold text-primary">
               ✦ Pro
             </span>
-            <a
-              href="https://app.lemonsqueezy.com/my-orders"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
-            >
-              Manage subscription
-            </a>
+            <ManageSubscriptionButton
+              className="glow text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline disabled:opacity-60"
+              noteClassName="text-xs text-muted-foreground"
+            />
           </div>
         ) : (
           <div className="mt-3">

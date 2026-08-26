@@ -7,6 +7,7 @@ import { listActionItems, togglePlanItem } from "@/lib/plans.functions";
 import { getSubscription } from "@/lib/usage.functions";
 import { createProCheckout } from "@/lib/billing.functions";
 import { classifyWhen, type Urgency } from "@/lib/dates";
+import { ManageSubscriptionButton } from "@/components/manage-subscription";
 
 type ActionItem = Awaited<ReturnType<typeof listActionItems>>[number];
 
@@ -190,14 +191,10 @@ function TodayPage() {
                   </p>
                 </div>
               </div>
-              <a
-                href="https://app.lemonsqueezy.com/my-orders"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="shrink-0 rounded-full px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              >
-                Manage subscription
-              </a>
+              <ManageSubscriptionButton
+                className="shrink-0 rounded-full px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-60"
+                noteClassName="px-3 text-xs text-muted-foreground"
+              />
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-border bg-card/60 p-4 sm:p-5">
