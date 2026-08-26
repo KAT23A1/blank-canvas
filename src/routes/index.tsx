@@ -11,6 +11,8 @@ import { createProCheckout } from "@/lib/billing.functions";
 import { Paperclip, X } from "lucide-react";
 import { extractFile } from "@/lib/files.functions";
 import { SplineSceneBasic } from "@/components/spline-scene-basic";
+import { RotatingTagline } from "@/components/rotating-tagline";
+import { Tour, TOUR_STEPS, TOUR_REPLAY_KEY, tourStorageKey } from "@/components/tour";
 
 type Status = "idle" | "loading" | "error";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -176,6 +178,7 @@ function UnmessBox({
 
   return (
     <div
+      data-tour="paste-box"
       onDragOver={(e) => {
         e.preventDefault();
         setDragging(true);
@@ -264,6 +267,7 @@ function UnmessBox({
         </div>
         <button
           type="button"
+          data-tour="unmess-button"
           onClick={() => onSubmit(attachment?.text)}
           disabled={status === "loading" || reading || !canSubmit}
           className="glow inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
@@ -384,8 +388,9 @@ function Landing() {
             <br />
             Your plan doesn't have to be.
           </h1>
-          <p className="mx-auto mt-4 max-w-md text-lg text-muted-foreground">
-            Paste the mess — tasks, deadlines, errands, reminders — and get a
+          <RotatingTagline className="mt-4 text-lg text-muted-foreground sm:text-xl" />
+          <p className="mx-auto mt-3 max-w-md text-base text-muted-foreground">
+            Tasks, deadlines, errands, documents, screenshots — turned into a
             clean, prioritized plan. Try it right now, no account needed.
           </p>
         </div>
@@ -509,6 +514,23 @@ function AppHome({ user }: { user: User }) {
   const [limitReached, setLimitReached] = useState(false);
   const [upgrading, setUpgrading] = useState(false);
   const [proComingSoon, setProComingSoon] = useState(false);
+  const [showTour, setShowTour] = useState(false);
+
+  useEffect(() => {
+    const key = tourStorageKey(user.id);
+    const replay = localStorage.getItem(TOUR_REPLAY_KEY);
+    if (replay) localStorage.removeItem(TOUR_REPLAY_KEY);
+    if (replay || !localStorage.getItem(key)) {
+      const t = setTimeout(() => setShowTour(true), 500);
+      return () => clearTimeout(t);
+    }
+    return undefined;
+  }, [user.id]);
+
+  const finishTour = () => {
+    localStorage.setItem(tourStorageKey(user.id), "1");
+    setShowTour(false);
+  };
 
   const { data: savedPlans, isLoading: plansLoading } = useQuery({
     queryKey: ["plans"],
@@ -597,30 +619,36 @@ function AppHome({ user }: { user: User }) {
 
   return (
     <main className="flex min-h-screen flex-col items-center px-6 pb-12 sm:px-8">
-      <header className="flex w-full max-w-2xl items-center justify-end py-5">
-        <div className="flex items-center gap-3">
+      <header className="flex w-full max-w-2xl flex-col items-end gap-2 py-5 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
+        <div className="flex min-w-0 max-w-full items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-4 shadow-sm sm:order-2">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+            {initial}
+          </span>
+          <span className="truncate text-sm text-foreground">{user.email}</span>
+        </div>
+        <div className="flex shrink-0 items-center gap-1 sm:order-1 sm:gap-3">
           <Link
             to="/today"
-            className="rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            data-tour="today-link"
+            className="whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             Today
           </Link>
-          <div className="flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-4 shadow-sm">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-              {initial}
-            </span>
-            <span className="max-w-[160px] truncate text-sm text-foreground">
-              {user.email}
-            </span>
-          </div>
+          <Link
+            to="/settings"
+            className="whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            Settings
+          </Link>
           <button
             type="button"
             onClick={handleSignOut}
-            className="glow rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="glow whitespace-nowrap rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:order-3"
           >
             Log out
           </button>
         </div>
+
       </header>
 
       <div className="flex w-full max-w-2xl flex-1 flex-col justify-center">
@@ -628,9 +656,7 @@ function AppHome({ user }: { user: User }) {
           <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
             UNMESS
           </h1>
-          <p className="mt-3 text-lg text-muted-foreground sm:text-xl">
-            Paste the mess. Get the plan.
-          </p>
+          <RotatingTagline className="mt-3 text-lg text-muted-foreground sm:text-xl" />
         </div>
 
         <UnmessBox
@@ -697,7 +723,7 @@ function AppHome({ user }: { user: User }) {
           </div>
         )}
 
-        <section className="mt-14">
+        <section className="mt-14" data-tour="saved-section">
           <h2 className="mb-4 text-xl font-semibold text-foreground">Saved</h2>
           {plansLoading ? (
             <div className="space-y-3">
@@ -744,6 +770,8 @@ function AppHome({ user }: { user: User }) {
           )}
         </section>
       </div>
+
+      {showTour && <Tour steps={TOUR_STEPS} onClose={finishTour} />}
     </main>
   );
 }
