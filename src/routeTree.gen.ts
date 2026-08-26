@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedTodayRouteImport } from './routes/_authenticated/today'
 import { Route as AuthenticatedPlansPlanIdRouteImport } from './routes/_authenticated/plans.$planId'
+import { Route as ApiPublicHooksDailyRemindersRouteImport } from './routes/api/public/hooks/daily-reminders'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,18 +41,26 @@ const AuthenticatedPlansPlanIdRoute =
     path: '/plans/$planId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicHooksDailyRemindersRoute =
+  ApiPublicHooksDailyRemindersRouteImport.update({
+    id: '/api/public/hooks/daily-reminders',
+    path: '/api/public/hooks/daily-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/today': typeof AuthenticatedTodayRoute
   '/plans/$planId': typeof AuthenticatedPlansPlanIdRoute
+  '/api/public/hooks/daily-reminders': typeof ApiPublicHooksDailyRemindersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/today': typeof AuthenticatedTodayRoute
   '/plans/$planId': typeof AuthenticatedPlansPlanIdRoute
+  '/api/public/hooks/daily-reminders': typeof ApiPublicHooksDailyRemindersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -60,12 +69,23 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/today': typeof AuthenticatedTodayRoute
   '/_authenticated/plans/$planId': typeof AuthenticatedPlansPlanIdRoute
+  '/api/public/hooks/daily-reminders': typeof ApiPublicHooksDailyRemindersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/today' | '/plans/$planId'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/today'
+    | '/plans/$planId'
+    | '/api/public/hooks/daily-reminders'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/today' | '/plans/$planId'
+  to:
+    | '/'
+    | '/auth'
+    | '/today'
+    | '/plans/$planId'
+    | '/api/public/hooks/daily-reminders'
   id:
     | '__root__'
     | '/'
@@ -73,12 +93,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/today'
     | '/_authenticated/plans/$planId'
+    | '/api/public/hooks/daily-reminders'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicHooksDailyRemindersRoute: typeof ApiPublicHooksDailyRemindersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -118,6 +140,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlansPlanIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/hooks/daily-reminders': {
+      id: '/api/public/hooks/daily-reminders'
+      path: '/api/public/hooks/daily-reminders'
+      fullPath: '/api/public/hooks/daily-reminders'
+      preLoaderRoute: typeof ApiPublicHooksDailyRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -138,6 +167,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicHooksDailyRemindersRoute: ApiPublicHooksDailyRemindersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
