@@ -178,6 +178,50 @@
   .upgrade-cta:disabled {
     @apply cursor-not-allowed opacity-60;
   }
+
+  /* Bouncy button — makes an element unmistakably look and feel like a clickable button */
+  .bounce-button {
+    @apply inline-flex items-center justify-center rounded-full border border-border bg-card px-4 py-2 text-sm font-bold text-foreground shadow-sm;
+    animation: bouncey 1.6s ease-in-out infinite;
+    transition: box-shadow 0.2s ease, background-color 0.2s ease;
+  }
+
+  .bounce-button:hover {
+    background-color: var(--color-accent);
+    box-shadow: 0 0 20px -4px var(--color-primary);
+  }
+
+  .bounce-button:active {
+    animation: bouncey-press 0.35s ease-in-out;
+  }
+
+  @keyframes bouncey {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    25% {
+      transform: translateY(-5px);
+    }
+    50% {
+      transform: translateY(0);
+    }
+    75% {
+      transform: translateY(-3px);
+    }
+  }
+
+  @keyframes bouncey-press {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.95);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
 }
 
 /* Spinner used by the Spline scene fallback */
