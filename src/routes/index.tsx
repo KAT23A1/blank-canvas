@@ -9,6 +9,7 @@ import { savePlan, listPlans } from "@/lib/plans.functions";
 import { getSubscription, unmessTextAuthed } from "@/lib/usage.functions";
 import { createProCheckout } from "@/lib/billing.functions";
 import { SplineScene } from "@/components/ui/splite";
+import { GradientBackground } from "@/components/ui/gradient-backgrounds";
 
 type Status = "idle" | "loading" | "error";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
