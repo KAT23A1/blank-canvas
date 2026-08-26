@@ -13,14 +13,15 @@ export function SplineSceneBasic() {
         {/* Left content */}
         <div className="relative z-10 flex flex-1 flex-col justify-center p-8">
           <span className="mb-4 w-fit rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-            Interactive 3D
+            Meet your un-messer
           </span>
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Bring your UI to life
+            Your mess, sorted.
           </h2>
           <p className="mt-4 max-w-md text-muted-foreground">
-            Beautiful 3D scenes create immersive experiences that capture
-            attention and enhance your design.
+            Dump the chaos above and this little one turns it into a clean,
+            prioritized plan — high, medium, low. No account needed for your
+            first unmess.
           </p>
         </div>
 
