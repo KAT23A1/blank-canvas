@@ -8,8 +8,7 @@ import { unmessText, type UnmessItem } from "@/lib/unmess.functions";
 import { savePlan, listPlans } from "@/lib/plans.functions";
 import { getSubscription, unmessTextAuthed } from "@/lib/usage.functions";
 import { createProCheckout } from "@/lib/billing.functions";
-import { SplineScene } from "@/components/ui/splite";
-import { GradientBackground } from "@/components/ui/gradient-backgrounds";
+import { SplineSceneBasic } from "@/components/spline-scene-basic";
 
 type Status = "idle" | "loading" | "error";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -223,94 +222,59 @@ function Landing() {
   };
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-6 sm:px-8">
-      {/* Seamless backdrop: robot scene + radial gradients, no hard edges */}
-      <div className="absolute inset-0" aria-hidden>
-        <SplineScene
-          scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-          className="h-full w-full"
-        />
-        <GradientBackground />
-        {/* Blend the scene into the page background at every edge */}
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-background to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-background to-transparent" />
-        <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background/70 to-transparent" />
-        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background/70 to-transparent" />
-      </div>
-
-      <header className="relative z-10 flex w-full max-w-5xl items-center justify-between py-5">
+    <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-6 pb-12 sm:px-8">
+      <header className="flex w-full max-w-2xl items-center justify-between py-5">
         <span className="text-lg font-bold tracking-tight text-foreground">UNMESS</span>
         <Link
           to="/auth"
-          className="rounded-full border border-border/60 bg-card/50 px-4 py-2 text-sm font-medium text-foreground backdrop-blur-md transition-colors hover:bg-accent"
+          className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
         >
           Sign in
         </Link>
       </header>
 
-      <div className="relative z-10 flex w-full max-w-5xl flex-1 flex-col justify-center py-8">
-        <div className="grid w-full gap-8 lg:grid-cols-2 lg:items-center">
-          {/* Words to the side — minimal */}
-          <div className="flex flex-col justify-center">
-            <h1 className="text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
-              Paste the mess.
-              <br />
-              Get the plan.
-            </h1>
-            <p className="mt-4 max-w-sm text-sm text-muted-foreground sm:text-base">
-              Drop your chaos here. UNMESS turns it into a clean, prioritized plan.
-            </p>
-            <div className="mt-6 flex items-center gap-3">
-              <Link
-                to="/pricing"
-                className="text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
-              >
-                Free vs Pro
-              </Link>
-            </div>
-          </div>
-
-          {/* AI interface floating on the backdrop — soft glass, no hard frame */}
-          <div className="rounded-3xl border border-border/40 bg-card/40 p-4 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-5">
-            <UnmessBox
-              user={null}
-              input={input}
-              setInput={setInput}
-              status={status}
-              onSubmit={handleSubmit}
-              usageLabel="First unmess is free"
-            />
-          </div>
+      <div className="w-full max-w-2xl">
+        <div className="mb-10 mt-8 text-center sm:mb-12 sm:mt-14">
+          <h1 className="text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
+            Your brain is messy.
+            <br />
+            Your plan doesn't have to be.
+          </h1>
+          <p className="mx-auto mt-4 max-w-md text-lg text-muted-foreground">
+            Paste the mess — tasks, deadlines, errands, reminders — and get a
+            clean, prioritized plan. Try it right now, no account needed.
+          </p>
         </div>
 
+        <UnmessBox
+          user={null}
+          input={input}
+          setInput={setInput}
+          status={status}
+          onSubmit={handleSubmit}
+          usageLabel="First unmess is free — no account needed"
+        />
+
         {showSignInPrompt && (
-          <div className="mt-6 w-full rounded-2xl border border-primary/30 bg-primary/10 p-4 text-center text-sm text-foreground backdrop-blur-md">
-            Free unmess used.{" "}
+          <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-5 text-center text-sm text-foreground">
+            You've used your free unmess.{" "}
             <Link to="/auth" className="font-medium text-primary underline-offset-4 hover:underline">
               Create a free account
             </Link>{" "}
-            to keep going.
+            to keep going and save your plans.
           </div>
         )}
 
-        {status === "error" && (
-          <div className="mt-4 w-full">
-            <ErrorNote />
-          </div>
-        )}
-        {status === "loading" && (
-          <div className="mt-4 w-full">
-            <LoadingSkeleton />
-          </div>
-        )}
+        {status === "error" && <ErrorNote />}
+        {status === "loading" && <LoadingSkeleton />}
 
         {status === "idle" && items.length > 0 && (
-          <div className="mt-6 w-full">
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <h2 className="text-lg font-semibold text-foreground">Your plan</h2>
+          <div className="mt-10">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <h2 className="text-xl font-semibold text-foreground">Your plan</h2>
               <Link
                 to="/auth"
-                className="inline-flex items-center gap-2 rounded-xl border border-border/60 bg-card/50 px-4 py-2 text-sm font-medium text-foreground backdrop-blur-md transition-colors hover:bg-accent"
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
               >
                 Sign up to save
               </Link>
@@ -318,16 +282,71 @@ function Landing() {
             <ResultGroups items={items} />
           </div>
         )}
-      </div>
 
-      <footer className="relative z-10 flex w-full max-w-5xl items-center justify-between py-5 text-xs text-muted-foreground">
-        <span>UNMESS</span>
-        <div className="flex items-center gap-4">
-          <Link to="/pricing" className="transition-colors hover:text-foreground">Pricing</Link>
-          <Link to="/privacy" className="transition-colors hover:text-foreground">Privacy</Link>
-          <Link to="/terms" className="transition-colors hover:text-foreground">Terms</Link>
-        </div>
-      </footer>
+        {/* Interactive 3D showcase */}
+        <section className="mt-20">
+          <SplineSceneBasic />
+        </section>
+
+        {/* Free vs Pro */}
+        <section className="mt-20">
+          <h2 className="text-center text-2xl font-bold tracking-tight text-foreground">
+            Simple pricing
+          </h2>
+          <p className="mt-2 text-center text-sm text-muted-foreground">
+            Start free. Upgrade when life gets messier.
+          </p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                Free
+              </p>
+              <p className="mt-2 text-3xl font-bold text-foreground">
+                $0
+                <span className="text-base font-normal text-muted-foreground">/month</span>
+              </p>
+              <ul className="mt-4 space-y-2 text-sm text-foreground">
+                <li>5 unmesses per month</li>
+                <li>Prioritized action plans</li>
+                <li>Saved history</li>
+                <li>Today dashboard</li>
+              </ul>
+              <Link
+                to="/auth"
+                className="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+              >
+                Sign up free
+              </Link>
+            </div>
+            <div className="rounded-2xl border border-primary/40 bg-card p-6 shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+                Pro
+              </p>
+              <p className="mt-2 text-3xl font-bold text-foreground">
+                $5
+                <span className="text-base font-normal text-muted-foreground">/month</span>
+              </p>
+              <ul className="mt-4 space-y-2 text-sm text-foreground">
+                <li>Unlimited unmesses</li>
+                <li>Everything in Free</li>
+                <li>Email reminders for dated items</li>
+                <li>Support an indie tool</li>
+              </ul>
+              <Link
+                to="/auth"
+                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+              >
+                Upgrade to Pro
+              </Link>
+            </div>
+          </div>
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            <Link to="/pricing" className="underline-offset-4 hover:underline">
+              Compare plans in detail
+            </Link>
+          </p>
+        </section>
+      </div>
     </main>
   );
 }
