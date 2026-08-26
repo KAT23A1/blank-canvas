@@ -15,7 +15,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     selector: '[data-tour="unmess-button"]',
     title: "Then unmess it",
-    body: "Hit Unmess this (or just press Enter) and you'll get a clean, prioritized plan.",
+    body: "Hit Unmess this (or just press Enter) and you'll get a clean, prioritised plan.",
   },
   {
     selector: '[data-tour="today-link"]',

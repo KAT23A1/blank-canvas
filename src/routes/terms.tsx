@@ -54,7 +54,7 @@ function TermsPage() {
 
         <Section title="The service">
           <p>
-            UNMESS turns unstructured text you provide into an organized, prioritized
+            UNMESS turns unstructured text you provide into an organised, prioritised
             plan using AI. The output is a best-effort interpretation of your input — you
             are responsible for reviewing it before acting on it.
           </p>
@@ -90,7 +90,7 @@ function TermsPage() {
         <Section title="Your content">
           <p>
             You retain ownership of everything you paste into UNMESS. You grant us a
-            limited license to process and store it solely to provide the service to you.
+            limited licence to process and store it solely to provide the service to you.
           </p>
         </Section>
 

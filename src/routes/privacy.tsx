@@ -71,7 +71,7 @@ function PrivacyPage() {
 
         <Section title="How we use it">
           <p>
-            Your pasted text is sent to an AI model solely to extract and organize your
+            Your pasted text is sent to an AI model solely to extract and organise your
             action items. We use your email address to sign you in and, if you're a Pro
             member, to send reminder emails about your dated action items.
           </p>

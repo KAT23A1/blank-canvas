@@ -35,13 +35,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Your brain is messy. Your plan doesn't have to be. UNMESS turns unstructured thoughts into a clean, prioritized plan.",
+          "Your brain is messy. Your plan doesn't have to be. UNMESS turns unstructured thoughts into a clean, prioritised plan.",
       },
       { property: "og:title", content: "UNMESS — Paste the mess. Get the plan." },
       {
         property: "og:description",
         content:
-          "Your brain is messy. Your plan doesn't have to be. UNMESS turns unstructured thoughts into a clean, prioritized plan.",
+          "Your brain is messy. Your plan doesn't have to be. UNMESS turns unstructured thoughts into a clean, prioritised plan.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -393,7 +393,7 @@ function Landing() {
           <RotatingTagline className="mt-4 text-lg text-muted-foreground sm:text-xl" />
           <p className="mx-auto mt-3 max-w-md text-base text-muted-foreground">
             Tasks, deadlines, errands, documents, screenshots — turned into a
-            clean, prioritized plan. Try it right now, no account needed.
+            clean, prioritised plan. Try it right now, no account needed.
           </p>
         </div>
 
