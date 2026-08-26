@@ -173,6 +173,33 @@ function AuthPage() {
               />
             </div>
 
+            {mode === "sign-up" && (
+              <label className="flex items-start gap-3 text-sm text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-input accent-[hsl(var(--primary))]"
+                />
+                <span>
+                  I agree to the{" "}
+                  <Link
+                    to="/terms"
+                    className="font-medium text-primary underline-offset-4 hover:underline"
+                  >
+                    Terms
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    to="/privacy"
+                    className="font-medium text-primary underline-offset-4 hover:underline"
+                  >
+                    Privacy Policy
+                  </Link>
+                </span>
+              </label>
+            )}
+
             {message && (
               <div
                 className={`rounded-xl border p-4 text-sm ${
@@ -187,7 +214,7 @@ function AuthPage() {
 
             <button
               type="submit"
-              disabled={busy !== null}
+              disabled={busy !== null || (mode === "sign-up" && !agreed)}
               className="glow inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {busy === "email" && (
