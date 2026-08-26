@@ -154,6 +154,30 @@
   .glow:focus-visible:not(:disabled):not([aria-disabled="true"]) {
     box-shadow: 0 0 20px -4px var(--color-primary);
   }
+
+  /* Prominent "Upgrade to Pro" call-to-action — the most obvious action for free users */
+  .upgrade-cta {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-7 py-3.5 text-base font-bold text-primary-foreground transition-all duration-200;
+    box-shadow:
+      0 10px 28px -8px var(--color-primary),
+      0 3px 10px -4px var(--color-primary);
+  }
+
+  .upgrade-cta:hover:not(:disabled):not([aria-disabled="true"]),
+  .upgrade-cta:focus-visible:not(:disabled):not([aria-disabled="true"]) {
+    box-shadow:
+      0 14px 36px -8px var(--color-primary),
+      0 0 24px -4px var(--color-primary);
+    transform: translateY(-1px);
+  }
+
+  .upgrade-cta:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .upgrade-cta:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
 }
 
 /* Spinner used by the Spline scene fallback */
