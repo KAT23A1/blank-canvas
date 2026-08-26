@@ -223,53 +223,67 @@ function Landing() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-6 sm:px-8">
-      <header className="flex w-full max-w-5xl items-center justify-between py-4">
+      {/* Seamless backdrop: robot scene + radial gradients, no hard edges */}
+      <div className="absolute inset-0" aria-hidden>
+        <SplineScene
+          scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+          className="h-full w-full"
+        />
+        <GradientBackground />
+        {/* Blend the scene into the page background at every edge */}
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-background to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-background to-transparent" />
+        <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background/70 to-transparent" />
+        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background/70 to-transparent" />
+      </div>
+
+      <header className="relative z-10 flex w-full max-w-5xl items-center justify-between py-5">
         <span className="text-lg font-bold tracking-tight text-foreground">UNMESS</span>
         <Link
           to="/auth"
-          className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
+          className="rounded-full border border-border/60 bg-card/50 px-4 py-2 text-sm font-medium text-foreground backdrop-blur-md transition-colors hover:bg-accent"
         >
           Sign in
         </Link>
       </header>
 
-      <div className="flex w-full max-w-5xl flex-1 flex-col items-center justify-center py-6">
-        <div className="grid w-full gap-6 lg:grid-cols-[1fr_1.25fr] lg:items-center">
+      <div className="relative z-10 flex w-full max-w-5xl flex-1 flex-col justify-center py-8">
+        <div className="grid w-full gap-8 lg:grid-cols-2 lg:items-center">
           {/* Words to the side — minimal */}
           <div className="flex flex-col justify-center">
-            <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+            <h1 className="text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
               Paste the mess.
               <br />
               Get the plan.
             </h1>
-            <p className="mt-3 max-w-sm text-sm text-muted-foreground sm:text-base">
+            <p className="mt-4 max-w-sm text-sm text-muted-foreground sm:text-base">
               Drop your chaos here. UNMESS turns it into a clean, prioritized plan.
             </p>
+            <div className="mt-6 flex items-center gap-3">
+              <Link
+                to="/pricing"
+                className="text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+              >
+                Free vs Pro
+              </Link>
+            </div>
           </div>
 
-          {/* AI interface + 3D scene in one contained card */}
-          <div className="rounded-3xl border border-border bg-card/80 p-4 shadow-xl backdrop-blur-sm sm:p-5">
-            <div className="relative h-[180px] overflow-hidden rounded-2xl border border-border bg-background/50 sm:h-[220px]">
-              <SplineScene
-                scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-                className="h-full w-full"
-              />
-            </div>
-            <div className="mt-4">
-              <UnmessBox
-                user={null}
-                input={input}
-                setInput={setInput}
-                status={status}
-                onSubmit={handleSubmit}
-                usageLabel="First unmess is free"
-              />
-            </div>
+          {/* AI interface floating on the backdrop — soft glass, no hard frame */}
+          <div className="rounded-3xl border border-border/40 bg-card/40 p-4 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-5">
+            <UnmessBox
+              user={null}
+              input={input}
+              setInput={setInput}
+              status={status}
+              onSubmit={handleSubmit}
+              usageLabel="First unmess is free"
+            />
           </div>
         </div>
 
         {showSignInPrompt && (
-          <div className="mt-6 w-full max-w-5xl rounded-2xl border border-primary/30 bg-primary/5 p-4 text-center text-sm text-foreground">
+          <div className="mt-6 w-full rounded-2xl border border-primary/30 bg-primary/10 p-4 text-center text-sm text-foreground backdrop-blur-md">
             Free unmess used.{" "}
             <Link to="/auth" className="font-medium text-primary underline-offset-4 hover:underline">
               Create a free account
@@ -279,23 +293,23 @@ function Landing() {
         )}
 
         {status === "error" && (
-          <div className="mt-4 w-full max-w-5xl">
+          <div className="mt-4 w-full">
             <ErrorNote />
           </div>
         )}
         {status === "loading" && (
-          <div className="mt-4 w-full max-w-5xl">
+          <div className="mt-4 w-full">
             <LoadingSkeleton />
           </div>
         )}
 
         {status === "idle" && items.length > 0 && (
-          <div className="mt-6 w-full max-w-5xl">
+          <div className="mt-6 w-full">
             <div className="mb-4 flex items-center justify-between gap-4">
               <h2 className="text-lg font-semibold text-foreground">Your plan</h2>
               <Link
                 to="/auth"
-                className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
+                className="inline-flex items-center gap-2 rounded-xl border border-border/60 bg-card/50 px-4 py-2 text-sm font-medium text-foreground backdrop-blur-md transition-colors hover:bg-accent"
               >
                 Sign up to save
               </Link>
@@ -303,23 +317,16 @@ function Landing() {
             <ResultGroups items={items} />
           </div>
         )}
-
-        {/* Compact pricing */}
-        <section className="mt-10 w-full max-w-5xl">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Free</p>
-              <p className="mt-1 text-2xl font-bold text-foreground">$0<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
-              <p className="mt-2 text-xs text-muted-foreground">5 unmesses/month</p>
-            </div>
-            <div className="rounded-2xl border border-primary/40 bg-card p-4 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-wide text-primary">Pro</p>
-              <p className="mt-1 text-2xl font-bold text-foreground">$5<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
-              <p className="mt-2 text-xs text-muted-foreground">Unlimited + reminders</p>
-            </div>
-          </div>
-        </section>
       </div>
+
+      <footer className="relative z-10 flex w-full max-w-5xl items-center justify-between py-5 text-xs text-muted-foreground">
+        <span>UNMESS</span>
+        <div className="flex items-center gap-4">
+          <Link to="/pricing" className="transition-colors hover:text-foreground">Pricing</Link>
+          <Link to="/privacy" className="transition-colors hover:text-foreground">Privacy</Link>
+          <Link to="/terms" className="transition-colors hover:text-foreground">Terms</Link>
+        </div>
+      </footer>
     </main>
   );
 }
