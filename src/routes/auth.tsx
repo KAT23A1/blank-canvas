@@ -106,7 +106,7 @@ function AuthPage() {
             type="button"
             onClick={handleGoogle}
             disabled={busy !== null}
-            className="inline-flex w-full items-center justify-center gap-3 rounded-xl border border-input bg-background px-5 py-3 text-base font-medium text-foreground shadow-sm transition-all hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            className="glow inline-flex w-full items-center justify-center gap-3 rounded-xl border border-input bg-background px-5 py-3 text-base font-medium text-foreground shadow-sm transition-all hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy === "google" ? (
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-foreground/30 border-t-foreground" />
@@ -189,7 +189,7 @@ function AuthPage() {
             <button
               type="submit"
               disabled={busy !== null}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="glow inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {busy === "email" && (
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
@@ -209,7 +209,7 @@ function AuthPage() {
                   setMode("sign-up");
                   setMessage(null);
                 }}
-                className="font-medium text-primary underline-offset-4 hover:underline"
+                className="glow font-medium text-primary underline-offset-4 hover:underline"
               >
                 Create an account
               </button>
@@ -223,7 +223,7 @@ function AuthPage() {
                   setMode("sign-in");
                   setMessage(null);
                 }}
-                className="font-medium text-primary underline-offset-4 hover:underline"
+                className="glow font-medium text-primary underline-offset-4 hover:underline"
               >
                 Sign in
               </button>
