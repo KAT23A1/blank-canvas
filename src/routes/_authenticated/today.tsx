@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { listActionItems, togglePlanItem } from "@/lib/plans.functions";
+import { getSubscription, upgradeToPro } from "@/lib/usage.functions";
 import { classifyWhen, type Urgency } from "@/lib/dates";
 
 type ActionItem = Awaited<ReturnType<typeof listActionItems>>[number];
@@ -16,6 +17,11 @@ const priorityDot: Record<ActionItem["priority"], string> = {
 const todayQueryOptions = {
   queryKey: ["today-items"],
   queryFn: () => listActionItems(),
+};
+
+const subscriptionQueryOptions = {
+  queryKey: ["subscription"],
+  queryFn: () => getSubscription(),
 };
 
 export const Route = createFileRoute("/_authenticated/today")({
