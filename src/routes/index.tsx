@@ -58,6 +58,7 @@ function Index() {
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
   const [upgrading, setUpgrading] = useState(false);
+  const [proComingSoon, setProComingSoon] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
@@ -134,10 +135,14 @@ function Index() {
   const handleUpgrade = async () => {
     if (upgrading) return;
     setUpgrading(true);
+    setProComingSoon(false);
     try {
-      await upgradeToPro();
-      setLimitReached(false);
-      queryClient.invalidateQueries({ queryKey: ["subscription"] });
+      const result = await createProCheckout();
+      if (result.url) {
+        window.location.href = result.url;
+        return;
+      }
+      setProComingSoon(true);
     } catch {
       // leave the prompt in place; user can retry
     } finally {
