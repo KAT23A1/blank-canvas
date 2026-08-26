@@ -101,7 +101,7 @@ function PricingPage() {
           ) : (
             <Link
               to="/auth"
-              className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
+              className="glow rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
             >
               Sign in
             </Link>
@@ -138,7 +138,7 @@ function PricingPage() {
             {!user ? (
               <Link
                 to="/auth"
-                className="mt-7 inline-flex w-full items-center justify-center rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+                className="glow mt-7 inline-flex w-full items-center justify-center rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
               >
                 Sign up free
               </Link>
@@ -166,7 +166,7 @@ function PricingPage() {
             {!user ? (
               <Link
                 to="/auth"
-                className="mt-7 inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                className="glow mt-7 inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
               >
                 Sign up, then upgrade
               </Link>
@@ -175,7 +175,7 @@ function PricingPage() {
                 href="https://app.lemonsqueezy.com/my-orders"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-7 inline-flex w-full items-center justify-center rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+                className="glow mt-7 inline-flex w-full items-center justify-center rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
               >
                 Manage subscription
               </a>
@@ -185,7 +185,7 @@ function PricingPage() {
                   type="button"
                   onClick={handleUpgrade}
                   disabled={upgrading}
-                  className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-60"
+                  className="glow mt-7 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-60"
                 >
                   {upgrading && (
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
