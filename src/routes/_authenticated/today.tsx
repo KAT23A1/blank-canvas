@@ -171,8 +171,10 @@ function TodayPage() {
       </header>
 
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Today</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{dateLabel}</p>
+        <Link to="/today" className="bounce-button text-2xl px-5 py-2.5">
+          TODAY
+        </Link>
+        <p className="mt-3 text-sm text-muted-foreground">{dateLabel}</p>
       </div>
 
       {subscription && (
