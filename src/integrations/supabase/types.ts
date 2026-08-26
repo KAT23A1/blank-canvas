@@ -112,6 +112,11 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          ls_customer_id: string | null
+          ls_portal_url: string | null
+          ls_renews_at: string | null
+          ls_status: string | null
+          ls_subscription_id: string | null
           period_start: string
           plan: string
           unmess_count: number
@@ -121,6 +126,11 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          ls_customer_id?: string | null
+          ls_portal_url?: string | null
+          ls_renews_at?: string | null
+          ls_status?: string | null
+          ls_subscription_id?: string | null
           period_start?: string
           plan?: string
           unmess_count?: number
@@ -130,6 +140,11 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          ls_customer_id?: string | null
+          ls_portal_url?: string | null
+          ls_renews_at?: string | null
+          ls_status?: string | null
+          ls_subscription_id?: string | null
           period_start?: string
           plan?: string
           unmess_count?: number

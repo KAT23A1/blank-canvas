@@ -35,7 +35,16 @@ export const Route = createFileRoute("/api/public/hooks/lemonsqueezy")({
 
         let event: {
           meta?: { event_name?: string; custom_data?: { user_id?: string; email?: string } };
-          data?: { attributes?: { status?: string; user_email?: string } };
+          data?: {
+            id?: string;
+            attributes?: {
+              status?: string;
+              user_email?: string;
+              customer_id?: number | string;
+              renews_at?: string | null;
+              urls?: { customer_portal?: string; update_payment_method?: string };
+            };
+          };
         };
         try {
           event = JSON.parse(rawBody);
@@ -48,37 +57,60 @@ export const Route = createFileRoute("/api/public/hooks/lemonsqueezy")({
           return json({ ok: true, ignored: eventName });
         }
 
-        const status = event.data?.attributes?.status ?? "";
-        const email =
-          event.meta?.custom_data?.email ?? event.data?.attributes?.user_email ?? "";
-        if (!email) {
+        const attrs = event.data?.attributes ?? {};
+        const status = attrs.status ?? "";
+        const email = event.meta?.custom_data?.email ?? attrs.user_email ?? "";
+        const userIdFromCheckout = event.meta?.custom_data?.user_id ?? "";
+        if (!email && !userIdFromCheckout) {
           return json({ error: "No email on event" }, 400);
         }
 
+        // Event names win over status: a cancellation/expiry always downgrades.
         let nextPlan: "pro" | "free" | null = null;
-        if (ACTIVE_STATUSES.has(status)) nextPlan = "pro";
-        else if (INACTIVE_STATUSES.has(status)) nextPlan = "free";
-        if (!nextPlan) return json({ ok: true, ignored: status });
+        if (eventName === "subscription_cancelled" || eventName === "subscription_expired") {
+          nextPlan = "free";
+        } else if (ACTIVE_STATUSES.has(status)) {
+          nextPlan = "pro";
+        } else if (INACTIVE_STATUSES.has(status)) {
+          nextPlan = "free";
+        }
+        if (!nextPlan) return json({ ok: true, ignored: `${eventName}:${status}` });
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        // Match the user by email.
-        const { data: usersData, error: usersError } =
-          await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
-        if (usersError) return json({ error: usersError.message }, 500);
-        const user = usersData.users.find(
-          (u) => u.email?.toLowerCase() === email.toLowerCase(),
-        );
-        if (!user) {
-          // Not an app user (yet) — acknowledge so Lemon Squeezy stops retrying.
-          return json({ ok: true, matched: false });
+        // Match the user by the id captured at checkout, else by email.
+        let userId = userIdFromCheckout;
+        if (!userId) {
+          const { data: usersData, error: usersError } =
+            await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+          if (usersError) return json({ error: usersError.message }, 500);
+          const user = usersData.users.find(
+            (u) => u.email?.toLowerCase() === email.toLowerCase(),
+          );
+          if (!user) {
+            // Not an app user (yet) — acknowledge so Lemon Squeezy stops retrying.
+            return json({ ok: true, matched: false });
+          }
+          userId = user.id;
         }
 
-        const { error: updateError } = await supabaseAdmin
+        const { data: updated, error: updateError } = await supabaseAdmin
           .from("subscriptions")
-          .update({ plan: nextPlan, updated_at: new Date().toISOString() })
-          .eq("user_id", user.id);
+          .update({
+            plan: nextPlan,
+            ls_subscription_id: event.data?.id ?? null,
+            ls_customer_id: attrs.customer_id != null ? String(attrs.customer_id) : null,
+            ls_status: status || null,
+            ls_portal_url: attrs.urls?.customer_portal ?? null,
+            ls_renews_at: attrs.renews_at ?? null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("user_id", userId)
+          .select("user_id");
         if (updateError) return json({ error: updateError.message }, 500);
+        if (!updated || updated.length === 0) {
+          return json({ ok: true, matched: false });
+        }
 
         return json({ ok: true, matched: true, plan: nextPlan });
       },
