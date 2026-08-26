@@ -8,7 +8,7 @@ import { unmessText, type UnmessItem } from "@/lib/unmess.functions";
 import { savePlan, listPlans } from "@/lib/plans.functions";
 import { getSubscription, unmessTextAuthed } from "@/lib/usage.functions";
 import { createProCheckout } from "@/lib/billing.functions";
-import { SplineSceneBasic } from "@/components/spline-scene-basic";
+import { SplineScene } from "@/components/ui/splite";
 
 type Status = "idle" | "loading" | "error";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -222,8 +222,8 @@ function Landing() {
   };
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-6 pb-12 sm:px-8">
-      <header className="flex w-full max-w-2xl items-center justify-between py-5">
+    <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-6 sm:px-8">
+      <header className="flex w-full max-w-5xl items-center justify-between py-4">
         <span className="text-lg font-bold tracking-tight text-foreground">UNMESS</span>
         <Link
           to="/auth"
@@ -233,45 +233,66 @@ function Landing() {
         </Link>
       </header>
 
-      <div className="w-full max-w-2xl">
-        <div className="mb-10 mt-8 text-center sm:mb-12 sm:mt-14">
-          <h1 className="text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
-            Your brain is messy.
-            <br />
-            Your plan doesn't have to be.
-          </h1>
-          <p className="mx-auto mt-4 max-w-md text-lg text-muted-foreground">
-            Paste the mess — tasks, deadlines, errands, reminders — and get a
-            clean, prioritized plan. Try it right now, no account needed.
-          </p>
+      <div className="flex w-full max-w-5xl flex-1 flex-col items-center justify-center py-6">
+        <div className="grid w-full gap-6 lg:grid-cols-[1fr_1.25fr] lg:items-center">
+          {/* Words to the side — minimal */}
+          <div className="flex flex-col justify-center">
+            <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+              Paste the mess.
+              <br />
+              Get the plan.
+            </h1>
+            <p className="mt-3 max-w-sm text-sm text-muted-foreground sm:text-base">
+              Drop your chaos here. UNMESS turns it into a clean, prioritized plan.
+            </p>
+          </div>
+
+          {/* AI interface + 3D scene in one contained card */}
+          <div className="rounded-3xl border border-border bg-card/80 p-4 shadow-xl backdrop-blur-sm sm:p-5">
+            <div className="relative h-[180px] overflow-hidden rounded-2xl border border-border bg-background/50 sm:h-[220px]">
+              <SplineScene
+                scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                className="h-full w-full"
+              />
+            </div>
+            <div className="mt-4">
+              <UnmessBox
+                user={null}
+                input={input}
+                setInput={setInput}
+                status={status}
+                onSubmit={handleSubmit}
+                usageLabel="First unmess is free"
+              />
+            </div>
+          </div>
         </div>
 
-        <UnmessBox
-          user={null}
-          input={input}
-          setInput={setInput}
-          status={status}
-          onSubmit={handleSubmit}
-          usageLabel="First unmess is free — no account needed"
-        />
-
         {showSignInPrompt && (
-          <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-5 text-center text-sm text-foreground">
-            You've used your free unmess.{" "}
+          <div className="mt-6 w-full max-w-5xl rounded-2xl border border-primary/30 bg-primary/5 p-4 text-center text-sm text-foreground">
+            Free unmess used.{" "}
             <Link to="/auth" className="font-medium text-primary underline-offset-4 hover:underline">
               Create a free account
             </Link>{" "}
-            to keep going and save your plans.
+            to keep going.
           </div>
         )}
 
-        {status === "error" && <ErrorNote />}
-        {status === "loading" && <LoadingSkeleton />}
+        {status === "error" && (
+          <div className="mt-4 w-full max-w-5xl">
+            <ErrorNote />
+          </div>
+        )}
+        {status === "loading" && (
+          <div className="mt-4 w-full max-w-5xl">
+            <LoadingSkeleton />
+          </div>
+        )}
 
         {status === "idle" && items.length > 0 && (
-          <div className="mt-10">
-            <div className="mb-6 flex items-center justify-between gap-4">
-              <h2 className="text-xl font-semibold text-foreground">Your plan</h2>
+          <div className="mt-6 w-full max-w-5xl">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <h2 className="text-lg font-semibold text-foreground">Your plan</h2>
               <Link
                 to="/auth"
                 className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
@@ -283,68 +304,20 @@ function Landing() {
           </div>
         )}
 
-        {/* Interactive 3D showcase */}
-        <section className="mt-20">
-          <SplineSceneBasic />
-        </section>
-
-        {/* Free vs Pro */}
-        <section className="mt-20">
-          <h2 className="text-center text-2xl font-bold tracking-tight text-foreground">
-            Simple pricing
-          </h2>
-          <p className="mt-2 text-center text-sm text-muted-foreground">
-            Start free. Upgrade when life gets messier.
-          </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-              <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Free
-              </p>
-              <p className="mt-2 text-3xl font-bold text-foreground">
-                $0
-                <span className="text-base font-normal text-muted-foreground">/month</span>
-              </p>
-              <ul className="mt-4 space-y-2 text-sm text-foreground">
-                <li>5 unmesses per month</li>
-                <li>Prioritized action plans</li>
-                <li>Saved history</li>
-                <li>Today dashboard</li>
-              </ul>
-              <Link
-                to="/auth"
-                className="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
-              >
-                Sign up free
-              </Link>
+        {/* Compact pricing */}
+        <section className="mt-10 w-full max-w-5xl">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Free</p>
+              <p className="mt-1 text-2xl font-bold text-foreground">$0<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+              <p className="mt-2 text-xs text-muted-foreground">5 unmesses/month</p>
             </div>
-            <div className="rounded-2xl border border-primary/40 bg-card p-6 shadow-sm">
-              <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-                Pro
-              </p>
-              <p className="mt-2 text-3xl font-bold text-foreground">
-                $5
-                <span className="text-base font-normal text-muted-foreground">/month</span>
-              </p>
-              <ul className="mt-4 space-y-2 text-sm text-foreground">
-                <li>Unlimited unmesses</li>
-                <li>Everything in Free</li>
-                <li>Email reminders for dated items</li>
-                <li>Support an indie tool</li>
-              </ul>
-              <Link
-                to="/auth"
-                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
-              >
-                Upgrade to Pro
-              </Link>
+            <div className="rounded-2xl border border-primary/40 bg-card p-4 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary">Pro</p>
+              <p className="mt-1 text-2xl font-bold text-foreground">$5<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+              <p className="mt-2 text-xs text-muted-foreground">Unlimited + reminders</p>
             </div>
           </div>
-          <p className="mt-4 text-center text-xs text-muted-foreground">
-            <Link to="/pricing" className="underline-offset-4 hover:underline">
-              Compare plans in detail
-            </Link>
-          </p>
         </section>
       </div>
     </main>
