@@ -620,11 +620,19 @@ function AppHome({ user }: { user: User }) {
   return (
     <main className="flex min-h-screen flex-col items-center px-6 pb-12 sm:px-8">
       <header className="flex w-full max-w-2xl flex-col items-end gap-2 py-5 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
-        <div className="flex min-w-0 max-w-full items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-4 shadow-sm sm:order-2">
+        <div className="flex min-w-0 max-w-full items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-2 shadow-sm sm:order-2">
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
             {initial}
           </span>
           <span className="truncate text-sm text-foreground">{user.email}</span>
+          <Link
+            to="/settings"
+            aria-label="Settings"
+            title="Settings"
+            className="glow flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <SettingsIcon className="h-4 w-4" aria-hidden />
+          </Link>
         </div>
         <div className="flex shrink-0 items-center gap-1 sm:order-1 sm:gap-3">
           <Link
@@ -633,12 +641,6 @@ function AppHome({ user }: { user: User }) {
             className="whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             Today
-          </Link>
-          <Link
-            to="/settings"
-            className="whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          >
-            Settings
           </Link>
           <button
             type="button"
@@ -678,7 +680,7 @@ function AppHome({ user }: { user: User }) {
               type="button"
               onClick={handleUpgrade}
               disabled={upgrading}
-              className="glow mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="upgrade-cta mt-4"
             >
               {upgrading ? (
                 <>

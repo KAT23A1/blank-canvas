@@ -213,7 +213,7 @@ function TodayPage() {
                   type="button"
                   onClick={handleUpgrade}
                   disabled={upgrading}
-                  className="glow shrink-0 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-60"
+                  className="upgrade-cta shrink-0 sm:px-6 sm:py-3 sm:text-base"
                 >
                   {upgrading ? "One moment…" : "Upgrade to Pro"}
                 </button>
