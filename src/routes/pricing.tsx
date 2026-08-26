@@ -174,7 +174,7 @@ function PricingPage() {
             ) : isPro ? (
               <div className="mt-7 w-full">
                 <ManageSubscriptionButton
-                  className="glow inline-flex w-full items-center justify-center rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent disabled:opacity-60"
+                  className="glow inline-flex w-full items-center justify-center rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground shadow-sm transition-all hover:bg-accent hover:shadow-md disabled:opacity-60"
                   noteClassName="mt-2 w-full text-center text-xs text-muted-foreground"
                 />
               </div>
