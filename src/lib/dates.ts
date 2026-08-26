@@ -51,7 +51,15 @@ export function parseWhen(when: string): Date | null {
   let candidate = when.trim();
   while (candidate) {
     const parsed = Date.parse(candidate);
-    if (!Number.isNaN(parsed)) return startOfDay(new Date(parsed));
+    if (!Number.isNaN(parsed)) {
+      const d = startOfDay(new Date(parsed));
+      // No explicit year in the text → interpret as this year, or next if already past.
+      if (!/\b\d{4}\b/.test(candidate)) {
+        d.setFullYear(today.getFullYear());
+        if (d.getTime() < today.getTime()) d.setFullYear(today.getFullYear() + 1);
+      }
+      return d;
+    }
     const trimmed = candidate.replace(/\s+\S+$/, "");
     if (trimmed === candidate) break;
     candidate = trimmed;
