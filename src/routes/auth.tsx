@@ -31,11 +31,13 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState<"email" | "google" | null>(null);
+  const [agreed, setAgreed] = useState(false);
   const [message, setMessage] = useState<{ kind: "error" | "info"; text: string } | null>(null);
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (busy) return;
+    if (mode === "sign-up" && !agreed) return;
     setBusy("email");
     setMessage(null);
     try {
