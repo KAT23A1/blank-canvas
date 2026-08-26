@@ -220,8 +220,18 @@ function Index() {
           <div className="mt-4 flex items-center justify-between gap-3 sm:mt-5">
             {user && usage ? (
               usage.plan === "pro" ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                  ✦ Pro — unlimited
+                <span className="inline-flex items-center gap-3">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    ✦ Pro — unlimited
+                  </span>
+                  <a
+                    href="https://app.lemonsqueezy.com/my-orders"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                  >
+                    Manage subscription
+                  </a>
                 </span>
               ) : (
                 <span className="text-xs text-muted-foreground sm:text-sm">
