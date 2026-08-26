@@ -124,6 +124,12 @@ function Index() {
       <header className="flex w-full max-w-2xl items-center justify-end py-5">
         {user ? (
           <div className="flex items-center gap-3">
+            <Link
+              to="/today"
+              className="rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              Today
+            </Link>
             <div className="flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-4 shadow-sm">
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
                 {initial}
