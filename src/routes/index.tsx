@@ -1,8 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 import { unmessText, type UnmessItem } from "@/lib/unmess.functions";
+import { savePlan } from "@/lib/plans.functions";
 
 type Status = "idle" | "loading" | "error";
+type SaveStatus = "idle" | "saving" | "saved" | "error";
+
+const FREE_UNMESS_KEY = "unmess_free_used";
 
 const priorityMeta: Record<
   UnmessItem["priority"],
@@ -36,20 +42,65 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
   const [input, setInput] = useState("");
   const [items, setItems] = useState<UnmessItem[]>([]);
   const [status, setStatus] = useState<Status>("idle");
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [savedText, setSavedText] = useState<string | null>(null);
+  const [showSignInPrompt, setShowSignInPrompt] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      supabase.auth.getUser().then(({ data }) => setUser(data.user));
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    navigate({ to: "/", replace: true });
+  };
 
   const handleSubmit = async () => {
     const text = input.trim();
     if (!text || status === "loading") return;
+    if (!user && localStorage.getItem(FREE_UNMESS_KEY)) {
+      setShowSignInPrompt(true);
+      return;
+    }
+    setShowSignInPrompt(false);
     setStatus("loading");
     try {
       const result = await unmessText({ data: { text } });
       setItems(result);
+      setSavedText(text);
+      setSaveStatus("idle");
       setStatus("idle");
+      if (!user) localStorage.setItem(FREE_UNMESS_KEY, "1");
     } catch {
       setStatus("error");
+    }
+  };
+
+  const handleSave = async () => {
+    if (!user) {
+      navigate({ to: "/auth" });
+      return;
+    }
+    if (saveStatus === "saving" || saveStatus === "saved" || !savedText) return;
+    setSaveStatus("saving");
+    try {
+      await savePlan({ data: { rawText: savedText, items } });
+      setSaveStatus("saved");
+    } catch {
+      setSaveStatus("error");
     }
   };
 
@@ -60,9 +111,40 @@ function Index() {
     }))
     .filter((g) => g.items.length > 0);
 
+  const initial = (user?.email?.[0] ?? "?").toUpperCase();
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center px-6 py-12 sm:px-8">
-      <div className="w-full max-w-2xl">
+    <main className="flex min-h-screen flex-col items-center px-6 pb-12 sm:px-8">
+      <header className="flex w-full max-w-2xl items-center justify-end py-5">
+        {user ? (
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-4 shadow-sm">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                {initial}
+              </span>
+              <span className="max-w-[160px] truncate text-sm text-foreground">
+                {user.email}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              Log out
+            </button>
+          </div>
+        ) : (
+          <Link
+            to="/auth"
+            className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
+          >
+            Sign in
+          </Link>
+        )}
+      </header>
+
+      <div className="flex w-full max-w-2xl flex-1 flex-col justify-center">
         <div className="mb-10 text-center sm:mb-14">
           <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
             UNMESS
@@ -102,6 +184,16 @@ function Index() {
           </div>
         </div>
 
+        {showSignInPrompt && !user && (
+          <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-5 text-center text-sm text-foreground">
+            You've used your free unmess.{" "}
+            <Link to="/auth" className="font-medium text-primary underline-offset-4 hover:underline">
+              Create a free account
+            </Link>{" "}
+            to keep going and save your plans.
+          </div>
+        )}
+
         {status === "error" && (
           <div className="mt-6 rounded-2xl border border-destructive/30 bg-destructive/5 p-5 text-center text-sm text-destructive">
             Hmm, that didn't work. Take a breath and try again — your text is
@@ -123,9 +215,35 @@ function Index() {
 
         {status === "idle" && groups.length > 0 && (
           <div className="mt-10 space-y-8">
-            <h2 className="text-center text-xl font-semibold text-foreground">
-              Your plan
-            </h2>
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-xl font-semibold text-foreground">Your plan</h2>
+              <div className="flex items-center gap-3">
+                {saveStatus === "error" && (
+                  <span className="text-xs text-destructive">
+                    Couldn't save — try again.
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saveStatus === "saving" || saveStatus === "saved"}
+                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-all hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {saveStatus === "saving" ? (
+                    <>
+                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-foreground/30 border-t-foreground" />
+                      Saving…
+                    </>
+                  ) : saveStatus === "saved" ? (
+                    <>✓ Saved</>
+                  ) : user ? (
+                    "Save plan"
+                  ) : (
+                    "Sign up to save"
+                  )}
+                </button>
+              </div>
+            </div>
             {groups.map(({ priority, items: groupItems }) => (
               <section key={priority}>
                 <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
