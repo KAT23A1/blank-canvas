@@ -524,6 +524,7 @@ function AppHome({ user }: { user: User }) {
       const t = setTimeout(() => setShowTour(true), 500);
       return () => clearTimeout(t);
     }
+    return undefined;
   }, [user.id]);
 
   const finishTour = () => {
