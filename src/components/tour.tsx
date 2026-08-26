@@ -114,14 +114,13 @@ export function Tour({ steps, onClose }: { steps: TourStep[]; onClose: () => voi
       {rect && (
         <div
           aria-hidden
-          className="pointer-events-none absolute rounded-2xl ring-2 ring-primary transition-all duration-300"
+          className="pointer-events-none absolute rounded-2xl border-2 border-primary bg-primary/10 transition-all duration-300"
           style={{
             top: rect.top - pad,
             left: rect.left - pad,
             width: rect.width + pad * 2,
             height: rect.height + pad * 2,
-            boxShadow: "0 0 0 9999px rgba(0,0,0,0.001)",
-            background: "transparent",
+            boxShadow: "0 0 0 4px color-mix(in oklch, var(--primary) 25%, transparent)",
           }}
         />
       )}
