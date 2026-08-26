@@ -414,7 +414,7 @@ function Landing() {
               <h2 className="text-xl font-semibold text-foreground">Your plan</h2>
               <Link
                 to="/auth"
-                className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
+                className="glow inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
               >
                 Sign up to save
               </Link>
