@@ -19,8 +19,9 @@ export const Route = createFileRoute("/api/public/hooks/lemonsqueezy")({
       POST: async ({ request }) => {
         const webhookSecret = process.env["LEMONSQUEEZY_WEBHOOK_SECRET"];
         if (!webhookSecret) {
-          // Credentials not configured yet — acknowledge nothing, process nothing.
-          return json({ error: "Webhook not configured" }, 503);
+          // Lemon Squeezy may probe the endpoint before billing is configured.
+          // Acknowledge the request, but never process an unverified payload.
+          return json({ ok: true, configured: false, processed: false });
         }
 
         const rawBody = await request.text();
