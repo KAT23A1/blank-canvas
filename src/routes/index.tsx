@@ -1,5 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { unmessText, type UnmessItem } from "@/lib/unmess.functions";
+
+type Status = "idle" | "loading" | "error";
+
+const priorityMeta: Record<
+  UnmessItem["priority"],
+  { label: string; dotClass: string }
+> = {
+  high: { label: "High", dotClass: "bg-red-500" },
+  medium: { label: "Medium", dotClass: "bg-amber-500" },
+  low: { label: "Low", dotClass: "bg-muted-foreground/50" },
+};
 
 export const Route = createFileRoute("/")({
   head: () => ({
