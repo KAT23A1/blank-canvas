@@ -14,7 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      plan_items: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          plan_id: string
+          priority: string
+          sort_order: number
+          when_text: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          plan_id: string
+          priority: string
+          sort_order?: number
+          when_text?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          plan_id?: string
+          priority?: string
+          sort_order?: number
+          when_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_items_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plans: {
+        Row: {
+          created_at: string
+          id: string
+          raw_text: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          raw_text: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          raw_text?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
