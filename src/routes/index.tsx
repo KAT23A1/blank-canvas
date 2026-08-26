@@ -37,6 +37,28 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [input, setInput] = useState("");
+  const [items, setItems] = useState<UnmessItem[]>([]);
+  const [status, setStatus] = useState<Status>("idle");
+
+  const handleSubmit = async () => {
+    const text = input.trim();
+    if (!text || status === "loading") return;
+    setStatus("loading");
+    try {
+      const result = await unmessText({ data: { text } });
+      setItems(result);
+      setStatus("idle");
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  const groups = (["high", "medium", "low"] as const)
+    .map((priority) => ({
+      priority,
+      items: items.filter((i) => i.priority === priority),
+    }))
+    .filter((g) => g.items.length > 0);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-6 py-12 sm:px-8">
