@@ -90,8 +90,14 @@ function PrivacyPage() {
         <Section title="Your choices">
           <p>
             You can delete individual plans and action items at any time. To delete your
-            account and all associated data, contact us and we'll remove everything
-            within 30 days.
+            account and all associated data, contact us at{" "}
+            <a
+              href="mailto:icecomparison230@gmail.com"
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
+              icecomparison230@gmail.com
+            </a>{" "}
+            and we'll remove everything within 30 days.
           </p>
         </Section>
 
