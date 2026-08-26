@@ -59,3 +59,57 @@ export const createProCheckout = createServerFn({ method: "POST" })
     if (!url) throw new Error("Couldn't start checkout. Please try again.");
     return { url };
   });
+
+export type PortalResult =
+  | { url: string }
+  | { url: null; reason: "no_subscription" };
+
+const LS_ORDERS_URL = "https://app.lemonsqueezy.com/my-orders";
+
+/**
+ * Returns a Lemon Squeezy customer portal URL for the signed-in user, where
+ * they can update their card or cancel. Portal links expire, so we ask Lemon
+ * Squeezy for a fresh one when we know the subscription id, and fall back to
+ * the stored link, then to the generic "my orders" page.
+ */
+export const getBillingPortal = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<PortalResult> => {
+    const { data: sub } = await context.supabase
+      .from("subscriptions")
+      .select("plan, ls_subscription_id, ls_portal_url")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
+    if (!sub || sub.plan !== "pro") return { url: null, reason: "no_subscription" };
+
+    const apiKey = process.env["LEMONSQUEEZY_API_KEY"];
+    const subscriptionId = sub.ls_subscription_id;
+
+    if (apiKey && subscriptionId) {
+      try {
+        const res = await fetch(
+          `https://api.lemonsqueezy.com/v1/subscriptions/${subscriptionId}`,
+          {
+            headers: {
+              Accept: "application/vnd.api+json",
+              Authorization: `Bearer ${apiKey}`,
+            },
+          },
+        );
+        if (res.ok) {
+          const payload = (await res.json()) as {
+            data?: { attributes?: { urls?: { customer_portal?: string } } };
+          };
+          const fresh = payload.data?.attributes?.urls?.customer_portal;
+          if (fresh) return { url: fresh };
+        } else {
+          console.error("Lemon Squeezy portal lookup failed", res.status);
+        }
+      } catch (err) {
+        console.error("Lemon Squeezy portal lookup error", err);
+      }
+    }
+
+    return { url: sub.ls_portal_url ?? LS_ORDERS_URL };
+  });
