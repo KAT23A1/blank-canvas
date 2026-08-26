@@ -74,7 +74,7 @@ export const getPlan = createServerFn({ method: "GET" })
       id: plan.id as string,
       rawText: plan.raw_text as string,
       createdAt: plan.created_at as string,
-      items: [...plan.items_sorted ?? plan.plan_items]
+      items: [...plan.plan_items]
         .sort((a, b) => a.sort_order - b.sort_order)
         .map((i) => ({
           id: i.id as string,
