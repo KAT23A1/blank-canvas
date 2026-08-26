@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { User } from "@supabase/supabase-js";
@@ -8,6 +8,8 @@ import { unmessText, type UnmessItem } from "@/lib/unmess.functions";
 import { savePlan, listPlans } from "@/lib/plans.functions";
 import { getSubscription, unmessTextAuthed } from "@/lib/usage.functions";
 import { createProCheckout } from "@/lib/billing.functions";
+import { Paperclip, X } from "lucide-react";
+import { extractFile } from "@/lib/files.functions";
 import { SplineSceneBasic } from "@/components/spline-scene-basic";
 
 type Status = "idle" | "loading" | "error";
@@ -334,8 +336,8 @@ function Landing() {
   const [status, setStatus] = useState<Status>("idle");
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
 
-  const handleSubmit = async () => {
-    const text = input.trim();
+  const handleSubmit = async (attachedText?: string) => {
+    const text = [input.trim(), attachedText?.trim()].filter(Boolean).join("\n\n");
     if (!text || status === "loading") return;
     if (localStorage.getItem(FREE_UNMESS_KEY)) {
       setShowSignInPrompt(true);
@@ -515,8 +517,8 @@ function AppHome({ user }: { user: User }) {
     navigate({ to: "/", replace: true });
   };
 
-  const handleSubmit = async () => {
-    const text = input.trim();
+  const handleSubmit = async (attachedText?: string) => {
+    const text = [input.trim(), attachedText?.trim()].filter(Boolean).join("\n\n");
     if (!text || status === "loading") return;
     setLimitReached(false);
     setStatus("loading");
