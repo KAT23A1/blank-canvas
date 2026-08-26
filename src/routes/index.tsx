@@ -60,6 +60,8 @@ function Index() {
   const [status, setStatus] = useState<Status>("idle");
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
@@ -75,6 +77,12 @@ function Index() {
   const { data: savedPlans } = useQuery({
     queryKey: ["plans"],
     queryFn: () => fetchPlans(),
+    enabled: !!user,
+  });
+
+  const { data: usage } = useQuery({
+    queryKey: ["subscription"],
+    queryFn: () => fetchSubscription(),
     enabled: !!user,
   });
 
