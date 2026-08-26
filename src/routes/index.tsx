@@ -153,11 +153,11 @@ function UnmessBox({
     setReading(true);
     try {
       const base64 = await fileToBase64(file);
-      const { text } = await extractFile({
+      const { text, error } = await extractFile({
         data: { name: file.name, mimeType: file.type || "application/octet-stream", base64 },
       });
       if (!text) {
-        setFileError("We couldn't read that file. Try another one.");
+        setFileError(error || "We couldn't read that file. Try another one.");
         return;
       }
       setAttachment({ name: file.name, text });
