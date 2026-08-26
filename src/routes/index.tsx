@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { User } from "@supabase/supabase-js";
@@ -8,6 +8,8 @@ import { unmessText, type UnmessItem } from "@/lib/unmess.functions";
 import { savePlan, listPlans } from "@/lib/plans.functions";
 import { getSubscription, unmessTextAuthed } from "@/lib/usage.functions";
 import { createProCheckout } from "@/lib/billing.functions";
+import { Paperclip, X } from "lucide-react";
+import { extractFile } from "@/lib/files.functions";
 import { SplineSceneBasic } from "@/components/spline-scene-basic";
 
 type Status = "idle" | "loading" | "error";
@@ -90,6 +92,32 @@ function Index() {
 
 /* ---------------------------------- shared --------------------------------- */
 
+const ACCEPT =
+  "image/*,application/pdf,text/plain,text/markdown,text/csv,.txt,.md,.csv,.pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+function isSupported(file: File) {
+  const lower = file.name.toLowerCase();
+  return (
+    file.type.startsWith("image/") ||
+    file.type === "application/pdf" ||
+    file.type.startsWith("text/") ||
+    /\.(png|jpg|jpeg|webp|gif|heic|pdf|txt|md|csv|docx)$/.test(lower)
+  );
+}
+
+function fileToBase64(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result ?? "");
+      const comma = result.indexOf(",");
+      resolve(comma >= 0 ? result.slice(comma + 1) : result);
+    };
+    reader.onerror = () => reject(new Error("Could not read that file."));
+    reader.readAsDataURL(file);
+  });
+}
+
 function UnmessBox({
   user,
   input,
@@ -102,11 +130,63 @@ function UnmessBox({
   input: string;
   setInput: (v: string) => void;
   status: Status;
-  onSubmit: () => void;
+  onSubmit: (attachedText?: string) => void;
   usageLabel?: React.ReactNode;
 }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [attachment, setAttachment] = useState<{ name: string; text: string } | null>(null);
+  const [reading, setReading] = useState(false);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
+
+  const handleFile = async (file: File) => {
+    setFileError(null);
+    setAttachment(null);
+    if (!isSupported(file)) {
+      setFileError("That file type isn't supported. Try an image, PDF, .txt or .docx.");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      setFileError("That file is too large — please keep it under 8MB.");
+      return;
+    }
+    setReading(true);
+    try {
+      const base64 = await fileToBase64(file);
+      const { text } = await extractFile({
+        data: { name: file.name, mimeType: file.type || "application/octet-stream", base64 },
+      });
+      setAttachment({ name: file.name, text });
+    } catch (err) {
+      setFileError(
+        err instanceof Error && err.message
+          ? err.message.replace(/^Error:\s*/, "")
+          : "We couldn't read that file. Try another one.",
+      );
+    } finally {
+      setReading(false);
+    }
+  };
+
+  const canSubmit = Boolean(input.trim() || attachment);
+
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+    <div
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragging(false);
+        const file = e.dataTransfer.files?.[0];
+        if (file) void handleFile(file);
+      }}
+      className={`rounded-2xl border bg-card p-5 shadow-sm transition-colors sm:p-6 ${
+        dragging ? "border-primary bg-primary/5" : "border-border"
+      }`}
+    >
       <label htmlFor="mess-input" className="sr-only">
         Dump everything on your mind
       </label>
@@ -117,12 +197,65 @@ function UnmessBox({
         placeholder="Dump everything on your mind…"
         className="min-h-[160px] w-full resize-y rounded-xl border border-input bg-background p-4 text-base leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30 sm:min-h-[220px] sm:p-5 sm:text-lg"
       />
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={ACCEPT}
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) void handleFile(file);
+          e.target.value = "";
+        }}
+      />
+
+      {(reading || attachment || fileError) && (
+        <div className="mt-3 space-y-2">
+          {reading && (
+            <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs text-secondary-foreground">
+              <span className="h-3 w-3 animate-spin rounded-full border-2 border-foreground/30 border-t-foreground" />
+              Reading your file…
+            </span>
+          )}
+          {attachment && !reading && (
+            <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 text-xs text-secondary-foreground">
+              <Paperclip className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{attachment.name}</span>
+              <button
+                type="button"
+                aria-label={`Remove ${attachment.name}`}
+                onClick={() => setAttachment(null)}
+                className="shrink-0 rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </span>
+          )}
+          {fileError && (
+            <p className="text-xs leading-relaxed text-destructive sm:text-sm">{fileError}</p>
+          )}
+        </div>
+      )}
+
       <div className="mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:items-center sm:justify-between">
-        <span className="text-xs text-muted-foreground sm:text-sm">{usageLabel ?? ""}</span>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={reading}
+            aria-label="Attach a file"
+            title="Attach an image, PDF, .txt or .docx"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
+          >
+            <Paperclip className="h-4 w-4" />
+          </button>
+          <span className="text-xs text-muted-foreground sm:text-sm">{usageLabel ?? ""}</span>
+        </div>
         <button
           type="button"
-          onClick={onSubmit}
-          disabled={status === "loading" || !input.trim()}
+          onClick={() => onSubmit(attachment?.text)}
+          disabled={status === "loading" || reading || !canSubmit}
           className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
           {status === "loading" ? (
@@ -138,6 +271,7 @@ function UnmessBox({
     </div>
   );
 }
+
 
 function LoadingSkeleton() {
   return (
@@ -202,8 +336,8 @@ function Landing() {
   const [status, setStatus] = useState<Status>("idle");
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
 
-  const handleSubmit = async () => {
-    const text = input.trim();
+  const handleSubmit = async (attachedText?: string) => {
+    const text = [input.trim(), attachedText?.trim()].filter(Boolean).join("\n\n");
     if (!text || status === "loading") return;
     if (localStorage.getItem(FREE_UNMESS_KEY)) {
       setShowSignInPrompt(true);
@@ -383,8 +517,8 @@ function AppHome({ user }: { user: User }) {
     navigate({ to: "/", replace: true });
   };
 
-  const handleSubmit = async () => {
-    const text = input.trim();
+  const handleSubmit = async (attachedText?: string) => {
+    const text = [input.trim(), attachedText?.trim()].filter(Boolean).join("\n\n");
     if (!text || status === "loading") return;
     setLimitReached(false);
     setStatus("loading");
