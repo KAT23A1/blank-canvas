@@ -216,7 +216,21 @@ function Index() {
             placeholder="Dump everything on your mind…"
             className="min-h-[180px] w-full resize-y rounded-xl border border-input bg-background p-4 text-base leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30 sm:min-h-[220px] sm:p-5 sm:text-lg"
           />
-          <div className="mt-4 flex items-center justify-end sm:mt-5">
+          <div className="mt-4 flex items-center justify-between gap-3 sm:mt-5">
+            {user && usage ? (
+              usage.plan === "pro" ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  ✦ Pro — unlimited
+                </span>
+              ) : (
+                <span className="text-xs text-muted-foreground sm:text-sm">
+                  {Math.max(0, (usage.limit ?? 5) - usage.used)} of {usage.limit ?? 5} free
+                  unmesses left this month
+                </span>
+              )
+            ) : (
+              <span />
+            )}
             <button
               type="button"
               onClick={handleSubmit}
