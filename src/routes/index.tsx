@@ -223,17 +223,6 @@ function Landing() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-6 pb-12 sm:px-8">
-      {/* Ambient 3D background — subtle so the calm look stays intact */}
-      <div
-        className="pointer-events-none absolute inset-0 -z-10 opacity-30"
-        aria-hidden="true"
-      >
-        <SplineScene
-          scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-          className="h-full w-full"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
-      </div>
       <header className="flex w-full max-w-2xl items-center justify-between py-5">
         <span className="text-lg font-bold tracking-tight text-foreground">UNMESS</span>
         <Link
