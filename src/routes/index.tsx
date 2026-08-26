@@ -8,7 +8,7 @@ import { unmessText, type UnmessItem } from "@/lib/unmess.functions";
 import { savePlan, listPlans } from "@/lib/plans.functions";
 import { getSubscription, unmessTextAuthed } from "@/lib/usage.functions";
 import { createProCheckout } from "@/lib/billing.functions";
-import { SplineScene } from "@/components/ui/splite";
+import { SplineSceneBasic } from "@/components/spline-scene-basic";
 
 type Status = "idle" | "loading" | "error";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -223,17 +223,6 @@ function Landing() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-6 pb-12 sm:px-8">
-      {/* Ambient 3D background — subtle so the calm look stays intact */}
-      <div
-        className="pointer-events-none absolute inset-0 -z-10 opacity-30"
-        aria-hidden="true"
-      >
-        <SplineScene
-          scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-          className="h-full w-full"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
-      </div>
       <header className="flex w-full max-w-2xl items-center justify-between py-5">
         <span className="text-lg font-bold tracking-tight text-foreground">UNMESS</span>
         <Link
@@ -293,6 +282,11 @@ function Landing() {
             <ResultGroups items={items} />
           </div>
         )}
+
+        {/* Interactive 3D showcase */}
+        <section className="mt-20">
+          <SplineSceneBasic />
+        </section>
 
         {/* Free vs Pro */}
         <section className="mt-20">
