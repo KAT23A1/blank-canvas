@@ -29,6 +29,8 @@ export const TOUR_STEPS: TourStep[] = [
   },
 ];
 
+export const TOUR_REPLAY_KEY = "unmess_tour_replay";
+
 export function tourStorageKey(userId: string) {
   return `unmess_tour_seen:${userId}`;
 }

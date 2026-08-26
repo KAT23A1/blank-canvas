@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { tourStorageKey } from "@/components/tour";
+import { tourStorageKey, TOUR_REPLAY_KEY } from "@/components/tour";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
@@ -37,7 +37,8 @@ function SettingsPage() {
 
   const replayTour = () => {
     if (userId) localStorage.removeItem(tourStorageKey(userId));
-    navigate({ to: "/", search: { tour: "1" } });
+    localStorage.setItem(TOUR_REPLAY_KEY, "1");
+    navigate({ to: "/" });
   };
 
   return (
