@@ -130,26 +130,35 @@ async function sendReminderEmail(
     }
   }
 
-  // Fallback: managed send-email edge function (until Gmail secrets are set).
+  // Fallback: managed email delivery (needs a verified sender domain).
+  const apiKey = process.env["LOVABLE_API_KEY"];
+  const senderDomain = process.env["UNMESS_SENDER_DOMAIN"];
+  if (!apiKey || !senderDomain) {
+    console.error(
+      "reminder email skipped: set GMAIL_USER/GMAIL_APP_PASSWORD, or configure a sender domain",
+    );
+    return false;
+  }
   try {
-    const base = process.env["SUPABASE_URL"]!;
-    const serviceKey = process.env["SUPABASE_SERVICE_ROLE_KEY"]!;
-    const res = await fetch(`${base}/functions/v1/send-email`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${serviceKey}`,
-        apikey: serviceKey,
+    const { sendLovableEmail } = await import("@lovable.dev/email-js");
+    const result = await sendLovableEmail(
+      {
+        to,
+        from: `UNMESS <reminders@${senderDomain}>`,
+        subject,
+        html,
+        text,
+        purpose: "transactional",
       },
-      body: JSON.stringify({ to, subject, html }),
-    });
-    if (!res.ok) {
-      console.error("send-email failed", res.status, await res.text());
+      { apiKey },
+    );
+    if (!result.success) {
+      console.error("managed email failed", result);
       return false;
     }
     return true;
   } catch (err) {
-    console.error("send-email error", err);
+    console.error("managed email error", err);
     return false;
   }
 }
