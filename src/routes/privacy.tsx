@@ -105,8 +105,14 @@ function PrivacyPage() {
 
         <Section title="Contact">
           <p>
-            Questions about this policy? Reach out via the email address shown on your
-            receipts or reminder emails.
+            Questions about this policy? Email us at{" "}
+            <a
+              href="mailto:icecomparison230@gmail.com"
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
+              icecomparison230@gmail.com
+            </a>
+            .
           </p>
         </Section>
       </article>
