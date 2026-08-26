@@ -64,8 +64,6 @@ export type PortalResult =
   | { url: string }
   | { url: null; reason: "no_subscription" };
 
-const LS_ORDERS_URL = "https://app.lemonsqueezy.com/my-orders";
-
 /**
  * Returns a Lemon Squeezy customer portal URL for the signed-in user, where
  * they can update their card or cancel. Portal links expire, so we ask Lemon
@@ -111,5 +109,5 @@ export const getBillingPortal = createServerFn({ method: "POST" })
       }
     }
 
-    return { url: sub.ls_portal_url ?? LS_ORDERS_URL };
+    return { url: sub.ls_portal_url ?? "https://app.lemonsqueezy.com/my-orders" };
   });
