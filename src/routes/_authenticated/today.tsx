@@ -1,0 +1,239 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
+import { listActionItems, togglePlanItem } from "@/lib/plans.functions";
+import { classifyWhen, type Urgency } from "@/lib/dates";
+
+type ActionItem = Awaited<ReturnType<typeof listActionItems>>[number];
+
+const priorityDot: Record<ActionItem["priority"], string> = {
+  high: "bg-red-500",
+  medium: "bg-amber-500",
+  low: "bg-muted-foreground/50",
+};
+
+const todayQueryOptions = {
+  queryKey: ["today-items"],
+  queryFn: () => listActionItems(),
+};
+
+export const Route = createFileRoute("/_authenticated/today")({
+  head: () => ({
+    meta: [
+      { title: "Today — UNMESS" },
+      {
+        name: "description",
+        content: "Everything on your plate, sorted by what needs attention first.",
+      },
+      { property: "og:title", content: "Today — UNMESS" },
+      {
+        property: "og:description",
+        content: "Everything on your plate, sorted by what needs attention first.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(todayQueryOptions),
+  errorComponent: ({ error }) => (
+    <div role="alert" className="p-8 text-center text-sm text-destructive">
+      Couldn't load your items: {error.message}
+    </div>
+  ),
+  notFoundComponent: () => <div className="p-8 text-center">Not found.</div>,
+  component: TodayPage,
+});
+
+function groupItems(items: ActionItem[]) {
+  const open = items.filter((i) => !i.done);
+  const groups: Record<"attention" | "upcoming" | "someday", ActionItem[]> = {
+    attention: [],
+    upcoming: [],
+    someday: [],
+  };
+  const urgencyOrder: Record<Urgency, number> = { overdue: 0, today: 1, upcoming: 2, someday: 3 };
+  for (const item of open) {
+    const { urgency, date } = classifyWhen(item.when);
+    item._date = date;
+    if (urgency === "overdue" || urgency === "today") groups.attention.push(item);
+    else if (urgency === "upcoming") groups.upcoming.push(item);
+    else groups.someday.push(item);
+  }
+  const priorityRank = { high: 0, medium: 1, low: 2 } as const;
+  for (const list of Object.values(groups)) {
+    list.sort(
+      (a, b) =>
+        priorityRank[a.priority] - priorityRank[b.priority] ||
+        urgencyOrder[classifyWhen(a.when).urgency] - urgencyOrder[classifyWhen(b.when).urgency],
+    );
+  }
+  return groups;
+}
+
+function TodayPage() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const toggle = useServerFn(togglePlanItem);
+  const { data: items } = useQuery({ ...todayQueryOptions, initialData: Route.useLoaderData() });
+
+  const groups = groupItems(items);
+
+  const handleToggle = async (item: ActionItem) => {
+    await toggle({ data: { itemId: item.id, done: true } });
+    queryClient.invalidateQueries({ queryKey: ["today-items"] });
+  };
+
+  const handleSignOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/", replace: true });
+  };
+
+  const dateLabel = new Date().toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
+  return (
+    <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col px-6 pb-16 sm:px-8">
+      <header className="flex items-center justify-between py-5">
+        <Link to="/" className="text-lg font-bold tracking-tight text-foreground">
+          UNMESS
+        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/"
+            className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            New unmess
+          </Link>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            Log out
+          </button>
+        </div>
+      </header>
+
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Today</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{dateLabel}</p>
+      </div>
+
+      {items.length === 0 ? (
+        <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+          <p className="text-base text-foreground">Nothing here yet.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Unmess something and it will show up here, sorted for you.
+          </p>
+          <Link
+            to="/"
+            className="mt-5 inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90"
+          >
+            Unmess something
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-10">
+          <Section
+            title="Needs attention"
+            accentClass="bg-red-500"
+            items={groups.attention}
+            onToggle={handleToggle}
+            emptyText="Nothing overdue or due today. Breathe easy."
+          />
+          <Section
+            title="Upcoming"
+            accentClass="bg-amber-500"
+            items={groups.upcoming}
+            onToggle={handleToggle}
+            emptyText="Nothing coming up."
+          />
+          <Section
+            title="Someday"
+            accentClass="bg-muted-foreground/50"
+            items={groups.someday}
+            onToggle={handleToggle}
+            emptyText="No unscheduled items."
+          />
+        </div>
+      )}
+    </main>
+  );
+}
+
+function Section({
+  title,
+  accentClass,
+  items,
+  onToggle,
+  emptyText,
+}: {
+  title: string;
+  accentClass: string;
+  items: ActionItem[];
+  onToggle: (item: ActionItem) => void;
+  emptyText: string;
+}) {
+  return (
+    <section>
+      <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+        <span className={`h-2.5 w-2.5 rounded-full ${accentClass}`} />
+        {title}
+        <span className="font-normal normal-case">({items.length})</span>
+      </h2>
+      {items.length === 0 ? (
+        <p className="rounded-2xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">
+          {emptyText}
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className={`flex items-center gap-3 rounded-2xl border bg-card p-4 shadow-sm sm:p-5 ${
+                item.priority === "high" ? "border-red-500/40" : "border-border"
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => onToggle(item)}
+                aria-label={`Mark "${item.action}" as done`}
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-muted-foreground/40 text-transparent transition-colors hover:border-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+              >
+                ✓
+              </button>
+              <div className="min-w-0 flex-1">
+                <p
+                  className={`text-base leading-relaxed ${
+                    item.priority === "high" ? "font-medium text-foreground" : "text-foreground"
+                  }`}
+                >
+                  {item.action}
+                </p>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className={`h-2 w-2 rounded-full ${priorityDot[item.priority]}`} />
+                  {item.when && item.when.toLowerCase() !== "no date" && (
+                    <span className="text-xs font-medium text-muted-foreground">{item.when}</span>
+                  )}
+                </div>
+              </div>
+              <Link
+                to="/plans/$planId"
+                params={{ planId: item.planId }}
+                className="shrink-0 rounded-full px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                View
+              </Link>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
