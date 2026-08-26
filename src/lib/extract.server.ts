@@ -89,9 +89,8 @@ async function docxToText(bytes: Uint8Array): Promise<string> {
 
   const imageParts = Object.entries(files)
     .map(([path, file]) => ({ path, file, mimeType: getImageMimeType(path) }))
-    .filter((part): part is { path: string; file: Uint8Array; mimeType: string } =>
-      Boolean(part.mimeType && part.path.startsWith("word/media/")),
-    )
+    .filter((part) => Boolean(part.mimeType && part.path.startsWith("word/media/")))
+    .map((part) => ({ path: part.path, file: part.file, mimeType: part.mimeType ?? "image/png" }))
     .slice(0, MAX_DOCX_IMAGES_TO_SCAN);
 
   if (textParts.length > 0 || imageParts.length === 0) {
