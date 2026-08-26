@@ -283,6 +283,11 @@ function Landing() {
           </div>
         )}
 
+        {/* Interactive 3D showcase */}
+        <section className="mt-20">
+          <SplineSceneBasic />
+        </section>
+
         {/* Free vs Pro */}
         <section className="mt-20">
           <h2 className="text-center text-2xl font-bold tracking-tight text-foreground">
