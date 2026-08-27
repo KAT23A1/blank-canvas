@@ -97,7 +97,8 @@ export function ManageSubscriptionButton({
       {confirming && (
         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3">
           <span className="text-sm text-muted-foreground">
-            Cancel Pro? You keep access until the end of the billing period.
+            Cancel Pro? You keep access until the end of the billing period
+            {periodEndLabel ? ` — ${periodEndLabel}` : ""}.
           </span>
           <button
             type="button"
@@ -118,7 +119,11 @@ export function ManageSubscriptionButton({
       )}
 
       {showNote && (
-        <p className={noteClassName || "text-xs text-muted-foreground"}>Cancel anytime.</p>
+        <p className={noteClassName || "text-xs text-muted-foreground"}>
+          {periodEndLabel
+            ? `Your current billing period ends ${periodEndLabel}. Cancel anytime — you keep Pro until then.`
+            : "Cancel anytime."}
+        </p>
       )}
       {message && <p className="text-xs text-foreground">{message}</p>}
       {error && <p className="text-xs text-destructive">{error}</p>}
