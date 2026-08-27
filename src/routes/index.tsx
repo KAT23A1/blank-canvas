@@ -540,7 +540,10 @@ function Landing() {
           </p>
         </section>
       </div>
+
+      {showTour && <Tour steps={GUEST_TOUR_STEPS} onClose={finishTour} />}
     </main>
+
   );
 }
 
