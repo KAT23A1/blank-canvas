@@ -563,14 +563,14 @@ function AppHome({ user }: { user: User }) {
   const [showTour, setShowTour] = useState(false);
 
   useEffect(() => {
+    // Logged-in users only see the tour when they explicitly replay it from Settings.
     const replay = localStorage.getItem(TOUR_REPLAY_KEY);
-    if (replay) localStorage.removeItem(TOUR_REPLAY_KEY);
-    if (replay || !localStorage.getItem(TOUR_SEEN_KEY)) {
-      const t = setTimeout(() => setShowTour(true), 1200);
-      return () => clearTimeout(t);
-    }
-    return undefined;
+    if (!replay) return undefined;
+    localStorage.removeItem(TOUR_REPLAY_KEY);
+    const t = setTimeout(() => setShowTour(true), 600);
+    return () => clearTimeout(t);
   }, [user.id]);
+
 
   const finishTour = () => {
     localStorage.setItem(TOUR_SEEN_KEY, "1");

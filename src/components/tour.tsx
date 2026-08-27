@@ -50,7 +50,7 @@ export const GUEST_TOUR_STEPS: TourStep[] = [
 export const TOUR_REPLAY_KEY = "unmess_tour_replay";
 // Single shared key: once the tour is seen (guest or logged in), it never
 // auto-plays again — regardless of account.
-export const TOUR_SEEN_KEY = "unmess_tour_seen:v3";
+export const TOUR_SEEN_KEY = "unmess_tour_seen:v4";
 
 
 type Rect = { top: number; left: number; width: number; height: number };
