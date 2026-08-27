@@ -11,12 +11,23 @@ export function ManageSubscriptionButton({
   noteClassName = "",
   showNote = true,
   label = "Manage subscription",
+  renewsAt = null,
 }: {
   className?: string;
   noteClassName?: string;
   showNote?: boolean;
   label?: string;
+  /** End of the current billing period (ISO date), shown before cancelling. */
+  renewsAt?: string | null;
 }) {
+  const periodEnd = renewsAt ? new Date(renewsAt) : null;
+  const periodEndLabel = periodEnd
+    ? periodEnd.toLocaleDateString(undefined, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : null;
   const openPortal = useServerFn(getBillingPortal);
   const cancelNow = useServerFn(cancelSubscription);
   const [busy, setBusy] = useState(false);
@@ -86,7 +97,8 @@ export function ManageSubscriptionButton({
       {confirming && (
         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3">
           <span className="text-sm text-muted-foreground">
-            Cancel Pro? You keep access until the end of the billing period.
+            Cancel Pro? You keep access until the end of the billing period
+            {periodEndLabel ? ` — ${periodEndLabel}` : ""}.
           </span>
           <button
             type="button"
@@ -107,7 +119,11 @@ export function ManageSubscriptionButton({
       )}
 
       {showNote && (
-        <p className={noteClassName || "text-xs text-muted-foreground"}>Cancel anytime.</p>
+        <p className={noteClassName || "text-xs text-muted-foreground"}>
+          {periodEndLabel
+            ? `Your current billing period ends ${periodEndLabel}. Cancel anytime — you keep Pro until then.`
+            : "Cancel anytime."}
+        </p>
       )}
       {message && <p className="text-xs text-foreground">{message}</p>}
       {error && <p className="text-xs text-destructive">{error}</p>}

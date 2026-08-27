@@ -7,6 +7,10 @@ export type UsageInfo = {
   plan: "free" | "pro";
   used: number;
   limit: number | null;
+  /** Next billing date (Pro) or end-of-access date once cancelled. */
+  renewsAt: string | null;
+  /** Lemon Squeezy status, e.g. "active", "cancelled". */
+  status: string | null;
 };
 
 export type UnmessAuthedResult =
@@ -18,7 +22,7 @@ export const getSubscription = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<UsageInfo> => {
     const { data } = await context.supabase
       .from("subscriptions")
-      .select("plan, unmess_count, period_start")
+      .select("plan, unmess_count, period_start, ls_renews_at, ls_status")
       .eq("user_id", context.userId)
       .maybeSingle();
 
@@ -35,6 +39,8 @@ export const getSubscription = createServerFn({ method: "GET" })
       plan,
       used: freshPeriod ? 0 : (data?.unmess_count ?? 0),
       limit: plan === "pro" ? null : 5,
+      renewsAt: data?.ls_renews_at ?? null,
+      status: data?.ls_status ?? null,
     };
   });
 
@@ -51,10 +57,12 @@ export const unmessTextAuthed = createServerFn({ method: "POST" })
       limit?: number | null;
     } | null;
 
-    const usage = {
+    const usage: UsageInfo = {
       plan: (result?.plan === "pro" ? "pro" : "free") as "free" | "pro",
       used: (result?.used as number) ?? 0,
       limit: (result?.limit as number | null) ?? null,
+      renewsAt: null,
+      status: null,
     };
 
     if (!result?.allowed) {
