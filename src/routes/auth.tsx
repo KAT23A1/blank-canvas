@@ -92,7 +92,7 @@ function AuthPage() {
       <div className="w-full max-w-md">
         <div className="mb-10 text-center">
           <Link to="/" className="bounce-button">
-            <Logo className="h-10 sm:h-12" />
+            <Logo className="h-16 sm:h-20" />
           </Link>
           <p className="mt-2 text-muted-foreground">
             {mode === "sign-in"

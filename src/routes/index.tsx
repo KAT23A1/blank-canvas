@@ -414,7 +414,7 @@ function Landing() {
     <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-6 pb-12 sm:px-8">
       <header className="flex w-full max-w-2xl items-center justify-between py-5">
         <Link to="/" className="bounce-button">
-          <Logo className="h-7 sm:h-8" />
+          <Logo className="h-10 sm:h-12" />
         </Link>
         <Link
           to="/auth"
@@ -702,7 +702,7 @@ function AppHome({ user }: { user: User }) {
       <div className="flex w-full max-w-2xl flex-1 flex-col justify-center">
         <div className="mb-10 text-center sm:mb-14">
           <div className="flex justify-center">
-            <Logo className="h-16 sm:h-20" />
+            <Logo className="h-24 sm:h-32" />
           </div>
           <RotatingTagline className="mt-3 text-lg text-muted-foreground sm:text-xl" />
         </div>
