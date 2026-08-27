@@ -17,7 +17,7 @@ import { Tour, TOUR_STEPS, TOUR_REPLAY_KEY, tourStorageKey } from "@/components/
 type Status = "idle" | "loading" | "error";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
-const FREE_UNMESS_KEY = "unmess_free_used";
+const FREE_UNMESS_KEY = "unmess_free_used_v2";
 
 const priorityMeta: Record<
   UnmessItem["priority"],
