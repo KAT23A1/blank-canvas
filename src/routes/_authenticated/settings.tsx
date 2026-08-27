@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { tourStorageKey, TOUR_REPLAY_KEY } from "@/components/tour";
+import { TOUR_SEEN_KEY, TOUR_REPLAY_KEY } from "@/components/tour";
 import { getSubscription } from "@/lib/usage.functions";
 import { createProCheckout } from "@/lib/billing.functions";
 import { ManageSubscriptionButton } from "@/components/manage-subscription";
@@ -49,7 +49,7 @@ function SettingsPage() {
   }, []);
 
   const replayTour = () => {
-    if (userId) localStorage.removeItem(tourStorageKey(userId));
+    localStorage.removeItem(TOUR_SEEN_KEY);
     localStorage.setItem(TOUR_REPLAY_KEY, "1");
     navigate({ to: "/" });
   };
