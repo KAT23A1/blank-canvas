@@ -176,6 +176,17 @@ function UnmessBox({
 
   const canSubmit = Boolean(input.trim() || attachment);
 
+  // Fire the unmess and immediately clear the box + attachment for the user.
+  const submitAndClear = () => {
+    if (!canSubmit || status === "loading" || reading) return;
+    const attached = attachment?.text;
+    onSubmit(attached);
+    setInput("");
+    setAttachment(null);
+    setFileError(null);
+  };
+
+
   return (
     <div
       data-tour="paste-box"
