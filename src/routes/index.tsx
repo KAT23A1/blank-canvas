@@ -350,6 +350,12 @@ function Landing() {
   const [status, setStatus] = useState<Status>("idle");
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
 
+  useEffect(() => {
+    // clear the legacy flag so returning visitors get their free unmess back
+    localStorage.removeItem("unmess_free_used");
+  }, []);
+
+
   const handleSubmit = async (attachedText?: string) => {
     const text = [input.trim(), attachedText?.trim()].filter(Boolean).join("\n\n");
     if (!text || status === "loading") return;
