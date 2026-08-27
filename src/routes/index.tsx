@@ -12,7 +12,14 @@ import { Paperclip, Settings as SettingsIcon, X } from "lucide-react";
 import { extractFile } from "@/lib/files.functions";
 import { SplineSceneBasic } from "@/components/spline-scene-basic";
 import { RotatingTagline } from "@/components/rotating-tagline";
-import { Tour, TOUR_STEPS, TOUR_REPLAY_KEY, tourStorageKey } from "@/components/tour";
+import {
+  Tour,
+  TOUR_STEPS,
+  GUEST_TOUR_STEPS,
+  GUEST_TOUR_KEY,
+  TOUR_REPLAY_KEY,
+  tourStorageKey,
+} from "@/components/tour";
 
 type Status = "idle" | "loading" | "error";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -176,6 +183,17 @@ function UnmessBox({
 
   const canSubmit = Boolean(input.trim() || attachment);
 
+  // Fire the unmess and immediately clear the box + attachment for the user.
+  const submitAndClear = () => {
+    if (!canSubmit || status === "loading" || reading) return;
+    const attached = attachment?.text;
+    onSubmit(attached);
+    setInput("");
+    setAttachment(null);
+    setFileError(null);
+  };
+
+
   return (
     <div
       data-tour="paste-box"
@@ -204,7 +222,7 @@ function UnmessBox({
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-            if (canSubmit) onSubmit(attachment?.text);
+            submitAndClear();
           }
         }}
         placeholder="Dump everything on your mind…"
@@ -268,7 +286,7 @@ function UnmessBox({
         <button
           type="button"
           data-tour="unmess-button"
-          onClick={() => onSubmit(attachment?.text)}
+          onClick={submitAndClear}
           disabled={status === "loading" || reading || !canSubmit}
           className="glow inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
@@ -349,11 +367,28 @@ function Landing() {
   const [items, setItems] = useState<UnmessItem[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
+  const [showTour, setShowTour] = useState(false);
 
   useEffect(() => {
     // clear the legacy flag so returning visitors get their free unmess back
     localStorage.removeItem("unmess_free_used");
   }, []);
+
+  // Kick off the walkthrough a beat after a first-time visitor lands.
+  useEffect(() => {
+    const replay = localStorage.getItem(TOUR_REPLAY_KEY);
+    if (replay) localStorage.removeItem(TOUR_REPLAY_KEY);
+    if (replay || !localStorage.getItem(GUEST_TOUR_KEY)) {
+      const t = setTimeout(() => setShowTour(true), 1200);
+      return () => clearTimeout(t);
+    }
+    return undefined;
+  }, []);
+
+  const finishTour = () => {
+    localStorage.setItem(GUEST_TOUR_KEY, "1");
+    setShowTour(false);
+  };
 
 
   const handleSubmit = async (attachedText?: string) => {
@@ -383,6 +418,7 @@ function Landing() {
         </Link>
         <Link
           to="/auth"
+          data-tour="signin-link"
           className="glow rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
         >
           Sign in
@@ -504,7 +540,10 @@ function Landing() {
           </p>
         </section>
       </div>
+
+      {showTour && <Tour steps={GUEST_TOUR_STEPS} onClose={finishTour} />}
     </main>
+
   );
 }
 
@@ -529,7 +568,7 @@ function AppHome({ user }: { user: User }) {
     const replay = localStorage.getItem(TOUR_REPLAY_KEY);
     if (replay) localStorage.removeItem(TOUR_REPLAY_KEY);
     if (replay || !localStorage.getItem(key)) {
-      const t = setTimeout(() => setShowTour(true), 500);
+      const t = setTimeout(() => setShowTour(true), 1200);
       return () => clearTimeout(t);
     }
     return undefined;
