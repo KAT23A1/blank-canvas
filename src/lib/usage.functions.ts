@@ -7,6 +7,10 @@ export type UsageInfo = {
   plan: "free" | "pro";
   used: number;
   limit: number | null;
+  /** Next billing date (Pro) or end-of-access date once cancelled. */
+  renewsAt: string | null;
+  /** Lemon Squeezy status, e.g. "active", "cancelled". */
+  status: string | null;
 };
 
 export type UnmessAuthedResult =
@@ -18,7 +22,7 @@ export const getSubscription = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<UsageInfo> => {
     const { data } = await context.supabase
       .from("subscriptions")
-      .select("plan, unmess_count, period_start")
+      .select("plan, unmess_count, period_start, ls_renews_at, ls_status")
       .eq("user_id", context.userId)
       .maybeSingle();
 
