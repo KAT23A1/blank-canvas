@@ -152,7 +152,7 @@ function TodayPage() {
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col px-6 pb-16 sm:px-8">
       <header className="flex items-center justify-between py-5">
         <Link to="/" className="bounce-button">
-          UNMESS
+          <Logo className="h-7 sm:h-8" />
         </Link>
         <div className="flex items-center gap-3">
           <Link
