@@ -215,7 +215,7 @@ function UnmessBox({
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-            if (canSubmit) onSubmit(attachment?.text);
+            submitAndClear();
           }
         }}
         placeholder="Dump everything on your mind…"
@@ -279,7 +279,7 @@ function UnmessBox({
         <button
           type="button"
           data-tour="unmess-button"
-          onClick={() => onSubmit(attachment?.text)}
+          onClick={submitAndClear}
           disabled={status === "loading" || reading || !canSubmit}
           className="glow inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
@@ -540,7 +540,7 @@ function AppHome({ user }: { user: User }) {
     const replay = localStorage.getItem(TOUR_REPLAY_KEY);
     if (replay) localStorage.removeItem(TOUR_REPLAY_KEY);
     if (replay || !localStorage.getItem(key)) {
-      const t = setTimeout(() => setShowTour(true), 500);
+      const t = setTimeout(() => setShowTour(true), 1200);
       return () => clearTimeout(t);
     }
     return undefined;
