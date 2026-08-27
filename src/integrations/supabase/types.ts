@@ -155,7 +155,72 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      free_users: {
+        Row: {
+          created_at: string | null
+          period_start: string | null
+          plan: string | null
+          unmess_count: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          period_start?: string | null
+          plan?: string | null
+          unmess_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          period_start?: string | null
+          plan?: string | null
+          unmess_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      pro_subscribers: {
+        Row: {
+          created_at: string | null
+          ls_customer_id: string | null
+          ls_renews_at: string | null
+          ls_status: string | null
+          ls_subscription_id: string | null
+          period_start: string | null
+          plan: string | null
+          unmess_count: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          ls_customer_id?: string | null
+          ls_renews_at?: string | null
+          ls_status?: string | null
+          ls_subscription_id?: string | null
+          period_start?: string | null
+          plan?: string | null
+          unmess_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          ls_customer_id?: string | null
+          ls_renews_at?: string | null
+          ls_status?: string | null
+          ls_subscription_id?: string | null
+          period_start?: string | null
+          plan?: string | null
+          unmess_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       consume_unmess: { Args: never; Returns: Json }
