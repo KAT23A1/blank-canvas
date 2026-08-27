@@ -16,9 +16,8 @@ import {
   Tour,
   TOUR_STEPS,
   GUEST_TOUR_STEPS,
-  GUEST_TOUR_KEY,
+  TOUR_SEEN_KEY,
   TOUR_REPLAY_KEY,
-  tourStorageKey,
 } from "@/components/tour";
 
 type Status = "idle" | "loading" | "error";
