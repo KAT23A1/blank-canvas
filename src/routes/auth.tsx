@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
+import { Logo } from "@/components/logo";
 
 type Mode = "sign-in" | "sign-up";
 
@@ -90,8 +91,8 @@ function AuthPage() {
     <main className="flex min-h-screen flex-col items-center justify-center px-6 py-12 sm:px-8">
       <div className="w-full max-w-md">
         <div className="mb-10 text-center">
-          <Link to="/" className="bounce-button text-2xl px-5 py-2.5">
-            UNMESS
+          <Link to="/" className="rounded-xl transition-transform">
+            <Logo bounce className="h-24 sm:h-28" />
           </Link>
           <p className="mt-2 text-muted-foreground">
             {mode === "sign-in"

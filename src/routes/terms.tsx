@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Logo } from "@/components/logo";
+
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -35,8 +37,8 @@ function TermsPage() {
   return (
     <main className="flex min-h-screen flex-col items-center px-6 pb-16 sm:px-8">
       <header className="flex w-full max-w-2xl items-center justify-between py-5">
-        <Link to="/" className="text-lg font-bold tracking-tight text-foreground">
-          UNMESS
+        <Link to="/" className="rounded-xl transition-transform">
+          <Logo bounce className="h-16 sm:h-20" />
         </Link>
         <Link
           to="/auth"

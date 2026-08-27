@@ -195,6 +195,15 @@
     animation: bouncey-press 0.35s ease-in-out;
   }
 
+  /* Bouncy logo — same energy as bounce-button but without the pill clipping a square mark */
+  .logo-bounce {
+    animation: bouncey 1.6s ease-in-out infinite;
+  }
+
+  .logo-bounce:active {
+    animation: bouncey-press 0.35s ease-in-out;
+  }
+
   @keyframes bouncey {
     0%,
     100% {

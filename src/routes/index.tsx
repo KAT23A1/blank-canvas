@@ -12,6 +12,7 @@ import { Paperclip, Settings as SettingsIcon, X } from "lucide-react";
 import { extractFile } from "@/lib/files.functions";
 import { SplineSceneBasic } from "@/components/spline-scene-basic";
 import { RotatingTagline } from "@/components/rotating-tagline";
+import { Logo } from "@/components/logo";
 import {
   Tour,
   TOUR_STEPS,
@@ -412,8 +413,8 @@ function Landing() {
   return (
     <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-6 pb-12 sm:px-8">
       <header className="flex w-full max-w-2xl items-center justify-between py-5">
-        <Link to="/" className="bounce-button text-base">
-          UNMESS
+        <Link to="/" className="rounded-xl transition-transform">
+          <Logo bounce className="h-16 sm:h-20" />
         </Link>
         <Link
           to="/auth"
@@ -700,9 +701,9 @@ function AppHome({ user }: { user: User }) {
 
       <div className="flex w-full max-w-2xl flex-1 flex-col justify-center">
         <div className="mb-10 text-center sm:mb-14">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            UNMESS
-          </h1>
+          <div className="flex justify-center">
+            <Logo bounce className="h-32 sm:h-40" />
+          </div>
           <RotatingTagline className="mt-3 text-lg text-muted-foreground sm:text-xl" />
         </div>
 

@@ -6,6 +6,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { getSubscription } from "@/lib/usage.functions";
 import { createProCheckout } from "@/lib/billing.functions";
+import { Logo } from "@/components/logo";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -87,8 +88,8 @@ function PricingPage() {
   return (
     <main className="flex min-h-screen flex-col items-center px-6 pb-16 sm:px-8">
       <header className="flex w-full max-w-3xl items-center justify-between py-5">
-        <Link to="/" className="text-lg font-bold tracking-tight text-foreground">
-          UNMESS
+        <Link to="/" className="rounded-xl transition-transform">
+          <Logo bounce className="h-16 sm:h-20" />
         </Link>
         {authChecked &&
           (user ? (
