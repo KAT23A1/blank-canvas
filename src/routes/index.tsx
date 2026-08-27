@@ -12,7 +12,14 @@ import { Paperclip, Settings as SettingsIcon, X } from "lucide-react";
 import { extractFile } from "@/lib/files.functions";
 import { SplineSceneBasic } from "@/components/spline-scene-basic";
 import { RotatingTagline } from "@/components/rotating-tagline";
-import { Tour, TOUR_STEPS, TOUR_REPLAY_KEY, tourStorageKey } from "@/components/tour";
+import {
+  Tour,
+  TOUR_STEPS,
+  GUEST_TOUR_STEPS,
+  GUEST_TOUR_KEY,
+  TOUR_REPLAY_KEY,
+  tourStorageKey,
+} from "@/components/tour";
 
 type Status = "idle" | "loading" | "error";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -360,11 +367,28 @@ function Landing() {
   const [items, setItems] = useState<UnmessItem[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
+  const [showTour, setShowTour] = useState(false);
 
   useEffect(() => {
     // clear the legacy flag so returning visitors get their free unmess back
     localStorage.removeItem("unmess_free_used");
   }, []);
+
+  // Kick off the walkthrough a beat after a first-time visitor lands.
+  useEffect(() => {
+    const replay = localStorage.getItem(TOUR_REPLAY_KEY);
+    if (replay) localStorage.removeItem(TOUR_REPLAY_KEY);
+    if (replay || !localStorage.getItem(GUEST_TOUR_KEY)) {
+      const t = setTimeout(() => setShowTour(true), 1200);
+      return () => clearTimeout(t);
+    }
+    return undefined;
+  }, []);
+
+  const finishTour = () => {
+    localStorage.setItem(GUEST_TOUR_KEY, "1");
+    setShowTour(false);
+  };
 
 
   const handleSubmit = async (attachedText?: string) => {
@@ -394,6 +418,7 @@ function Landing() {
         </Link>
         <Link
           to="/auth"
+          data-tour="signin-link"
           className="glow rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
         >
           Sign in
