@@ -89,7 +89,7 @@ function PricingPage() {
     <main className="flex min-h-screen flex-col items-center px-6 pb-16 sm:px-8">
       <header className="flex w-full max-w-3xl items-center justify-between py-5">
         <Link to="/" className="rounded-xl transition-transform">
-          <Logo bounce className="h-12 sm:h-14" />
+          <Logo bounce className="h-16 sm:h-20" />
         </Link>
         {authChecked &&
           (user ? (
