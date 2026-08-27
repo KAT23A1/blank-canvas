@@ -377,7 +377,7 @@ function Landing() {
   useEffect(() => {
     const replay = localStorage.getItem(TOUR_REPLAY_KEY);
     if (replay) localStorage.removeItem(TOUR_REPLAY_KEY);
-    if (replay || !localStorage.getItem(GUEST_TOUR_KEY)) {
+    if (replay || !localStorage.getItem(TOUR_SEEN_KEY)) {
       const t = setTimeout(() => setShowTour(true), 1200);
       return () => clearTimeout(t);
     }
@@ -385,7 +385,7 @@ function Landing() {
   }, []);
 
   const finishTour = () => {
-    localStorage.setItem(GUEST_TOUR_KEY, "1");
+    localStorage.setItem(TOUR_SEEN_KEY, "1");
     setShowTour(false);
   };
 
@@ -563,10 +563,9 @@ function AppHome({ user }: { user: User }) {
   const [showTour, setShowTour] = useState(false);
 
   useEffect(() => {
-    const key = tourStorageKey(user.id);
     const replay = localStorage.getItem(TOUR_REPLAY_KEY);
     if (replay) localStorage.removeItem(TOUR_REPLAY_KEY);
-    if (replay || !localStorage.getItem(key)) {
+    if (replay || !localStorage.getItem(TOUR_SEEN_KEY)) {
       const t = setTimeout(() => setShowTour(true), 1200);
       return () => clearTimeout(t);
     }
@@ -574,7 +573,7 @@ function AppHome({ user }: { user: User }) {
   }, [user.id]);
 
   const finishTour = () => {
-    localStorage.setItem(tourStorageKey(user.id), "1");
+    localStorage.setItem(TOUR_SEEN_KEY, "1");
     setShowTour(false);
   };
 
