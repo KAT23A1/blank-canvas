@@ -7,6 +7,7 @@ import { listActionItems, togglePlanItem } from "@/lib/plans.functions";
 import { getSubscription } from "@/lib/usage.functions";
 import { createProCheckout } from "@/lib/billing.functions";
 import { classifyWhen, type Urgency } from "@/lib/dates";
+import { Logo } from "@/components/logo";
 
 type ActionItem = Awaited<ReturnType<typeof listActionItems>>[number];
 

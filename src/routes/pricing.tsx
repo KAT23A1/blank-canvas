@@ -6,6 +6,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { getSubscription } from "@/lib/usage.functions";
 import { createProCheckout } from "@/lib/billing.functions";
+import { Logo } from "@/components/logo";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({

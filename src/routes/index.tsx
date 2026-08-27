@@ -12,6 +12,7 @@ import { Paperclip, Settings as SettingsIcon, X } from "lucide-react";
 import { extractFile } from "@/lib/files.functions";
 import { SplineSceneBasic } from "@/components/spline-scene-basic";
 import { RotatingTagline } from "@/components/rotating-tagline";
+import { Logo } from "@/components/logo";
 import {
   Tour,
   TOUR_STEPS,
