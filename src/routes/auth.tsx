@@ -91,8 +91,8 @@ function AuthPage() {
     <main className="flex min-h-screen flex-col items-center justify-center px-6 py-12 sm:px-8">
       <div className="w-full max-w-md">
         <div className="mb-10 text-center">
-          <Link to="/" className="bounce-button">
-            <Logo className="h-16 sm:h-20" />
+          <Link to="/" className="rounded-xl transition-transform">
+            <Logo bounce className="h-20 sm:h-24" />
           </Link>
           <p className="mt-2 text-muted-foreground">
             {mode === "sign-in"

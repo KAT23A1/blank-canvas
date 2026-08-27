@@ -37,8 +37,8 @@ function PrivacyPage() {
   return (
     <main className="flex min-h-screen flex-col items-center px-6 pb-16 sm:px-8">
       <header className="flex w-full max-w-2xl items-center justify-between py-5">
-        <Link to="/" className="bounce-button">
-          <Logo className="h-10 sm:h-12" />
+        <Link to="/" className="rounded-xl transition-transform">
+          <Logo bounce className="h-12 sm:h-14" />
         </Link>
         <Link
           to="/auth"
