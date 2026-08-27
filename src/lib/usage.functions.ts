@@ -39,6 +39,8 @@ export const getSubscription = createServerFn({ method: "GET" })
       plan,
       used: freshPeriod ? 0 : (data?.unmess_count ?? 0),
       limit: plan === "pro" ? null : 5,
+      renewsAt: data?.ls_renews_at ?? null,
+      status: data?.ls_status ?? null,
     };
   });
 

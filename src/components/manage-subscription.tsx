@@ -11,12 +11,23 @@ export function ManageSubscriptionButton({
   noteClassName = "",
   showNote = true,
   label = "Manage subscription",
+  renewsAt = null,
 }: {
   className?: string;
   noteClassName?: string;
   showNote?: boolean;
   label?: string;
+  /** End of the current billing period (ISO date), shown before cancelling. */
+  renewsAt?: string | null;
 }) {
+  const periodEnd = renewsAt ? new Date(renewsAt) : null;
+  const periodEndLabel = periodEnd
+    ? periodEnd.toLocaleDateString(undefined, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : null;
   const openPortal = useServerFn(getBillingPortal);
   const cancelNow = useServerFn(cancelSubscription);
   const [busy, setBusy] = useState(false);
