@@ -17,7 +17,7 @@ import { Tour, TOUR_STEPS, TOUR_REPLAY_KEY, tourStorageKey } from "@/components/
 type Status = "idle" | "loading" | "error";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
-const FREE_UNMESS_KEY = "unmess_free_used";
+const FREE_UNMESS_KEY = "unmess_free_used_v2";
 
 const priorityMeta: Record<
   UnmessItem["priority"],
@@ -349,6 +349,12 @@ function Landing() {
   const [items, setItems] = useState<UnmessItem[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
+
+  useEffect(() => {
+    // clear the legacy flag so returning visitors get their free unmess back
+    localStorage.removeItem("unmess_free_used");
+  }, []);
+
 
   const handleSubmit = async (attachedText?: string) => {
     const text = [input.trim(), attachedText?.trim()].filter(Boolean).join("\n\n");
