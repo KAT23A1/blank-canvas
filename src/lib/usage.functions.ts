@@ -57,10 +57,12 @@ export const unmessTextAuthed = createServerFn({ method: "POST" })
       limit?: number | null;
     } | null;
 
-    const usage = {
+    const usage: UsageInfo = {
       plan: (result?.plan === "pro" ? "pro" : "free") as "free" | "pro",
       used: (result?.used as number) ?? 0,
       limit: (result?.limit as number | null) ?? null,
+      renewsAt: null,
+      status: null,
     };
 
     if (!result?.allowed) {
