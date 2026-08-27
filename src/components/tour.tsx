@@ -29,11 +29,31 @@ export const TOUR_STEPS: TourStep[] = [
   },
 ];
 
+export const GUEST_TOUR_STEPS: TourStep[] = [
+  {
+    selector: '[data-tour="paste-box"]',
+    title: "Dump it all here",
+    body: "Paste messy notes, a document, screenshots — anything on your mind. No structure needed.",
+  },
+  {
+    selector: '[data-tour="unmess-button"]',
+    title: "Then unmess it",
+    body: "Hit Unmess this (or just press Enter) and you'll get a clean, prioritised plan.",
+  },
+  {
+    selector: '[data-tour="signin-link"]',
+    title: "Save your plans",
+    body: "Create a free account to keep your plans, tick actions off and see everything due today.",
+  },
+];
+
 export const TOUR_REPLAY_KEY = "unmess_tour_replay";
+export const GUEST_TOUR_KEY = "unmess_tour_seen:guest:v2";
 
 export function tourStorageKey(userId: string) {
-  return `unmess_tour_seen:${userId}`;
+  return `unmess_tour_seen:v2:${userId}`;
 }
+
 
 type Rect = { top: number; left: number; width: number; height: number };
 
