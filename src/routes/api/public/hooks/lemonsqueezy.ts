@@ -46,6 +46,8 @@ export const Route = createFileRoute("/api/public/hooks/lemonsqueezy")({
               user_email?: string;
               customer_id?: number | string;
               renews_at?: string | null;
+              ends_at?: string | null;
+              refunded?: boolean;
               urls?: { customer_portal?: string; update_payment_method?: string };
             };
           };
@@ -69,12 +71,21 @@ export const Route = createFileRoute("/api/public/hooks/lemonsqueezy")({
           return json({ error: "No email on event" }, 400);
         }
 
-        // Event names win over status: a cancellation/expiry always downgrades.
+        // A refund revokes access immediately — the money went back.
+        const refunded =
+          eventName === "subscription_payment_refunded" || attrs.refunded === true;
+        // The date paid access actually runs out after a cancellation.
+        const endsAt = attrs.ends_at ?? null;
+        const endsInFuture = endsAt ? new Date(endsAt).getTime() > Date.now() : false;
+
         let nextPlan: "pro" | "free" | null = null;
-        if (eventName === "subscription_cancelled" || eventName === "subscription_expired") {
+        if (refunded || eventName === "subscription_expired") {
           nextPlan = "free";
+        } else if (eventName === "subscription_cancelled") {
+          // Cancelled but already paid: keep Pro until the period ends.
+          nextPlan = endsAt && !endsInFuture ? "free" : "pro";
         } else if (ACTIVE_STATUSES.has(status)) {
-          nextPlan = "pro";
+          nextPlan = status === "cancelled" && endsAt && !endsInFuture ? "free" : "pro";
         } else if (INACTIVE_STATUSES.has(status)) {
           nextPlan = "free";
         }
@@ -104,19 +115,28 @@ export const Route = createFileRoute("/api/public/hooks/lemonsqueezy")({
             plan: nextPlan,
             ls_subscription_id: event.data?.id ?? null,
             ls_customer_id: attrs.customer_id != null ? String(attrs.customer_id) : null,
-            ls_status: status || null,
+            ls_status: refunded ? "refunded" : status || null,
             ls_portal_url: attrs.urls?.customer_portal ?? null,
             ls_renews_at: attrs.renews_at ?? null,
+            ls_ends_at: refunded ? new Date().toISOString() : endsAt,
             updated_at: new Date().toISOString(),
           })
           .eq("user_id", userId)
           .select("user_id");
-        if (updateError) return json({ error: updateError.message }, 500);
+        if (updateError) {
+          await supabaseAdmin.from("system_errors").insert({
+            source: "lemonsqueezy_webhook",
+            message: updateError.message,
+            detail: { eventName, status },
+            user_id: userId,
+          });
+          return json({ error: updateError.message }, 500);
+        }
         if (!updated || updated.length === 0) {
           return json({ ok: true, matched: false });
         }
 
-        return json({ ok: true, matched: true, plan: nextPlan });
+        return json({ ok: true, matched: true, plan: nextPlan, endsAt });
       },
     },
   },
