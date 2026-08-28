@@ -12,6 +12,8 @@ export function ManageSubscriptionButton({
   showNote = true,
   label = "Manage subscription",
   renewsAt = null,
+  endsAt = null,
+  cancelled = false,
 }: {
   className?: string;
   noteClassName?: string;
@@ -19,8 +21,12 @@ export function ManageSubscriptionButton({
   label?: string;
   /** End of the current billing period (ISO date), shown before cancelling. */
   renewsAt?: string | null;
+  /** Date paid access runs out after a cancellation. */
+  endsAt?: string | null;
+  /** Already cancelled — still inside the paid period. */
+  cancelled?: boolean;
 }) {
-  const periodEnd = renewsAt ? new Date(renewsAt) : null;
+  const periodEnd = endsAt ? new Date(endsAt) : renewsAt ? new Date(renewsAt) : null;
   const periodEndLabel = periodEnd
     ? periodEnd.toLocaleDateString(undefined, {
         day: "numeric",
