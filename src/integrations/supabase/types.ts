@@ -113,6 +113,7 @@ export type Database = {
           created_at: string
           id: string
           ls_customer_id: string | null
+          ls_ends_at: string | null
           ls_portal_url: string | null
           ls_renews_at: string | null
           ls_status: string | null
@@ -127,6 +128,7 @@ export type Database = {
           created_at?: string
           id?: string
           ls_customer_id?: string | null
+          ls_ends_at?: string | null
           ls_portal_url?: string | null
           ls_renews_at?: string | null
           ls_status?: string | null
@@ -141,6 +143,7 @@ export type Database = {
           created_at?: string
           id?: string
           ls_customer_id?: string | null
+          ls_ends_at?: string | null
           ls_portal_url?: string | null
           ls_renews_at?: string | null
           ls_status?: string | null
@@ -150,6 +153,33 @@ export type Database = {
           unmess_count?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      system_errors: {
+        Row: {
+          created_at: string
+          detail: Json | null
+          id: string
+          message: string
+          source: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json | null
+          id?: string
+          message: string
+          source: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          detail?: Json | null
+          id?: string
+          message?: string
+          source?: string
+          user_id?: string | null
         }
         Relationships: []
       }
