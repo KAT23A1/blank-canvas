@@ -125,14 +125,29 @@ function SettingsPage() {
         {!subscription ? (
           <p className="mt-2 text-sm text-muted-foreground">Loading your plan…</p>
         ) : subscription.plan === "pro" ? (
-          <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1.5 text-sm font-semibold text-primary">
-              ✦ Pro
-            </span>
+          <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex flex-col gap-1.5">
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1.5 text-sm font-semibold text-primary">
+                ✦ Pro — unlimited
+              </span>
+              {subscription.cancelledButActive && (
+                <span className="text-xs text-muted-foreground">
+                  Cancelled — unlimited stays on until{" "}
+                  {new Date(subscription.endsAt as string).toLocaleDateString(undefined, {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                  , then you move to Free.
+                </span>
+              )}
+            </div>
             <ManageSubscriptionButton
               className="glow inline-flex items-center justify-center rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground shadow-sm transition-all hover:bg-accent hover:shadow-md disabled:opacity-60"
               noteClassName="text-xs text-muted-foreground"
               renewsAt={subscription.renewsAt}
+              endsAt={subscription.endsAt ?? null}
+              cancelled={!!subscription.cancelledButActive}
             />
           </div>
         ) : (
