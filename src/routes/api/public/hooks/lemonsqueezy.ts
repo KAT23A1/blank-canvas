@@ -8,10 +8,14 @@ function json(data: unknown, status = 200): Response {
   });
 }
 
-/** Lemon Squeezy statuses that mean the subscription is paid and live. */
-const ACTIVE_STATUSES = new Set(["active"]);
-/** Statuses that mean the user should drop back to the free plan. */
-const INACTIVE_STATUSES = new Set(["cancelled", "expired", "unpaid"]);
+/**
+ * Lemon Squeezy statuses that mean the member still has paid access.
+ * "cancelled" counts here on purpose: the member already paid for the current
+ * period, so Pro stays live until `ends_at` passes (or a refund arrives).
+ */
+const ACTIVE_STATUSES = new Set(["active", "on_trial", "past_due", "cancelled"]);
+/** Statuses that mean the user should drop back to the free plan right away. */
+const INACTIVE_STATUSES = new Set(["expired", "unpaid"]);
 
 export const Route = createFileRoute("/api/public/hooks/lemonsqueezy")({
   server: {
