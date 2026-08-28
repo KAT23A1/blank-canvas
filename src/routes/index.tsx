@@ -646,18 +646,19 @@ function AppHome({ user }: { user: User }) {
   const usageLabel = !usage ? (
     ""
   ) : usage.plan === "pro" ? (
-    <span className="inline-flex items-center gap-3">
+    <span className="inline-flex flex-wrap items-center gap-2">
       <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
         ✦ Pro — unlimited
       </span>
-      <a
-        href="https://app.lemonsqueezy.com/my-orders"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-      >
-        Manage subscription
-      </a>
+      {usage.cancelledButActive && usage.endsAt && (
+        <span className="text-xs text-muted-foreground">
+          unlimited until{" "}
+          {new Date(usage.endsAt).toLocaleDateString(undefined, {
+            day: "numeric",
+            month: "long",
+          })}
+        </span>
+      )}
     </span>
   ) : (
     `${Math.max(0, (usage.limit ?? 5) - usage.used)} of ${usage.limit ?? 5} free unmesses left this month`

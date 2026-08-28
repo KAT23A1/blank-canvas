@@ -11,6 +11,10 @@ export type UsageInfo = {
   renewsAt: string | null;
   /** Lemon Squeezy status, e.g. "active", "cancelled". */
   status: string | null;
+  /** Set once cancelled: paid access stays live until this date. */
+  endsAt?: string | null;
+  /** True while a cancelled member is still inside the period they paid for. */
+  cancelledButActive?: boolean;
 };
 
 export type UnmessAuthedResult =
@@ -22,7 +26,7 @@ export const getSubscription = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<UsageInfo> => {
     const { data } = await context.supabase
       .from("subscriptions")
-      .select("plan, unmess_count, period_start, ls_renews_at, ls_status")
+      .select("plan, unmess_count, period_start, ls_renews_at, ls_status, ls_ends_at")
       .eq("user_id", context.userId)
       .maybeSingle();
 
@@ -34,13 +38,17 @@ export const getSubscription = createServerFn({ method: "GET" })
       periodStart.getUTCFullYear() !== currentPeriod.getUTCFullYear() ||
       periodStart.getUTCMonth() !== currentPeriod.getUTCMonth();
 
-    const plan = (data?.plan === "pro" ? "pro" : "free") as "free" | "pro";
+    const endsAt = data?.ls_ends_at ?? null;
+    const paidPeriodOver = endsAt ? new Date(endsAt).getTime() <= Date.now() : false;
+    const plan = (data?.plan === "pro" && !paidPeriodOver ? "pro" : "free") as "free" | "pro";
     return {
       plan,
       used: freshPeriod ? 0 : (data?.unmess_count ?? 0),
       limit: plan === "pro" ? null : 5,
       renewsAt: data?.ls_renews_at ?? null,
       status: data?.ls_status ?? null,
+      endsAt,
+      cancelledButActive: plan === "pro" && !!endsAt && !paidPeriodOver,
     };
   });
 

@@ -12,6 +12,8 @@ export function ManageSubscriptionButton({
   showNote = true,
   label = "Manage subscription",
   renewsAt = null,
+  endsAt = null,
+  cancelled = false,
 }: {
   className?: string;
   noteClassName?: string;
@@ -19,8 +21,12 @@ export function ManageSubscriptionButton({
   label?: string;
   /** End of the current billing period (ISO date), shown before cancelling. */
   renewsAt?: string | null;
+  /** Date paid access runs out after a cancellation. */
+  endsAt?: string | null;
+  /** Already cancelled — still inside the paid period. */
+  cancelled?: boolean;
 }) {
-  const periodEnd = renewsAt ? new Date(renewsAt) : null;
+  const periodEnd = endsAt ? new Date(endsAt) : renewsAt ? new Date(renewsAt) : null;
   const periodEndLabel = periodEnd
     ? periodEnd.toLocaleDateString(undefined, {
         day: "numeric",
@@ -85,19 +91,22 @@ export function ManageSubscriptionButton({
         <button type="button" onClick={handleClick} disabled={busy} className={className}>
           {busy ? "Opening…" : label}
         </button>
-        <button
-          type="button"
-          onClick={() => setConfirming((v) => !v)}
-          className="glow inline-flex items-center justify-center rounded-xl border border-destructive/40 bg-background px-4 py-2.5 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
-        >
-          Cancel subscription
-        </button>
+        {!cancelled && (
+          <button
+            type="button"
+            onClick={() => setConfirming((v) => !v)}
+            className="glow inline-flex items-center justify-center rounded-xl border border-destructive/40 bg-background px-4 py-2.5 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
+          >
+            Cancel subscription
+          </button>
+        )}
       </div>
 
-      {confirming && (
+      {confirming && !cancelled && (
         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3">
           <span className="text-sm text-muted-foreground">
-            Cancel Pro? You keep access until the end of the billing period
+            Cancel Pro? You keep unlimited access until the end of the period you've
+            already paid for
             {periodEndLabel ? ` — ${periodEndLabel}` : ""}.
           </span>
           <button
@@ -120,9 +129,13 @@ export function ManageSubscriptionButton({
 
       {showNote && (
         <p className={noteClassName || "text-xs text-muted-foreground"}>
-          {periodEndLabel
-            ? `Your current billing period ends ${periodEndLabel}. Cancel anytime — you keep Pro until then.`
-            : "Cancel anytime."}
+          {cancelled
+            ? periodEndLabel
+              ? `Cancelled — you keep unlimited Pro until ${periodEndLabel}. No further charges.`
+              : "Cancelled — you keep unlimited Pro until the end of the period you paid for."
+            : periodEndLabel
+              ? `Your current billing period ends ${periodEndLabel}. Cancel anytime — you keep Pro until then.`
+              : "Cancel anytime."}
         </p>
       )}
       {message && <p className="text-xs text-foreground">{message}</p>}
