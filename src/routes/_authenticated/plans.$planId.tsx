@@ -35,7 +35,9 @@ function PlanDetail() {
   const fetchPlan = useServerFn(getPlan);
   const toggleFn = useServerFn(togglePlanItem);
   const deleteFn = useServerFn(deletePlanItem);
+  const navigate = useNavigate();
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+  const [celebrating, setCelebrating] = useState(false);
 
   const { data: plan, isError, isLoading } = useQuery({
     queryKey: ["plan", planId],
