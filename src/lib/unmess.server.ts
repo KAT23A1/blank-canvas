@@ -4,7 +4,18 @@ export type UnmessItem = {
   priority: "high" | "medium" | "low";
 };
 
+import { logSystemError } from "./monitor.server";
+
 export async function callUnmessAI(text: string): Promise<UnmessItem[]> {
+  try {
+    return await requestUnmessPlan(text);
+  } catch (error) {
+    await logSystemError("unmess_ai", error, { textLength: text.length });
+    throw error;
+  }
+}
+
+async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) throw new Error("AI is not configured");
 

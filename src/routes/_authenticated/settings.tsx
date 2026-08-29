@@ -122,6 +122,24 @@ function SettingsPage() {
       {/* Plan */}
       <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
         <h2 className="text-base font-semibold text-foreground">Plan</h2>
+        {subscription?.cancelledButActive && subscription.endsAt && (
+          <div className="mt-3 flex items-start gap-3 rounded-xl border border-amber-300/70 bg-amber-50 p-4">
+            <span aria-hidden className="mt-0.5 text-base text-amber-600">
+              ⚠
+            </span>
+            <p className="text-sm leading-relaxed text-amber-900">
+              Your subscription is cancelled but{" "}
+              <span className="font-semibold">stays active until{" "}
+                {new Date(subscription.endsAt).toLocaleDateString(undefined, {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </span>
+              . You keep unlimited unmesses until then — after that you move to Free.
+            </p>
+          </div>
+        )}
         {!subscription ? (
           <p className="mt-2 text-sm text-muted-foreground">Loading your plan…</p>
         ) : subscription.plan === "pro" ? (
