@@ -117,9 +117,10 @@ function PlanDetail() {
                   item={item}
                   pending={pendingIds.has(item.id)}
                   onToggle={() =>
-                    withPending(item.id, () =>
-                      toggleFn({ data: { itemId: item.id, done: true } }),
-                    )
+                    withPending(item.id, async () => {
+                      await toggleFn({ data: { itemId: item.id, done: true } });
+                      if (open.length === 1) setCelebrating(true);
+                    })
                   }
                   onDelete={() =>
                     withPending(item.id, () =>
