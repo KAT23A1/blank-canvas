@@ -166,6 +166,14 @@ function PlanDetail() {
           </>
         )}
       </div>
+
+      <CompletionCelebration
+        open={celebrating}
+        onClose={() => {
+          setCelebrating(false);
+          void navigate({ to: "/" });
+        }}
+      />
     </main>
   );
 }
