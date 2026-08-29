@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import {
   togglePlanItem,
   deletePlanItem,
 } from "@/lib/plans.functions";
+import { CompletionCelebration } from "@/components/completion-celebration";
 
 export const Route = createFileRoute("/_authenticated/plans/$planId")({
   head: () => ({
@@ -34,7 +35,9 @@ function PlanDetail() {
   const fetchPlan = useServerFn(getPlan);
   const toggleFn = useServerFn(togglePlanItem);
   const deleteFn = useServerFn(deletePlanItem);
+  const navigate = useNavigate();
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+  const [celebrating, setCelebrating] = useState(false);
 
   const { data: plan, isError, isLoading } = useQuery({
     queryKey: ["plan", planId],
@@ -114,9 +117,10 @@ function PlanDetail() {
                   item={item}
                   pending={pendingIds.has(item.id)}
                   onToggle={() =>
-                    withPending(item.id, () =>
-                      toggleFn({ data: { itemId: item.id, done: true } }),
-                    )
+                    withPending(item.id, async () => {
+                      await toggleFn({ data: { itemId: item.id, done: true } });
+                      if (open.length === 1) setCelebrating(true);
+                    })
                   }
                   onDelete={() =>
                     withPending(item.id, () =>
@@ -162,6 +166,14 @@ function PlanDetail() {
           </>
         )}
       </div>
+
+      <CompletionCelebration
+        open={celebrating}
+        onClose={() => {
+          setCelebrating(false);
+          void navigate({ to: "/" });
+        }}
+      />
     </main>
   );
 }
