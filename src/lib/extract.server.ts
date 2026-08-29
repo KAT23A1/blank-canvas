@@ -1,4 +1,5 @@
 import { unzipSync, strFromU8 } from "fflate";
+import { logSystemError } from "./monitor.server";
 
 export const MAX_FILE_BYTES = 8 * 1024 * 1024;
 const MAX_DOCX_IMAGES_TO_SCAN = 6;
@@ -171,6 +172,9 @@ async function transcribeWithAI(block: Record<string, unknown>): Promise<string>
         await wait(retryDelayMs(res, attempt));
         continue;
       }
+      await logSystemError("file_extract_ai", message || `status ${res.status}`, {
+        status: res.status,
+      });
       throw new Error(
         message
           ? `Could not read that file (${res.status}): ${message}`
