@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import {
   togglePlanItem,
   deletePlanItem,
 } from "@/lib/plans.functions";
+import { CompletionCelebration } from "@/components/completion-celebration";
 
 export const Route = createFileRoute("/_authenticated/plans/$planId")({
   head: () => ({
