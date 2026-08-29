@@ -24,7 +24,7 @@ export async function logSystemError(
   }
 }
 
-export type HealthCheck = { name: string; ok: boolean; detail?: string };
+export type HealthCheck = { name: string; ok: boolean; detail?: string | undefined };
 
 /**
  * Runs the checks that matter for a working app: database reachable, AI
