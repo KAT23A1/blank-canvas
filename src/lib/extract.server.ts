@@ -1,14 +1,15 @@
 import { unzipSync, strFromU8 } from "fflate";
 import { logSystemError } from "./monitor.server";
 
-export const MAX_FILE_BYTES = 8 * 1024 * 1024;
+export const MAX_FILE_BYTES = 25 * 1024 * 1024;
 const MAX_DOCX_IMAGES_TO_SCAN = 6;
 
-export type ExtractKind = "text" | "docx" | "pdf" | "image";
+export type ExtractKind = "text" | "docx" | "xlsx" | "pptx" | "pdf" | "image" | "unknown";
 
-export function classifyFile(name: string, mimeType: string): ExtractKind | null {
+export function classifyFile(name: string, mimeType: string): ExtractKind {
   const lower = name.toLowerCase();
-  if (mimeType.startsWith("image/")) return "image";
+  if (mimeType.startsWith("image/") || /\.(png|jpe?g|webp|gif|bmp|heic|heif|tiff?)$/.test(lower))
+    return "image";
   if (mimeType === "application/pdf" || lower.endsWith(".pdf")) return "pdf";
   if (
     mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
@@ -16,12 +17,22 @@ export function classifyFile(name: string, mimeType: string): ExtractKind | null
   )
     return "docx";
   if (
+    mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+    lower.endsWith(".xlsx")
+  )
+    return "xlsx";
+  if (
+    mimeType === "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
+    lower.endsWith(".pptx")
+  )
+    return "pptx";
+  if (
     mimeType.startsWith("text/") ||
     mimeType === "application/json" ||
-    /\.(txt|md|csv|json|log)$/.test(lower)
+    /\.(txt|md|csv|tsv|json|log|xml|yml|yaml|rtf|html?)$/.test(lower)
   )
     return "text";
-  return null;
+  return "unknown";
 }
 
 function base64ToBytes(base64: string): Uint8Array {
