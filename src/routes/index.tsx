@@ -101,18 +101,8 @@ function Index() {
 
 /* ---------------------------------- shared --------------------------------- */
 
-const ACCEPT =
-  "image/*,application/pdf,text/plain,text/markdown,text/csv,.txt,.md,.csv,.pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-
-function isSupported(file: File) {
-  const lower = file.name.toLowerCase();
-  return (
-    file.type.startsWith("image/") ||
-    file.type === "application/pdf" ||
-    file.type.startsWith("text/") ||
-    /\.(png|jpg|jpeg|webp|gif|heic|pdf|txt|md|csv|docx)$/.test(lower)
-  );
-}
+const ACCEPT = "*/*";
+const MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024;
 
 function fileToBase64(file: File) {
   return new Promise<string>((resolve, reject) => {
@@ -151,12 +141,14 @@ function UnmessBox({
   const handleFile = async (file: File) => {
     setFileError(null);
     setAttachment(null);
-    if (!isSupported(file)) {
-      setFileError("That file type isn't supported. Try an image, PDF, .txt or .docx.");
+    if (file.size === 0) {
+      setFileError(`"${file.name}" appears to be empty or corrupted.`);
       return;
     }
-    if (file.size > 8 * 1024 * 1024) {
-      setFileError("That file is too large — please keep it under 8MB.");
+    if (file.size > MAX_ATTACHMENT_BYTES) {
+      setFileError(
+        `"${file.name}" is ${(file.size / (1024 * 1024)).toFixed(1)}MB — please keep files under 25MB.`,
+      );
       return;
     }
     setReading(true);
@@ -276,7 +268,7 @@ function UnmessBox({
             onClick={() => fileInputRef.current?.click()}
             disabled={reading}
             aria-label="Attach a file"
-            title="Attach an image, PDF, .txt or .docx"
+            title="Attach any file — image, PDF, Word, Excel, PowerPoint, text and more (25MB max)"
             className="glow inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
           >
             <Paperclip className="h-4 w-4" />
