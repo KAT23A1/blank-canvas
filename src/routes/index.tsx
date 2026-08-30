@@ -141,12 +141,14 @@ function UnmessBox({
   const handleFile = async (file: File) => {
     setFileError(null);
     setAttachment(null);
-    if (!isSupported(file)) {
-      setFileError("That file type isn't supported. Try an image, PDF, .txt or .docx.");
+    if (file.size === 0) {
+      setFileError(`"${file.name}" appears to be empty or corrupted.`);
       return;
     }
-    if (file.size > 8 * 1024 * 1024) {
-      setFileError("That file is too large — please keep it under 8MB.");
+    if (file.size > MAX_ATTACHMENT_BYTES) {
+      setFileError(
+        `"${file.name}" is ${(file.size / (1024 * 1024)).toFixed(1)}MB — please keep files under 25MB.`,
+      );
       return;
     }
     setReading(true);
