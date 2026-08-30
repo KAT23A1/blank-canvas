@@ -125,6 +125,74 @@ async function docxToText(bytes: Uint8Array): Promise<string> {
   return scannedParts.join("\n\n").trim();
 }
 
+function collectTagText(xml: string, tag: string): string[] {
+  const matches = xml.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)</${tag}>`, "g")) ?? [];
+  return matches
+    .map((chunk) => decodeXmlEntities(chunk.replace(/<[^>]+>/g, "")).trim())
+    .filter(Boolean);
+}
+
+function xlsxToText(bytes: Uint8Array): string {
+  const files = unzipSync(bytes);
+  const shared = files["xl/sharedStrings.xml"]
+    ? collectTagText(strFromU8(files["xl/sharedStrings.xml"]), "t")
+    : [];
+
+  const sheets = Object.entries(files)
+    .filter(([path]) => /^xl\/worksheets\/sheet\d+\.xml$/i.test(path))
+    .sort(([a], [b]) => a.localeCompare(b));
+
+  const lines: string[] = [];
+  for (const [, file] of sheets) {
+    const xml = strFromU8(file);
+    for (const row of xml.match(/<row[\s\S]*?<\/row>/g) ?? []) {
+      const cells: string[] = [];
+      for (const cell of row.match(/<c\b[\s\S]*?(?:\/>|<\/c>)/g) ?? []) {
+        const isShared = /\bt="s"/.test(cell);
+        const value = cell.match(/<v>([\s\S]*?)<\/v>/)?.[1];
+        const inline = collectTagText(cell, "t");
+        if (isShared && value !== undefined) {
+          cells.push(shared[Number(value)] ?? "");
+        } else if (value !== undefined) {
+          cells.push(decodeXmlEntities(value));
+        } else if (inline.length) {
+          cells.push(inline.join(" "));
+        }
+      }
+      const line = cells.filter(Boolean).join(" | ").trim();
+      if (line) lines.push(line);
+    }
+  }
+
+  return lines.join("\n").trim();
+}
+
+function pptxToText(bytes: Uint8Array): string {
+  const files = unzipSync(bytes);
+  const slides = Object.entries(files)
+    .filter(([path]) => /^ppt\/(slides|notesSlides)\/[a-z]+\d+\.xml$/i.test(path))
+    .sort(([a], [b]) => a.localeCompare(b));
+
+  return slides
+    .map(([, file]) => collectTagText(strFromU8(file), "a:t").join("\n"))
+    .filter(Boolean)
+    .join("\n\n")
+    .trim();
+}
+
+function looksLikeText(bytes: Uint8Array): string | null {
+  const sample = bytes.subarray(0, 4096);
+  let control = 0;
+  for (const byte of sample) {
+    if (byte === 0) return null;
+    if (byte < 9 || (byte > 13 && byte < 32)) control++;
+  }
+  if (control / Math.max(sample.length, 1) > 0.05) return null;
+  const text = new TextDecoder("utf-8", { fatal: false }).decode(bytes).trim();
+  return text.replace(/\uFFFD/g, "").trim().length > 20 ? text : null;
+}
+
+
 const OCR_PROMPT =
   "Transcribe every piece of text in this file, in reading order. Keep line breaks, dates, times and numbers exactly as written. " +
   "Return only the transcribed text with no commentary. If there is no readable text, return exactly: NO_TEXT_FOUND";
