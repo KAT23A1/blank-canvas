@@ -321,17 +321,27 @@ export async function extractFileText(input: {
 
   if (kind === "image") {
     const mime = input.mimeType.startsWith("image/") ? input.mimeType : "image/png";
-    return transcribeWithAI({
-      type: "image_url",
-      image_url: { url: `data:${mime};base64,${input.base64}` },
-    });
+    try {
+      return await transcribeWithAI({
+        type: "image_url",
+        image_url: { url: `data:${mime};base64,${input.base64}` },
+      });
+    } catch (error) {
+      if (error instanceof NoReadableTextError) return fallback;
+      throw error;
+    }
   }
 
-  return transcribeWithAI({
-    type: "file",
-    file: {
-      filename: input.name,
-      file_data: `data:application/pdf;base64,${input.base64}`,
-    },
-  });
+  try {
+    return await transcribeWithAI({
+      type: "file",
+      file: {
+        filename: input.name,
+        file_data: `data:application/pdf;base64,${input.base64}`,
+      },
+    });
+  } catch (error) {
+    if (error instanceof NoReadableTextError) return fallback;
+    throw error;
+  }
 }
