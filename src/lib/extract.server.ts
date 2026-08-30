@@ -278,30 +278,45 @@ export async function extractFileText(input: {
   base64: string;
 }): Promise<string> {
   const kind = classifyFile(input.name, input.mimeType);
-  if (!kind) {
-    throw new Error("That file type isn't supported. Try an image, PDF, .txt or .docx.");
-  }
 
   const bytes = base64ToBytes(input.base64);
-  if (bytes.byteLength === 0) throw new Error("That file appears to be empty.");
+  if (bytes.byteLength === 0) throw new Error("That file appears to be empty or corrupted.");
   if (bytes.byteLength > MAX_FILE_BYTES) {
-    throw new Error("That file is too large — please keep it under 8MB.");
+    throw new Error("That file is too large — please keep it under 25MB.");
   }
+
+  const fallback = `[Attached file: ${input.name}${
+    input.mimeType ? ` (${input.mimeType})` : ""
+  }] — its contents couldn't be read automatically. Treat the filename as context.`;
 
   if (kind === "text") {
     const text = new TextDecoder().decode(bytes).trim();
-    if (!text) throw new Error("We couldn't find any readable text in that file.");
-    return text;
+    return text || fallback;
   }
 
   if (kind === "docx") {
-    const text = await docxToText(bytes);
-    if (!text) {
-      throw new Error(
-        "We couldn't find readable text in that .docx. If it's a scan or screenshot, upload the image or PDF directly.",
-      );
+    try {
+      const text = await docxToText(bytes);
+      if (text) return text;
+    } catch {
+      /* fall through to filename context */
     }
-    return text;
+    return fallback;
+  }
+
+  if (kind === "xlsx" || kind === "pptx") {
+    try {
+      const text = kind === "xlsx" ? xlsxToText(bytes) : pptxToText(bytes);
+      if (text) return text;
+    } catch {
+      /* fall through to filename context */
+    }
+    return fallback;
+  }
+
+  if (kind === "unknown") {
+    const text = looksLikeText(bytes);
+    return text ?? fallback;
   }
 
   if (kind === "image") {
