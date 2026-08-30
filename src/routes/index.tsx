@@ -101,18 +101,8 @@ function Index() {
 
 /* ---------------------------------- shared --------------------------------- */
 
-const ACCEPT =
-  "image/*,application/pdf,text/plain,text/markdown,text/csv,.txt,.md,.csv,.pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-
-function isSupported(file: File) {
-  const lower = file.name.toLowerCase();
-  return (
-    file.type.startsWith("image/") ||
-    file.type === "application/pdf" ||
-    file.type.startsWith("text/") ||
-    /\.(png|jpg|jpeg|webp|gif|heic|pdf|txt|md|csv|docx)$/.test(lower)
-  );
-}
+const ACCEPT = "*/*";
+const MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024;
 
 function fileToBase64(file: File) {
   return new Promise<string>((resolve, reject) => {
