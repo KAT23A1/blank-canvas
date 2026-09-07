@@ -6,6 +6,7 @@ const itemSchema = z.object({
   action: z.string(),
   when: z.string(),
   priority: z.enum(["high", "medium", "low"]),
+  note: z.string().trim().min(1).max(300).optional(),
 });
 
 export const savePlan = createServerFn({ method: "POST" })
@@ -33,6 +34,7 @@ export const savePlan = createServerFn({ method: "POST" })
         action: item.action,
         when_text: item.when,
         priority: item.priority,
+        note: item.note ?? null,
         sort_order: i,
       })),
     );
@@ -64,7 +66,7 @@ export const listActionItems = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("plan_items")
-      .select("id, action, when_text, priority, done, sort_order, plans!inner(id, created_at)")
+      .select("id, action, when_text, priority, note, done, sort_order, plans!inner(id, created_at)")
       .order("sort_order", { ascending: true });
 
     if (error) throw new Error(error.message);
@@ -73,6 +75,7 @@ export const listActionItems = createServerFn({ method: "GET" })
       action: i.action as string,
       when: (i.when_text ?? "") as string,
       priority: i.priority as "high" | "medium" | "low",
+      note: (i.note ?? undefined) as string | undefined,
       done: i.done as boolean,
       planId: (i.plans as unknown as { id: string }).id,
       planCreatedAt: (i.plans as unknown as { created_at: string }).created_at,
@@ -85,7 +88,7 @@ export const getPlan = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     const { data: plan, error } = await context.supabase
       .from("plans")
-      .select("id, raw_text, created_at, plan_items(id, action, when_text, priority, done, sort_order)")
+      .select("id, raw_text, created_at, plan_items(id, action, when_text, priority, note, done, sort_order)")
       .eq("id", data.id)
       .single();
 
@@ -101,6 +104,7 @@ export const getPlan = createServerFn({ method: "GET" })
           action: i.action as string,
           when: (i.when_text ?? "") as string,
           priority: i.priority as "high" | "medium" | "low",
+          note: (i.note ?? undefined) as string | undefined,
           done: i.done as boolean,
         })),
     };
