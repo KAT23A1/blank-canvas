@@ -2,7 +2,9 @@ export type UnmessItem = {
   action: string;
   when: string;
   priority: "high" | "medium" | "low";
+  note?: string;
 };
+
 
 import { logSystemError } from "./monitor.server";
 
