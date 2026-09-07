@@ -189,7 +189,7 @@ function ItemRow({
     action: string;
     when: string;
     priority: "high" | "medium" | "low";
-    note?: string;
+    note?: string | undefined;
     done: boolean;
   };
   pending: boolean;

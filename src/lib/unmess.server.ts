@@ -2,7 +2,7 @@ export type UnmessItem = {
   action: string;
   when: string;
   priority: "high" | "medium" | "low";
-  note?: string;
+  note?: string | undefined;
 };
 
 
