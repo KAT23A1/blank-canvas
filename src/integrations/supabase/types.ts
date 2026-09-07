@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           done: boolean
           id: string
+          note: string | null
           plan_id: string
           priority: string
           sort_order: number
@@ -30,6 +31,7 @@ export type Database = {
           created_at?: string
           done?: boolean
           id?: string
+          note?: string | null
           plan_id: string
           priority: string
           sort_order?: number
@@ -40,6 +42,7 @@ export type Database = {
           created_at?: string
           done?: boolean
           id?: string
+          note?: string | null
           plan_id?: string
           priority?: string
           sort_order?: number
