@@ -2,7 +2,9 @@ export type UnmessItem = {
   action: string;
   when: string;
   priority: "high" | "medium" | "low";
+  note?: string | undefined;
 };
+
 
 import { logSystemError } from "./monitor.server";
 
@@ -31,11 +33,15 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
         {
           role: "system",
           content:
-            "You turn messy, unstructured brain-dump text about someone's life (tasks, deadlines, errands, reminders) into a clean list of actionable items. " +
+            "You are a calm, practical planning assistant. You turn messy, unstructured brain-dump text about someone's life (tasks, deadlines, errands, reminders) into a clean, genuinely useful plan — not just a categorised list. " +
             "For each item return: action (short, clear, imperative), when (an inferred date or timeframe as a short human-readable string, e.g. 'Fri Aug 28' or 'this weekend'; use 'no date' if none is mentioned or implied), " +
-            "and priority: 'high' for urgent or imminent deadlines, 'medium' for time-bound but not urgent, 'low' for everything else. Infer dates relative to today's date: " +
+            "priority ('high' for urgent or imminent deadlines, 'medium' for time-bound but not urgent, 'low' for everything else), " +
+            "and optionally note: ONE short line (max ~15 words) giving a concrete next step or genuinely useful context — e.g. for 'Finish Python assignment', a note like 'Start with the CSV-reading function; check the rubric for what's still required'. " +
+            "Only include a note when there is a real, specific starting point or useful detail. Omit it entirely for simple items like 'buy milk'. Never write generic filler such as 'get started on this' or 'make a plan'. " +
+            "When the input is vague, shorthand, or ambiguous, do NOT fall back to a generic catch-all item: make the most reasonable interpretation and state that assumption plainly in the note (e.g. 'Assuming this is the maths test on Thursday'). " +
+            "Expand abbreviations and shorthand sensibly. Infer dates relative to today's date: " +
             new Date().toDateString() +
-            ".",
+            ". Write in British/International English.",
         },
         { role: "user", content: text },
       ],
@@ -56,12 +62,18 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
                       action: { type: "string" },
                       when: { type: "string" },
                       priority: { type: "string", enum: ["high", "medium", "low"] },
+                      note: {
+                        type: "string",
+                        description:
+                          "Optional one-line concrete next step, useful context, or stated assumption. Leave out when it would be generic filler.",
+                      },
                     },
                     required: ["action", "when", "priority"],
                     additionalProperties: false,
                   },
                 },
               },
+
               required: ["items"],
               additionalProperties: false,
             },
@@ -84,5 +96,9 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
   if (!args) throw new Error("The AI did not return a plan");
 
   const parsed = JSON.parse(args) as { items: UnmessItem[] };
-  return parsed.items;
+  return parsed.items.map((item) => {
+    const note = item.note?.trim();
+    return { ...item, note: note && note.length > 1 ? note : undefined };
+  });
+
 }

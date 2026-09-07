@@ -189,6 +189,7 @@ function ItemRow({
     action: string;
     when: string;
     priority: "high" | "medium" | "low";
+    note?: string | undefined;
     done: boolean;
   };
   pending: boolean;
@@ -233,6 +234,9 @@ function ItemRow({
         >
           {item.action}
         </p>
+        {item.note && !item.done && (
+          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.note}</p>
+        )}
         <div className="mt-1.5 flex items-center gap-2">
           <span
             className={`h-2 w-2 rounded-full ${dotClass[item.priority]}`}
