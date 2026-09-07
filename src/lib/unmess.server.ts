@@ -96,5 +96,9 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
   if (!args) throw new Error("The AI did not return a plan");
 
   const parsed = JSON.parse(args) as { items: UnmessItem[] };
-  return parsed.items;
+  return parsed.items.map((item) => {
+    const note = item.note?.trim();
+    return { ...item, note: note && note.length > 1 ? note : undefined };
+  });
+
 }
