@@ -337,7 +337,14 @@ function ResultGroups({ items }: { items: UnmessItem[] }) {
                 key={`${priority}-${i}`}
                 className="flex items-start justify-between gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"
               >
-                <p className="text-base leading-relaxed text-foreground">{item.action}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-base leading-relaxed text-foreground">{item.action}</p>
+                  {item.note && (
+                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                      {item.note}
+                    </p>
+                  )}
+                </div>
                 {item.when && item.when.toLowerCase() !== "no date" && (
                   <span className="shrink-0 rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
                     {item.when}
@@ -604,9 +611,10 @@ function AppHome({ user }: { user: User }) {
       setStatus("idle");
       setSaveStatus("saving");
       try {
-        await savePlan({ data: { rawText: text, items: result.items } });
+        const saved = await savePlan({ data: { rawText: text, items: result.items } });
         setSaveStatus("saved");
         queryClient.invalidateQueries({ queryKey: ["plans"] });
+        void navigate({ to: "/plans/$planId", params: { planId: saved.id } });
       } catch {
         setSaveStatus("error");
       }
