@@ -72,9 +72,8 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
                     additionalProperties: false,
                   },
                 },
-
-                },
               },
+
               required: ["items"],
               additionalProperties: false,
             },
