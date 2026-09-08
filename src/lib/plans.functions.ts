@@ -100,7 +100,9 @@ export const listActionItems = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("plan_items")
-      .select("id, action, when_text, priority, note, done, sort_order, plans!inner(id, created_at)")
+      .select(
+        "id, action, when_text, priority, note, done, sort_order, occurrence_count, recurring, plans!inner(id, created_at)",
+      )
       .order("sort_order", { ascending: true });
 
     if (error) throw new Error(error.message);
@@ -111,6 +113,8 @@ export const listActionItems = createServerFn({ method: "GET" })
       priority: i.priority as "high" | "medium" | "low",
       note: (i.note ?? undefined) as string | undefined,
       done: i.done as boolean,
+      recurring: Boolean(i.recurring),
+      occurrenceCount: (i.occurrence_count ?? 1) as number,
       planId: (i.plans as unknown as { id: string }).id,
       planCreatedAt: (i.plans as unknown as { created_at: string }).created_at,
     }));
@@ -122,7 +126,9 @@ export const getPlan = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     const { data: plan, error } = await context.supabase
       .from("plans")
-      .select("id, raw_text, created_at, plan_items(id, action, when_text, priority, note, done, sort_order)")
+      .select(
+        "id, raw_text, created_at, plan_items(id, action, when_text, priority, note, done, sort_order, occurrence_count, recurring)",
+      )
       .eq("id", data.id)
       .single();
 
@@ -140,6 +146,8 @@ export const getPlan = createServerFn({ method: "GET" })
           priority: i.priority as "high" | "medium" | "low",
           note: (i.note ?? undefined) as string | undefined,
           done: i.done as boolean,
+          recurring: Boolean(i.recurring),
+          occurrenceCount: (i.occurrence_count ?? 1) as number,
         })),
     };
   });
