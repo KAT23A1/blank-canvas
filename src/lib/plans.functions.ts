@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { matchOpenItems, bumpPriority } from "./recurrence.server";
 
 const itemSchema = z.object({
   action: z.string(),
@@ -20,6 +21,22 @@ export const savePlan = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ context, data }) => {
+    // Reason across everything the user still has open before saving, so a
+    // task worded slightly differently merges instead of duplicating.
+    const { data: openRows } = await context.supabase
+      .from("plan_items")
+      .select("id, action, occurrence_count, created_at, plans!inner(user_id)")
+      .eq("done", false);
+
+    const open = (openRows ?? []).map((r) => ({
+      id: r.id as string,
+      action: r.action as string,
+      occurrence_count: (r.occurrence_count ?? 1) as number,
+      created_at: r.created_at as string,
+    }));
+
+    const matches = await matchOpenItems(data.items, open);
+
     const { data: plan, error: planError } = await context.supabase
       .from("plans")
       .insert({ user_id: context.userId, raw_text: data.rawText })
@@ -28,20 +45,37 @@ export const savePlan = createServerFn({ method: "POST" })
 
     if (planError || !plan) throw new Error(planError?.message ?? "Could not save plan");
 
-    const { error: itemsError } = await context.supabase.from("plan_items").insert(
-      data.items.map((item, i) => ({
+    const mergedIds: string[] = [];
+    const rows = data.items.map((item, i) => {
+      const matchId = matches[i] ?? null;
+      const previous = matchId ? open.find((o) => o.id === matchId) : undefined;
+      const count = previous ? previous.occurrence_count + 1 : 1;
+      const recurring = count >= 3;
+      if (previous) mergedIds.push(previous.id);
+      return {
         plan_id: plan.id,
         action: item.action,
         when_text: item.when,
-        priority: item.priority,
+        priority: recurring ? bumpPriority(item.priority) : item.priority,
         note: item.note ?? null,
         sort_order: i,
-      })),
-    );
+        occurrence_count: count,
+        recurring,
+        ...(previous ? { created_at: previous.created_at } : {}),
+      };
+    });
 
+    const { error: itemsError } = await context.supabase.from("plan_items").insert(rows);
     if (itemsError) throw new Error(itemsError.message);
+
+    // Retire the older copies now that the item lives on with its full history.
+    if (mergedIds.length > 0) {
+      await context.supabase.from("plan_items").delete().in("id", mergedIds);
+    }
+
     return { id: plan.id };
   });
+
 
 export const listPlans = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
