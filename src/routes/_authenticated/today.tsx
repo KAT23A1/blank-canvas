@@ -80,13 +80,18 @@ export const Route = createFileRoute("/_authenticated/today")({
 
 function groupItems(items: ActionItem[]) {
   const open = items.filter((i) => !i.done);
-  const groups: Record<"attention" | "upcoming" | "someday", ActionItem[]> = {
+  const groups: Record<"recurring" | "attention" | "upcoming" | "someday", ActionItem[]> = {
+    recurring: [],
     attention: [],
     upcoming: [],
     someday: [],
   };
   const urgencyOrder: Record<Urgency, number> = { overdue: 0, today: 1, upcoming: 2, someday: 3 };
   for (const item of open) {
+    if (item.recurring) {
+      groups.recurring.push(item);
+      continue;
+    }
     const { urgency } = classifyWhen(item.when);
     if (urgency === "overdue" || urgency === "today") groups.attention.push(item);
     else if (urgency === "upcoming") groups.upcoming.push(item);
