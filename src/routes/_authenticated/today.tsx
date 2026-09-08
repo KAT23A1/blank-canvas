@@ -331,10 +331,16 @@ function Section({
                 >
                   {item.action}
                 </p>
-                <div className="mt-1 flex items-center gap-2">
+                <div className="mt-1 flex flex-wrap items-center gap-2">
                   <span className={`h-2 w-2 rounded-full ${priorityDot[item.priority]}`} />
                   {item.when && item.when.toLowerCase() !== "no date" && (
                     <span className="text-xs font-medium text-muted-foreground">{item.when}</span>
+                  )}
+                  {item.recurring && (
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                      Recurring — keeps coming back
+                      {item.occurrenceCount > 1 ? ` · ${item.occurrenceCount}×` : ""}
+                    </span>
                   )}
                 </div>
               </div>
