@@ -246,6 +246,15 @@ function TodayPage() {
         </div>
       ) : (
         <div className="space-y-10">
+          {groups.recurring.length > 0 && (
+            <Section
+              title="Keeps coming back"
+              accentClass="bg-primary"
+              items={groups.recurring}
+              onToggle={handleToggle}
+              emptyText=""
+            />
+          )}
           <Section
             title="Needs attention"
             accentClass="bg-red-500"
