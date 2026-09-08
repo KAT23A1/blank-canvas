@@ -21,8 +21,10 @@ export type Database = {
           done: boolean
           id: string
           note: string | null
+          occurrence_count: number
           plan_id: string
           priority: string
+          recurring: boolean
           sort_order: number
           when_text: string | null
         }
@@ -32,8 +34,10 @@ export type Database = {
           done?: boolean
           id?: string
           note?: string | null
+          occurrence_count?: number
           plan_id: string
           priority: string
+          recurring?: boolean
           sort_order?: number
           when_text?: string | null
         }
@@ -43,8 +47,10 @@ export type Database = {
           done?: boolean
           id?: string
           note?: string | null
+          occurrence_count?: number
           plan_id?: string
           priority?: string
+          recurring?: boolean
           sort_order?: number
           when_text?: string | null
         }

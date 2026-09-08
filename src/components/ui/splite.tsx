@@ -21,14 +21,14 @@ interface SplineSceneProps {
 }
 
 class SplineBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { failed: boolean }> {
-  state = { failed: false }
+  override state = { failed: false }
   static getDerivedStateFromError() {
     return { failed: true }
   }
-  componentDidCatch(error: unknown) {
+  override componentDidCatch(error: unknown) {
     console.warn('Spline scene failed to load', error)
   }
-  render() {
+  override render() {
     return this.state.failed ? this.props.fallback : this.props.children
   }
 }

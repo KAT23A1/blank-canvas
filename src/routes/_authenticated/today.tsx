@@ -80,13 +80,18 @@ export const Route = createFileRoute("/_authenticated/today")({
 
 function groupItems(items: ActionItem[]) {
   const open = items.filter((i) => !i.done);
-  const groups: Record<"attention" | "upcoming" | "someday", ActionItem[]> = {
+  const groups: Record<"recurring" | "attention" | "upcoming" | "someday", ActionItem[]> = {
+    recurring: [],
     attention: [],
     upcoming: [],
     someday: [],
   };
   const urgencyOrder: Record<Urgency, number> = { overdue: 0, today: 1, upcoming: 2, someday: 3 };
   for (const item of open) {
+    if (item.recurring) {
+      groups.recurring.push(item);
+      continue;
+    }
     const { urgency } = classifyWhen(item.when);
     if (urgency === "overdue" || urgency === "today") groups.attention.push(item);
     else if (urgency === "upcoming") groups.upcoming.push(item);
@@ -241,6 +246,15 @@ function TodayPage() {
         </div>
       ) : (
         <div className="space-y-10">
+          {groups.recurring.length > 0 && (
+            <Section
+              title="Keeps coming back"
+              accentClass="bg-primary"
+              items={groups.recurring}
+              onToggle={handleToggle}
+              emptyText=""
+            />
+          )}
           <Section
             title="Needs attention"
             accentClass="bg-red-500"
@@ -317,10 +331,16 @@ function Section({
                 >
                   {item.action}
                 </p>
-                <div className="mt-1 flex items-center gap-2">
+                <div className="mt-1 flex flex-wrap items-center gap-2">
                   <span className={`h-2 w-2 rounded-full ${priorityDot[item.priority]}`} />
                   {item.when && item.when.toLowerCase() !== "no date" && (
                     <span className="text-xs font-medium text-muted-foreground">{item.when}</span>
+                  )}
+                  {item.recurring && (
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                      Recurring — keeps coming back
+                      {item.occurrenceCount > 1 ? ` · ${item.occurrenceCount}×` : ""}
+                    </span>
                   )}
                 </div>
               </div>
