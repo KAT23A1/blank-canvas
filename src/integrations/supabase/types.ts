@@ -17,8 +17,10 @@ export type Database = {
       plan_items: {
         Row: {
           action: string
+          blocked_by: string | null
           created_at: string
           done: boolean
+          effort: string
           id: string
           note: string | null
           occurrence_count: number
@@ -30,8 +32,10 @@ export type Database = {
         }
         Insert: {
           action: string
+          blocked_by?: string | null
           created_at?: string
           done?: boolean
+          effort?: string
           id?: string
           note?: string | null
           occurrence_count?: number
@@ -43,8 +47,10 @@ export type Database = {
         }
         Update: {
           action?: string
+          blocked_by?: string | null
           created_at?: string
           done?: boolean
+          effort?: string
           id?: string
           note?: string | null
           occurrence_count?: number
