@@ -116,6 +116,8 @@ export const listActionItems = createServerFn({ method: "GET" })
       when: (i.when_text ?? "") as string,
       priority: i.priority as "high" | "medium" | "low",
       note: (i.note ?? undefined) as string | undefined,
+      effort: ((i.effort ?? "focused") as "quick" | "focused"),
+      blockedBy: (i.blocked_by ?? undefined) as string | undefined,
       done: i.done as boolean,
       recurring: Boolean(i.recurring),
       occurrenceCount: (i.occurrence_count ?? 1) as number,
