@@ -60,6 +60,8 @@ export const savePlan = createServerFn({ method: "POST" })
         when_text: item.when,
         priority: recurring ? bumpPriority(item.priority) : item.priority,
         note: item.note ?? null,
+        effort: item.effort ?? "focused",
+        blocked_by: item.blockedBy ?? null,
         sort_order: i,
         occurrence_count: count,
         recurring,
