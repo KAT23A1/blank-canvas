@@ -105,7 +105,7 @@ export const listActionItems = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("plan_items")
       .select(
-        "id, action, when_text, priority, note, done, sort_order, occurrence_count, recurring, plans!inner(id, created_at)",
+        "id, action, when_text, priority, note, effort, blocked_by, done, sort_order, occurrence_count, recurring, plans!inner(id, created_at)",
       )
       .order("sort_order", { ascending: true });
 
