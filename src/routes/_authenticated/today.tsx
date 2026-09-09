@@ -155,6 +155,7 @@ function TodayPage() {
   const [proComingSoon, setProComingSoon] = useState(false);
 
   const groups = groupItems(items);
+  const nextStep = nextStepSentence(items);
 
   const handleUpgrade = async () => {
     setUpgrading(true);
