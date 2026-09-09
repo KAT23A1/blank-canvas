@@ -220,6 +220,11 @@ function TodayPage() {
         <p className="mt-3 text-sm text-muted-foreground">{dateLabel}</p>
       </div>
 
+      {nextStep && (
+        <p className="mb-8 text-sm leading-relaxed text-muted-foreground">{nextStep}</p>
+      )}
+
+
       {subscription && (
         <div className="mb-10">
           {subscription.plan === "pro" ? (
