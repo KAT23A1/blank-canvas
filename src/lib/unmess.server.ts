@@ -110,10 +110,23 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
   const args = json.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
   if (!args) throw new Error("The AI did not return a plan");
 
-  const parsed = JSON.parse(args) as { items: UnmessItem[] };
+  const parsed = JSON.parse(args) as {
+    items: (UnmessItem & { blocked_by?: string })[];
+  };
+  const actions = parsed.items.map((i) => i.action);
   return parsed.items.map((item) => {
     const note = item.note?.trim();
-    return { ...item, note: note && note.length > 1 ? note : undefined };
+    const blocker = (item.blockedBy ?? item.blocked_by)?.trim();
+    const validBlocker =
+      blocker && blocker !== item.action && actions.includes(blocker) ? blocker : undefined;
+    return {
+      action: item.action,
+      when: item.when,
+      priority: item.priority,
+      note: note && note.length > 1 ? note : undefined,
+      effort: item.effort === "quick" ? ("quick" as const) : ("focused" as const),
+      blockedBy: validBlocker,
+    };
   });
 
 }
