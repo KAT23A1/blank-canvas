@@ -71,8 +71,19 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
                         description:
                           "Optional one-line concrete next step, useful context, or stated assumption. Leave out when it would be generic filler.",
                       },
+                      effort: {
+                        type: "string",
+                        enum: ["quick", "focused"],
+                        description:
+                          "'quick' for under ~15 minutes, 'focused' for tasks needing real concentration or time.",
+                      },
+                      blocked_by: {
+                        type: "string",
+                        description:
+                          "Exact action string of another item in this plan that must be done first. Leave out when nothing blocks it.",
+                      },
                     },
-                    required: ["action", "when", "priority"],
+                    required: ["action", "when", "priority", "effort"],
                     additionalProperties: false,
                   },
                 },
