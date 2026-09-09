@@ -4,27 +4,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { listActionItems, togglePlanItem } from "@/lib/plans.functions";
-import { getSubscription } from "@/lib/usage.functions";
-import { createProCheckout } from "@/lib/billing.functions";
 import { classifyWhen, type Urgency } from "@/lib/dates";
+import { taskMetaLine } from "@/components/task-meta";
 import { Logo } from "@/components/logo";
 
 type ActionItem = Awaited<ReturnType<typeof listActionItems>>[number];
 
-const priorityDot: Record<ActionItem["priority"], string> = {
-  high: "bg-red-500",
-  medium: "bg-amber-500",
-  low: "bg-muted-foreground/50",
-};
-
 const todayQueryOptions = {
   queryKey: ["today-items"],
   queryFn: () => listActionItems(),
-};
-
-const subscriptionQueryOptions = {
-  queryKey: ["subscription"],
-  queryFn: () => getSubscription(),
 };
 
 export const Route = createFileRoute("/_authenticated/today")({
@@ -44,11 +32,7 @@ export const Route = createFileRoute("/_authenticated/today")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  loader: ({ context }) =>
-    Promise.all([
-      context.queryClient.ensureQueryData(todayQueryOptions),
-      context.queryClient.ensureQueryData(subscriptionQueryOptions),
-    ]),
+  loader: ({ context }) => context.queryClient.ensureQueryData(todayQueryOptions),
   errorComponent: ({ error }) => (
     <div role="alert" className="p-8 text-center text-sm text-destructive">
       Couldn't load your items: {error.message}
@@ -78,34 +62,25 @@ export const Route = createFileRoute("/_authenticated/today")({
   component: TodayPage,
 });
 
-function groupItems(items: ActionItem[]) {
+const priorityRank = { high: 0, medium: 1, low: 2 } as const;
+const urgencyOrder: Record<Urgency, number> = { overdue: 0, today: 1, upcoming: 2, someday: 3 };
+
+function splitItems(items: ActionItem[]) {
   const open = items.filter((i) => !i.done);
-  const groups: Record<"recurring" | "attention" | "upcoming" | "someday", ActionItem[]> = {
-    recurring: [],
-    attention: [],
-    upcoming: [],
-    someday: [],
-  };
-  const urgencyOrder: Record<Urgency, number> = { overdue: 0, today: 1, upcoming: 2, someday: 3 };
+  const today: ActionItem[] = [];
+  const later: ActionItem[] = [];
   for (const item of open) {
-    if (item.recurring) {
-      groups.recurring.push(item);
-      continue;
-    }
     const { urgency } = classifyWhen(item.when);
-    if (urgency === "overdue" || urgency === "today") groups.attention.push(item);
-    else if (urgency === "upcoming") groups.upcoming.push(item);
-    else groups.someday.push(item);
+    if (urgency === "overdue" || urgency === "today" || item.recurring) today.push(item);
+    else later.push(item);
   }
-  const priorityRank = { high: 0, medium: 1, low: 2 } as const;
-  for (const list of Object.values(groups)) {
+  const sort = (list: ActionItem[]) =>
     list.sort(
       (a, b) =>
         priorityRank[a.priority] - priorityRank[b.priority] ||
         urgencyOrder[classifyWhen(a.when).urgency] - urgencyOrder[classifyWhen(b.when).urgency],
     );
-  }
-  return groups;
+  return { today: sort(today), later: sort(later) };
 }
 
 // The single most useful next step: prefer a quick task that unblocks something,
@@ -113,14 +88,11 @@ function groupItems(items: ActionItem[]) {
 function nextStepSentence(items: ActionItem[]): string | null {
   const open = items.filter((i) => !i.done);
   const quick = open.filter((i) => i.effort === "quick");
-  const priorityRank = { high: 0, medium: 1, low: 2 } as const;
 
   const unblockers = quick
     .map((item) => ({
       item,
-      dependent: open.find(
-        (o) => o.id !== item.id && o.blockedBy && o.blockedBy === item.action,
-      ),
+      dependent: open.find((o) => o.id !== item.id && o.blockedBy && o.blockedBy === item.action),
     }))
     .filter((c) => c.dependent)
     .sort((a, b) => priorityRank[a.item.priority] - priorityRank[b.item.priority]);
@@ -148,29 +120,10 @@ function TodayPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const toggle = useServerFn(togglePlanItem);
-  const checkout = useServerFn(createProCheckout);
   const { data: items = [] } = useQuery(todayQueryOptions);
-  const { data: subscription } = useQuery(subscriptionQueryOptions);
-  const [upgrading, setUpgrading] = useState(false);
-  const [proComingSoon, setProComingSoon] = useState(false);
 
-  const groups = groupItems(items);
+  const { today, later } = splitItems(items);
   const nextStep = nextStepSentence(items);
-
-  const handleUpgrade = async () => {
-    setUpgrading(true);
-    setProComingSoon(false);
-    try {
-      const result = await checkout();
-      if (result.url) {
-        window.location.href = result.url;
-        return;
-      }
-      setProComingSoon(true);
-    } finally {
-      setUpgrading(false);
-    }
-  };
 
   const handleToggle = async (item: ActionItem) => {
     await toggle({ data: { itemId: item.id, done: true } });
@@ -183,12 +136,6 @@ function TodayPage() {
     await supabase.auth.signOut();
     navigate({ to: "/", replace: true });
   };
-
-  const dateLabel = new Date().toLocaleDateString(undefined, {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col px-6 pb-16 sm:px-8">
@@ -213,111 +160,34 @@ function TodayPage() {
         </div>
       </header>
 
-      <div className="mb-8">
-        <Link to="/today" className="bounce-button text-2xl px-5 py-2.5">
-          TODAY
-        </Link>
-        <p className="mt-3 text-sm text-muted-foreground">{dateLabel}</p>
-      </div>
-
       {nextStep && (
-        <p className="mb-8 text-sm leading-relaxed text-muted-foreground">{nextStep}</p>
-      )}
-
-
-      {subscription && (
-        <div className="mb-10">
-          {subscription.plan === "pro" ? (
-            <div className="flex items-start justify-between gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-              <div className="flex items-start gap-3">
-                <span aria-hidden className="mt-0.5 text-base">🔔</span>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Reminders on</p>
-                  <p className="mt-0.5 text-sm text-muted-foreground">
-                    We'll email you the morning something is due — and the day before.
-                  </p>
-                </div>
-              </div>
-              <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                Pro
-              </span>
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-dashed border-border bg-card/60 p-4 sm:p-5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-start gap-3">
-                  <span aria-hidden className="mt-0.5 text-base opacity-60">🔒</span>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Reminders</p>
-                    <p className="mt-0.5 text-sm text-muted-foreground">
-                      Get an email the morning something is due, and the day before. A Pro feature.
-                    </p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleUpgrade}
-                  disabled={upgrading}
-                  className="upgrade-cta shrink-0 sm:px-6 sm:py-3 sm:text-base"
-                >
-                  {upgrading ? "One moment…" : "Upgrade to Pro"}
-                </button>
-              </div>
-              {proComingSoon && (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Pro is coming soon — we're putting the finishing touches on checkout.
-                </p>
-              )}
-            </div>
-          )}
-        </div>
+        <p className="mb-8 mt-2 text-sm leading-relaxed text-muted-foreground">{nextStep}</p>
       )}
 
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
-          <p className="text-base text-foreground">Nothing here yet.</p>
+        <div className="mt-6 rounded-2xl border border-dashed border-border p-8 text-center">
+          <p className="text-base text-foreground">Nothing needs your attention right now.</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Unmess something and it will show up here, sorted for you.
+            Put everything on your mind here. UNMESS will sort it out.
           </p>
           <Link
             to="/"
             className="glow mt-5 inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90"
           >
-            Unmess something
+            Start typing
           </Link>
         </div>
       ) : (
-        <div className="space-y-10">
-          {groups.recurring.length > 0 && (
-            <Section
-              title="Keeps coming back"
-              accentClass="bg-primary"
-              items={groups.recurring}
-              onToggle={handleToggle}
-              emptyText=""
-            />
+        <div className="space-y-12">
+          <Section
+            title="Today"
+            items={today}
+            onToggle={handleToggle}
+            emptyText="Nothing needs your attention right now."
+          />
+          {later.length > 0 && (
+            <Section title="Later" items={later} onToggle={handleToggle} emptyText="" />
           )}
-          <Section
-            title="Needs attention"
-            accentClass="bg-red-500"
-            items={groups.attention}
-            onToggle={handleToggle}
-            emptyText="Nothing overdue or due today. Breathe easy."
-          />
-          <Section
-            title="Upcoming"
-            accentClass="bg-amber-500"
-            items={groups.upcoming}
-            onToggle={handleToggle}
-            emptyText="Nothing coming up."
-          />
-          <Section
-            title="Someday"
-            accentClass="bg-muted-foreground/50"
-            items={groups.someday}
-            onToggle={handleToggle}
-            emptyText="No unscheduled items."
-          />
         </div>
       )}
     </main>
@@ -326,77 +196,91 @@ function TodayPage() {
 
 function Section({
   title,
-  accentClass,
   items,
   onToggle,
   emptyText,
 }: {
   title: string;
-  accentClass: string;
   items: ActionItem[];
   onToggle: (item: ActionItem) => void;
   emptyText: string;
 }) {
   return (
     <section>
-      <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        <span className={`h-2.5 w-2.5 rounded-full ${accentClass}`} />
+      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
         {title}
-        <span className="font-normal normal-case">({items.length})</span>
       </h2>
       {items.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">
-          {emptyText}
-        </p>
+        <p className="text-sm text-muted-foreground">{emptyText}</p>
       ) : (
         <div className="space-y-3">
-          {items.map((item) => (
-            <div
+          {items.map((item, index) => (
+            <TaskCard
               key={item.id}
-              className={`flex items-center gap-3 rounded-2xl border bg-card p-4 shadow-sm sm:p-5 ${
-                item.priority === "high" ? "border-red-500/40" : "border-border"
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() => onToggle(item)}
-                aria-label={`Mark "${item.action}" as done`}
-                className="glow flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-muted-foreground/40 text-transparent transition-colors hover:border-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
-              >
-                ✓
-              </button>
-              <div className="min-w-0 flex-1">
-                <p
-                  className={`text-base leading-relaxed ${
-                    item.priority === "high" ? "font-medium text-foreground" : "text-foreground"
-                  }`}
-                >
-                  {item.action}
-                </p>
-                <div className="mt-1 flex flex-wrap items-center gap-2">
-                  <span className={`h-2 w-2 rounded-full ${priorityDot[item.priority]}`} />
-                  {item.when && item.when.toLowerCase() !== "no date" && (
-                    <span className="text-xs font-medium text-muted-foreground">{item.when}</span>
-                  )}
-                  {item.recurring && (
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-                      Recurring — keeps coming back
-                      {item.occurrenceCount > 1 ? ` · ${item.occurrenceCount}×` : ""}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <Link
-                to="/plans/$planId"
-                params={{ planId: item.planId }}
-                className="glow shrink-0 rounded-full px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              >
-                View
-              </Link>
-            </div>
+              item={item}
+              primary={title === "Today" && index === 0}
+              onToggle={() => onToggle(item)}
+            />
           ))}
         </div>
       )}
     </section>
+  );
+}
+
+function TaskCard({
+  item,
+  primary,
+  onToggle,
+}: {
+  item: ActionItem;
+  primary: boolean;
+  onToggle: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const hasDetail = Boolean(item.note || item.blockedBy);
+
+  return (
+    <div
+      className={`rounded-2xl border bg-card p-4 shadow-sm transition-colors sm:p-5 ${
+        primary ? "border-border" : "border-border/60"
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label={`Mark "${item.action}" as done`}
+          className="glow mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-muted-foreground/40 text-transparent transition-colors hover:border-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-ring"
+        >
+          ✓
+        </button>
+        <button
+          type="button"
+          onClick={() => hasDetail && setExpanded((v) => !v)}
+          aria-expanded={hasDetail ? expanded : undefined}
+          className="min-w-0 flex-1 text-left focus:outline-none"
+        >
+          <p
+            className={`leading-relaxed text-foreground ${
+              primary ? "text-lg font-medium" : "text-base"
+            }`}
+          >
+            {item.action}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">{taskMetaLine(item)}</p>
+          {expanded && (
+            <div className="mt-3 space-y-1.5 border-t border-border pt-3">
+              {item.note && (
+                <p className="text-sm leading-relaxed text-muted-foreground">{item.note}</p>
+              )}
+              {item.blockedBy && (
+                <p className="text-sm text-muted-foreground">Blocked by: {item.blockedBy}</p>
+              )}
+            </div>
+          )}
+        </button>
+      </div>
+    </div>
   );
 }

@@ -133,7 +133,7 @@ export const getPlan = createServerFn({ method: "GET" })
     const { data: plan, error } = await context.supabase
       .from("plans")
       .select(
-        "id, raw_text, created_at, plan_items(id, action, when_text, priority, note, done, sort_order, occurrence_count, recurring)",
+        "id, raw_text, created_at, plan_items(id, action, when_text, priority, note, effort, blocked_by, done, sort_order, occurrence_count, recurring)",
       )
       .eq("id", data.id)
       .single();
@@ -151,6 +151,8 @@ export const getPlan = createServerFn({ method: "GET" })
           when: (i.when_text ?? "") as string,
           priority: i.priority as "high" | "medium" | "low",
           note: (i.note ?? undefined) as string | undefined,
+          effort: ((i.effort ?? "focused") as "quick" | "focused"),
+          blockedBy: (i.blocked_by ?? undefined) as string | undefined,
           done: i.done as boolean,
           recurring: Boolean(i.recurring),
           occurrenceCount: (i.occurrence_count ?? 1) as number,
