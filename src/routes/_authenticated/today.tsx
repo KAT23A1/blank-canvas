@@ -108,6 +108,42 @@ function groupItems(items: ActionItem[]) {
   return groups;
 }
 
+// The single most useful next step: prefer a quick task that unblocks something,
+// otherwise a quick task that already needs attention. Otherwise say nothing.
+function nextStepSentence(items: ActionItem[]): string | null {
+  const open = items.filter((i) => !i.done);
+  const quick = open.filter((i) => i.effort === "quick");
+  const priorityRank = { high: 0, medium: 1, low: 2 } as const;
+
+  const unblockers = quick
+    .map((item) => ({
+      item,
+      dependent: open.find(
+        (o) => o.id !== item.id && o.blockedBy && o.blockedBy === item.action,
+      ),
+    }))
+    .filter((c) => c.dependent)
+    .sort((a, b) => priorityRank[a.item.priority] - priorityRank[b.item.priority]);
+
+  const best = unblockers[0];
+  if (best?.dependent) {
+    return `Start with ${best.item.action} — it's fast and unblocks ${best.dependent.action}.`;
+  }
+
+  const urgentQuick = quick
+    .filter((i) => {
+      const { urgency } = classifyWhen(i.when);
+      return urgency === "overdue" || urgency === "today";
+    })
+    .sort((a, b) => priorityRank[a.priority] - priorityRank[b.priority])[0];
+
+  if (urgentQuick) {
+    return `Start with ${urgentQuick.action} — it's quick, and it clears something due now.`;
+  }
+
+  return null;
+}
+
 function TodayPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -119,6 +155,7 @@ function TodayPage() {
   const [proComingSoon, setProComingSoon] = useState(false);
 
   const groups = groupItems(items);
+  const nextStep = nextStepSentence(items);
 
   const handleUpgrade = async () => {
     setUpgrading(true);
@@ -182,6 +219,11 @@ function TodayPage() {
         </Link>
         <p className="mt-3 text-sm text-muted-foreground">{dateLabel}</p>
       </div>
+
+      {nextStep && (
+        <p className="mb-8 text-sm leading-relaxed text-muted-foreground">{nextStep}</p>
+      )}
+
 
       {subscription && (
         <div className="mb-10">

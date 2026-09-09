@@ -8,6 +8,8 @@ const itemSchema = z.object({
   when: z.string(),
   priority: z.enum(["high", "medium", "low"]),
   note: z.string().trim().min(1).max(300).optional(),
+  effort: z.enum(["quick", "focused"]).optional(),
+  blockedBy: z.string().trim().min(1).max(300).optional(),
 });
 
 export const savePlan = createServerFn({ method: "POST" })
@@ -58,6 +60,8 @@ export const savePlan = createServerFn({ method: "POST" })
         when_text: item.when,
         priority: recurring ? bumpPriority(item.priority) : item.priority,
         note: item.note ?? null,
+        effort: item.effort ?? "focused",
+        blocked_by: item.blockedBy ?? null,
         sort_order: i,
         occurrence_count: count,
         recurring,
@@ -101,7 +105,7 @@ export const listActionItems = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("plan_items")
       .select(
-        "id, action, when_text, priority, note, done, sort_order, occurrence_count, recurring, plans!inner(id, created_at)",
+        "id, action, when_text, priority, note, effort, blocked_by, done, sort_order, occurrence_count, recurring, plans!inner(id, created_at)",
       )
       .order("sort_order", { ascending: true });
 
@@ -112,6 +116,8 @@ export const listActionItems = createServerFn({ method: "GET" })
       when: (i.when_text ?? "") as string,
       priority: i.priority as "high" | "medium" | "low",
       note: (i.note ?? undefined) as string | undefined,
+      effort: ((i.effort ?? "focused") as "quick" | "focused"),
+      blockedBy: (i.blocked_by ?? undefined) as string | undefined,
       done: i.done as boolean,
       recurring: Boolean(i.recurring),
       occurrenceCount: (i.occurrence_count ?? 1) as number,

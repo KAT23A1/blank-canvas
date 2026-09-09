@@ -3,6 +3,8 @@ export type UnmessItem = {
   when: string;
   priority: "high" | "medium" | "low";
   note?: string | undefined;
+  effort?: "quick" | "focused" | undefined;
+  blockedBy?: string | undefined;
 };
 
 
@@ -38,6 +40,8 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
             "priority ('high' for urgent or imminent deadlines, 'medium' for time-bound but not urgent, 'low' for everything else), " +
             "and optionally note: ONE short line (max ~15 words) giving a concrete next step or genuinely useful context — e.g. for 'Finish Python assignment', a note like 'Start with the CSV-reading function; check the rubric for what's still required'. " +
             "Only include a note when there is a real, specific starting point or useful detail. Omit it entirely for simple items like 'buy milk'. Never write generic filler such as 'get started on this' or 'make a plan'. " +
+            "Also infer effort: 'quick' when the task realistically takes under about 15 minutes (a phone call, a short reply, booking something online), 'focused' when it needs real concentration or a longer stretch (writing a report, revising, preparing a presentation). " +
+            "Also infer blocked_by: if the text implies one item can only happen after another item in this same plan is done (e.g. packing for a trip after booking the flight), set blocked_by to the exact action string of the item it depends on. Leave blocked_by out entirely when no dependency is implied. Never make an item depend on itself. " +
             "When the input is vague, shorthand, or ambiguous, do NOT fall back to a generic catch-all item: make the most reasonable interpretation and state that assumption plainly in the note (e.g. 'Assuming this is the maths test on Thursday'). " +
             "Expand abbreviations and shorthand sensibly. Infer dates relative to today's date: " +
             new Date().toDateString() +
@@ -67,8 +71,19 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
                         description:
                           "Optional one-line concrete next step, useful context, or stated assumption. Leave out when it would be generic filler.",
                       },
+                      effort: {
+                        type: "string",
+                        enum: ["quick", "focused"],
+                        description:
+                          "'quick' for under ~15 minutes, 'focused' for tasks needing real concentration or time.",
+                      },
+                      blocked_by: {
+                        type: "string",
+                        description:
+                          "Exact action string of another item in this plan that must be done first. Leave out when nothing blocks it.",
+                      },
                     },
-                    required: ["action", "when", "priority"],
+                    required: ["action", "when", "priority", "effort"],
                     additionalProperties: false,
                   },
                 },
@@ -95,10 +110,23 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
   const args = json.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
   if (!args) throw new Error("The AI did not return a plan");
 
-  const parsed = JSON.parse(args) as { items: UnmessItem[] };
+  const parsed = JSON.parse(args) as {
+    items: (UnmessItem & { blocked_by?: string })[];
+  };
+  const actions = parsed.items.map((i) => i.action);
   return parsed.items.map((item) => {
     const note = item.note?.trim();
-    return { ...item, note: note && note.length > 1 ? note : undefined };
+    const blocker = (item.blockedBy ?? item.blocked_by)?.trim();
+    const validBlocker =
+      blocker && blocker !== item.action && actions.includes(blocker) ? blocker : undefined;
+    return {
+      action: item.action,
+      when: item.when,
+      priority: item.priority,
+      note: note && note.length > 1 ? note : undefined,
+      effort: item.effort === "quick" ? ("quick" as const) : ("focused" as const),
+      blockedBy: validBlocker,
+    };
   });
 
 }
