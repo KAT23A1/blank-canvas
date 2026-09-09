@@ -190,12 +190,17 @@ function ItemRow({
     when: string;
     priority: "high" | "medium" | "low";
     note?: string | undefined;
+    effort?: "quick" | "focused" | undefined;
+    blockedBy?: string | undefined;
+    recurring?: boolean | undefined;
     done: boolean;
   };
   pending: boolean;
   onToggle: () => void;
   onDelete: () => void;
 }) {
+  const [expanded, setExpanded] = useState(false);
+  const hasDetail = Boolean(item.note || item.blockedBy);
   return (
     <div
       className={`flex items-start gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm transition-opacity sm:p-5 ${
