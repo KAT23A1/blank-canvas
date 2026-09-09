@@ -40,6 +40,8 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
             "priority ('high' for urgent or imminent deadlines, 'medium' for time-bound but not urgent, 'low' for everything else), " +
             "and optionally note: ONE short line (max ~15 words) giving a concrete next step or genuinely useful context — e.g. for 'Finish Python assignment', a note like 'Start with the CSV-reading function; check the rubric for what's still required'. " +
             "Only include a note when there is a real, specific starting point or useful detail. Omit it entirely for simple items like 'buy milk'. Never write generic filler such as 'get started on this' or 'make a plan'. " +
+            "Also infer effort: 'quick' when the task realistically takes under about 15 minutes (a phone call, a short reply, booking something online), 'focused' when it needs real concentration or a longer stretch (writing a report, revising, preparing a presentation). " +
+            "Also infer blocked_by: if the text implies one item can only happen after another item in this same plan is done (e.g. packing for a trip after booking the flight), set blocked_by to the exact action string of the item it depends on. Leave blocked_by out entirely when no dependency is implied. Never make an item depend on itself. " +
             "When the input is vague, shorthand, or ambiguous, do NOT fall back to a generic catch-all item: make the most reasonable interpretation and state that assumption plainly in the note (e.g. 'Assuming this is the maths test on Thursday'). " +
             "Expand abbreviations and shorthand sensibly. Infer dates relative to today's date: " +
             new Date().toDateString() +
