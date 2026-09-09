@@ -3,6 +3,8 @@ export type UnmessItem = {
   when: string;
   priority: "high" | "medium" | "low";
   note?: string | undefined;
+  effort?: "quick" | "focused" | undefined;
+  blockedBy?: string | undefined;
 };
 
 
