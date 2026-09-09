@@ -8,6 +8,8 @@ const itemSchema = z.object({
   when: z.string(),
   priority: z.enum(["high", "medium", "low"]),
   note: z.string().trim().min(1).max(300).optional(),
+  effort: z.enum(["quick", "focused"]).optional(),
+  blockedBy: z.string().trim().min(1).max(300).optional(),
 });
 
 export const savePlan = createServerFn({ method: "POST" })
