@@ -36,6 +36,7 @@ const priorityMeta: Record<
 };
 
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "UNMESS — Paste the mess. Get the plan." },

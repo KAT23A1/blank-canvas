@@ -3,6 +3,7 @@ import { Logo } from "@/components/logo";
 
 
 export const Route = createFileRoute("/terms")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Terms of Service — UNMESS" },

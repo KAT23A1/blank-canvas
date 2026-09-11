@@ -41,6 +41,7 @@ async function handle(request: Request): Promise<Response> {
 }
 
 export const Route = createFileRoute("/api/public/hooks/health")({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       GET: async ({ request }) => handle(request),

@@ -3,6 +3,7 @@ import { Logo } from "@/components/logo";
 
 
 export const Route = createFileRoute("/privacy")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Privacy Policy — UNMESS" },

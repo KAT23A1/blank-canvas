@@ -7,6 +7,7 @@ import { Logo } from "@/components/logo";
 type Mode = "sign-in" | "sign-up";
 
 export const Route = createFileRoute("/auth")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Sign in — UNMESS" },

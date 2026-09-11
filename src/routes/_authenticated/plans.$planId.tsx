@@ -10,6 +10,7 @@ import {
 import { CompletionCelebration } from "@/components/completion-celebration";
 
 export const Route = createFileRoute("/_authenticated/plans/$planId")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Saved plan — UNMESS" },

@@ -164,6 +164,7 @@ async function sendReminderEmail(
 }
 
 export const Route = createFileRoute("/api/public/hooks/daily-reminders")({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       POST: async ({ request }) => {

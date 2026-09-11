@@ -9,6 +9,7 @@ import { createProCheckout } from "@/lib/billing.functions";
 import { Logo } from "@/components/logo";
 
 export const Route = createFileRoute("/pricing")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Pricing — UNMESS" },
