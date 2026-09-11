@@ -18,6 +18,7 @@ const ACTIVE_STATUSES = new Set(["active", "on_trial", "past_due", "cancelled"])
 const INACTIVE_STATUSES = new Set(["expired", "unpaid"]);
 
 export const Route = createFileRoute("/api/public/hooks/lemonsqueezy")({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       POST: async ({ request }) => {

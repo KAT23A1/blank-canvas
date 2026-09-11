@@ -16,6 +16,7 @@ const todayQueryOptions = {
 };
 
 export const Route = createFileRoute("/_authenticated/today")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Today — UNMESS" },

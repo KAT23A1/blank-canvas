@@ -9,6 +9,7 @@ import { createProCheckout } from "@/lib/billing.functions";
 import { ManageSubscriptionButton } from "@/components/manage-subscription";
 
 export const Route = createFileRoute("/_authenticated/settings")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Settings — UNMESS" },
