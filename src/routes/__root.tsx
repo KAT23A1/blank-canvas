@@ -154,6 +154,12 @@ function SiteFooter() {
         Terms
       </Link>
       <Link
+        to="/adhd-brain-dump"
+        className="font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline"
+      >
+        ADHD brain dump
+      </Link>
+      <Link
         to="/settings"
         className="font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline"
       >
