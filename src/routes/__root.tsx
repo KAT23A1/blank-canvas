@@ -160,6 +160,12 @@ function SiteFooter() {
         ADHD brain dump
       </Link>
       <Link
+        to="/adhd-planner"
+        className="font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline"
+      >
+        ADHD planner
+      </Link>
+      <Link
         to="/settings"
         className="font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline"
       >
