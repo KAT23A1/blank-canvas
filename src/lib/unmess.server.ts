@@ -139,6 +139,11 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
     const blocker = (item.blockedBy ?? item.blocked_by)?.trim();
     const validBlocker =
       blocker && blocker !== item.action && actions.includes(blocker) ? blocker : undefined;
+    const nudge = item.nudge?.trim();
+    const type: UnmessItemType =
+      item.type === "decision" || item.type === "blocked" || item.type === "unclear"
+        ? item.type
+        : "task";
     return {
       action: item.action,
       when: item.when,
@@ -146,6 +151,10 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
       note: note && note.length > 1 ? note : undefined,
       effort: item.effort === "quick" ? ("quick" as const) : ("focused" as const),
       blockedBy: validBlocker,
+      type,
+      nudge: nudge && nudge.length > 1 && (type === "decision" || type === "blocked")
+        ? nudge
+        : undefined,
     };
   });
 
