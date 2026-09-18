@@ -10,6 +10,8 @@ const itemSchema = z.object({
   note: z.string().trim().min(1).max(300).optional(),
   effort: z.enum(["quick", "focused"]).optional(),
   blockedBy: z.string().trim().min(1).max(300).optional(),
+  type: z.enum(["task", "decision", "blocked", "unclear"]).optional(),
+  nudge: z.string().trim().min(1).max(300).optional(),
 });
 
 export const savePlan = createServerFn({ method: "POST" })
