@@ -90,8 +90,20 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
                         description:
                           "Exact action string of another item in this plan that must be done first. Leave out when nothing blocks it.",
                       },
+                      },
+                      type: {
+                        type: "string",
+                        enum: ["task", "decision", "blocked", "unclear"],
+                        description:
+                          "'task' normal action, 'decision' weighing options, 'blocked' avoided or unsure how to start, 'unclear' too vague to act on.",
+                      },
+                      nudge: {
+                        type: "string",
+                        description:
+                          "For 'decision': the real question to settle. For 'blocked': one tiny first step under five minutes. Leave out otherwise.",
+                      },
                     },
-                    required: ["action", "when", "priority", "effort"],
+                    required: ["action", "when", "priority", "effort", "type"],
                     additionalProperties: false,
                   },
                 },
