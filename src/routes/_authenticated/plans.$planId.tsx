@@ -193,6 +193,8 @@ function ItemRow({
     note?: string | undefined;
     effort?: "quick" | "focused" | undefined;
     blockedBy?: string | undefined;
+    type?: "task" | "decision" | "blocked" | "unclear" | undefined;
+    nudge?: string | undefined;
     recurring?: boolean | undefined;
     done: boolean;
   };
@@ -202,6 +204,8 @@ function ItemRow({
 }) {
   const [expanded, setExpanded] = useState(false);
   const hasDetail = Boolean(item.note || item.blockedBy);
+  const blockedStep = item.type === "blocked" && item.nudge ? item.nudge : null;
+  const marker = item.type === "decision" ? "?" : item.type === "blocked" ? "\u2192" : null;
   return (
     <div
       className={`flex items-start gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm transition-opacity sm:p-5 ${
@@ -233,13 +237,26 @@ function ItemRow({
       </button>
 
       <div className="min-w-0 flex-1">
-        <p
-          className={`text-base leading-relaxed text-foreground ${
-            item.done ? "line-through" : ""
-          }`}
-        >
-          {item.action}
-        </p>
+        <div className="flex items-start gap-2">
+          {marker && (
+            <span aria-hidden="true" className="mt-0.5 shrink-0 text-sm text-muted-foreground">
+              {marker}
+            </span>
+          )}
+          <p
+            className={`text-base leading-relaxed text-foreground ${
+              item.done ? "line-through" : ""
+            }`}
+          >
+            {blockedStep ?? item.action}
+          </p>
+        </div>
+        {blockedStep && !item.done && (
+          <p className="mt-1 text-xs text-muted-foreground">{item.action}</p>
+        )}
+        {item.type === "decision" && item.nudge && !item.done && (
+          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.nudge}</p>
+        )}
         {item.note && !item.done && (
           <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.note}</p>
         )}
