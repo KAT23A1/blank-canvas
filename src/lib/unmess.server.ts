@@ -1,3 +1,5 @@
+export type UnmessItemType = "task" | "decision" | "blocked" | "unclear";
+
 export type UnmessItem = {
   action: string;
   when: string;
@@ -5,6 +7,8 @@ export type UnmessItem = {
   note?: string | undefined;
   effort?: "quick" | "focused" | undefined;
   blockedBy?: string | undefined;
+  type?: UnmessItemType | undefined;
+  nudge?: string | undefined;
 };
 
 
