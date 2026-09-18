@@ -90,7 +90,6 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
                         description:
                           "Exact action string of another item in this plan that must be done first. Leave out when nothing blocks it.",
                       },
-                      },
                       type: {
                         type: "string",
                         enum: ["task", "decision", "blocked", "unclear"],
