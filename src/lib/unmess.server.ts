@@ -1,3 +1,5 @@
+export type UnmessItemType = "task" | "decision" | "blocked" | "unclear";
+
 export type UnmessItem = {
   action: string;
   when: string;
@@ -5,6 +7,8 @@ export type UnmessItem = {
   note?: string | undefined;
   effort?: "quick" | "focused" | undefined;
   blockedBy?: string | undefined;
+  type?: UnmessItemType | undefined;
+  nudge?: string | undefined;
 };
 
 
@@ -41,6 +45,10 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
             "and optionally note: ONE short line (max ~15 words) giving a concrete next step or genuinely useful context — e.g. for 'Finish Python assignment', a note like 'Start with the CSV-reading function; check the rubric for what's still required'. " +
             "Only include a note when there is a real, specific starting point or useful detail. Omit it entirely for simple items like 'buy milk'. Never write generic filler such as 'get started on this' or 'make a plan'. " +
             "Also infer effort: 'quick' when the task realistically takes under about 15 minutes (a phone call, a short reply, booking something online), 'focused' when it needs real concentration or a longer stretch (writing a report, revising, preparing a presentation). " +
+            "Also classify each item with type: 'task' for a normal actionable item (the default), 'decision' when the person is weighing options rather than needing to do one thing, 'blocked' when they are clearly avoiding it or do not know how to start, and 'unclear' when the fragment is too vague to act on at all. " +
+            "For 'decision' items, set nudge to one short calm line naming the real question or the next thing that would settle it (e.g. 'The real question is whether you can afford the move before March'). " +
+            "For 'blocked' items, set nudge to one very small concrete first step that takes under five minutes (e.g. 'Open the document and write one sentence'). " +
+            "For 'task' and 'unclear' items, leave nudge out. " +
             "Also infer blocked_by: if the text implies one item can only happen after another item in this same plan is done (e.g. packing for a trip after booking the flight), set blocked_by to the exact action string of the item it depends on. Leave blocked_by out entirely when no dependency is implied. Never make an item depend on itself. " +
             "When the input is vague, shorthand, or ambiguous, do NOT fall back to a generic catch-all item: make the most reasonable interpretation and state that assumption plainly in the note (e.g. 'Assuming this is the maths test on Thursday'). " +
             "Expand abbreviations and shorthand sensibly. Infer dates relative to today's date: " +
@@ -82,8 +90,19 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
                         description:
                           "Exact action string of another item in this plan that must be done first. Leave out when nothing blocks it.",
                       },
+                      type: {
+                        type: "string",
+                        enum: ["task", "decision", "blocked", "unclear"],
+                        description:
+                          "'task' normal action, 'decision' weighing options, 'blocked' avoided or unsure how to start, 'unclear' too vague to act on.",
+                      },
+                      nudge: {
+                        type: "string",
+                        description:
+                          "For 'decision': the real question to settle. For 'blocked': one tiny first step under five minutes. Leave out otherwise.",
+                      },
                     },
-                    required: ["action", "when", "priority", "effort"],
+                    required: ["action", "when", "priority", "effort", "type"],
                     additionalProperties: false,
                   },
                 },
@@ -119,6 +138,11 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
     const blocker = (item.blockedBy ?? item.blocked_by)?.trim();
     const validBlocker =
       blocker && blocker !== item.action && actions.includes(blocker) ? blocker : undefined;
+    const nudge = item.nudge?.trim();
+    const type: UnmessItemType =
+      item.type === "decision" || item.type === "blocked" || item.type === "unclear"
+        ? item.type
+        : "task";
     return {
       action: item.action,
       when: item.when,
@@ -126,6 +150,10 @@ async function requestUnmessPlan(text: string): Promise<UnmessItem[]> {
       note: note && note.length > 1 ? note : undefined,
       effort: item.effort === "quick" ? ("quick" as const) : ("focused" as const),
       blockedBy: validBlocker,
+      type,
+      nudge: nudge && nudge.length > 1 && (type === "decision" || type === "blocked")
+        ? nudge
+        : undefined,
     };
   });
 

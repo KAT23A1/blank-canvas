@@ -10,6 +10,8 @@ const itemSchema = z.object({
   note: z.string().trim().min(1).max(300).optional(),
   effort: z.enum(["quick", "focused"]).optional(),
   blockedBy: z.string().trim().min(1).max(300).optional(),
+  type: z.enum(["task", "decision", "blocked", "unclear"]).optional(),
+  nudge: z.string().trim().min(1).max(300).optional(),
 });
 
 export const savePlan = createServerFn({ method: "POST" })
@@ -62,6 +64,8 @@ export const savePlan = createServerFn({ method: "POST" })
         note: item.note ?? null,
         effort: item.effort ?? "focused",
         blocked_by: item.blockedBy ?? null,
+        item_type: item.type ?? "task",
+        nudge: item.nudge ?? null,
         sort_order: i,
         occurrence_count: count,
         recurring,
@@ -105,7 +109,7 @@ export const listActionItems = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("plan_items")
       .select(
-        "id, action, when_text, priority, note, effort, blocked_by, done, sort_order, occurrence_count, recurring, plans!inner(id, created_at)",
+        "id, action, when_text, priority, note, effort, blocked_by, item_type, nudge, done, sort_order, occurrence_count, recurring, plans!inner(id, created_at)",
       )
       .order("sort_order", { ascending: true });
 
@@ -118,6 +122,8 @@ export const listActionItems = createServerFn({ method: "GET" })
       note: (i.note ?? undefined) as string | undefined,
       effort: ((i.effort ?? "focused") as "quick" | "focused"),
       blockedBy: (i.blocked_by ?? undefined) as string | undefined,
+      type: ((i.item_type ?? "task") as "task" | "decision" | "blocked" | "unclear"),
+      nudge: (i.nudge ?? undefined) as string | undefined,
       done: i.done as boolean,
       recurring: Boolean(i.recurring),
       occurrenceCount: (i.occurrence_count ?? 1) as number,
@@ -133,7 +139,7 @@ export const getPlan = createServerFn({ method: "GET" })
     const { data: plan, error } = await context.supabase
       .from("plans")
       .select(
-        "id, raw_text, created_at, plan_items(id, action, when_text, priority, note, effort, blocked_by, done, sort_order, occurrence_count, recurring)",
+        "id, raw_text, created_at, plan_items(id, action, when_text, priority, note, effort, blocked_by, item_type, nudge, done, sort_order, occurrence_count, recurring)",
       )
       .eq("id", data.id)
       .single();
@@ -153,6 +159,8 @@ export const getPlan = createServerFn({ method: "GET" })
           note: (i.note ?? undefined) as string | undefined,
           effort: ((i.effort ?? "focused") as "quick" | "focused"),
           blockedBy: (i.blocked_by ?? undefined) as string | undefined,
+          type: ((i.item_type ?? "task") as "task" | "decision" | "blocked" | "unclear"),
+          nudge: (i.nudge ?? undefined) as string | undefined,
           done: i.done as boolean,
           recurring: Boolean(i.recurring),
           occurrenceCount: (i.occurrence_count ?? 1) as number,

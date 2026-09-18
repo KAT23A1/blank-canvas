@@ -322,8 +322,10 @@ function ErrorNote() {
 }
 
 function ResultGroups({ items }: { items: UnmessItem[] }) {
-  const groups = groupByPriority(items);
-  if (groups.length === 0) return null;
+  const unclear = items.filter((i) => i.type === "unclear");
+  const actionable = items.filter((i) => i.type !== "unclear");
+  const groups = groupByPriority(actionable);
+  if (groups.length === 0 && unclear.length === 0) return null;
   return (
     <div className="space-y-8">
       {groups.map(({ priority, items: groupItems }) => (
@@ -333,29 +335,72 @@ function ResultGroups({ items }: { items: UnmessItem[] }) {
             {priorityMeta[priority].label}
           </h3>
           <div className="space-y-3">
-            {groupItems.map((item, i) => (
-              <div
-                key={`${priority}-${i}`}
-                className="flex items-start justify-between gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-base leading-relaxed text-foreground">{item.action}</p>
-                  {item.note && (
-                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                      {item.note}
-                    </p>
+            {groupItems.map((item, i) => {
+              const blockedStep = item.type === "blocked" && item.nudge ? item.nudge : null;
+              const marker = item.type === "decision" ? "?" : item.type === "blocked" ? "→" : null;
+              return (
+                <div
+                  key={`${priority}-${i}`}
+                  className="flex items-start justify-between gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start gap-2">
+                      {marker && (
+                        <span
+                          aria-hidden="true"
+                          className="mt-0.5 shrink-0 text-sm text-muted-foreground"
+                        >
+                          {marker}
+                        </span>
+                      )}
+                      <p className="text-base leading-relaxed text-foreground">
+                        {blockedStep ?? item.action}
+                      </p>
+                    </div>
+                    {blockedStep && (
+                      <p className="mt-1 text-xs text-muted-foreground">{item.action}</p>
+                    )}
+                    {item.type === "decision" && item.nudge && (
+                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                        {item.nudge}
+                      </p>
+                    )}
+                    {item.note && (
+                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                        {item.note}
+                      </p>
+                    )}
+                  </div>
+                  {item.when && item.when.toLowerCase() !== "no date" && (
+                    <span className="shrink-0 rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
+                      {item.when}
+                    </span>
                   )}
                 </div>
-                {item.when && item.when.toLowerCase() !== "no date" && (
-                  <span className="shrink-0 rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
-                    {item.when}
-                  </span>
-                )}
+              );
+            })}
+          </div>
+        </section>
+      ))}
+
+      {unclear.length > 0 && (
+        <section>
+          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            Not sure what to do with these
+          </h3>
+          <div className="space-y-2">
+            {unclear.map((item, i) => (
+              <div
+                key={`unclear-${i}`}
+                className="rounded-2xl border border-dashed border-border p-4"
+              >
+                <p className="text-sm leading-relaxed text-foreground">{item.action}</p>
+                <p className="mt-1 text-xs text-muted-foreground">Want to unpack this more?</p>
               </div>
             ))}
           </div>
         </section>
-      ))}
+      )}
     </div>
   );
 }
