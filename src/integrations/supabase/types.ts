@@ -22,7 +22,9 @@ export type Database = {
           done: boolean
           effort: string
           id: string
+          item_type: string
           note: string | null
+          nudge: string | null
           occurrence_count: number
           plan_id: string
           priority: string
@@ -37,7 +39,9 @@ export type Database = {
           done?: boolean
           effort?: string
           id?: string
+          item_type?: string
           note?: string | null
+          nudge?: string | null
           occurrence_count?: number
           plan_id: string
           priority: string
@@ -52,7 +56,9 @@ export type Database = {
           done?: boolean
           effort?: string
           id?: string
+          item_type?: string
           note?: string | null
+          nudge?: string | null
           occurrence_count?: number
           plan_id?: string
           priority?: string
