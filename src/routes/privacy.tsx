@@ -83,7 +83,7 @@ function PrivacyPage() {
         <Section title="Third-party services">
           <p>
             UNMESS relies on a small number of subprocessors to operate: cloud hosting and
-            database (Lovable Cloud), AI processing (Lovable AI), payment processing (Lemon Squeezy, for Pro subscriptions). Each receives only the data needed to perform its function.
+            database (Lovable Cloud), AI processing (Lovable AI), and payment processing (Lemon Squeezy, for Pro subscriptions). Each receives only the data needed to perform its function.
           </p>
         </Section>
 
