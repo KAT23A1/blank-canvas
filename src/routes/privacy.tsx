@@ -75,8 +75,7 @@ function PrivacyPage() {
         <Section title="How we use it">
           <p>
             Your pasted text is sent to an AI model solely to extract and organise your
-            action items. We use your email address to sign you in and, if you're a Pro
-            member, to send reminder emails about your dated action items.
+            action items. We use your email address to sign you in and to reply to support requests.
           </p>
           <p>We do not sell your data, show ads, or use your content to train AI models.</p>
         </Section>
@@ -84,9 +83,7 @@ function PrivacyPage() {
         <Section title="Third-party services">
           <p>
             UNMESS relies on a small number of subprocessors to operate: cloud hosting and
-            database (Lovable Cloud), AI processing (Lovable AI), payment processing
-            (Lemon Squeezy, for Pro subscriptions), and email delivery (Gmail SMTP, for
-            reminders). Each receives only the data needed to perform its function.
+            database (Lovable Cloud), AI processing (Lovable AI), payment processing (Lemon Squeezy, for Pro subscriptions). Each receives only the data needed to perform its function.
           </p>
         </Section>
 
@@ -107,8 +104,7 @@ function PrivacyPage() {
         <Section title="Data retention & security">
           <p>
             Your data is stored with encryption in transit and at rest. We retain your
-            content for as long as your account is active. Reminder emails are sent only
-            to Pro members and only about items you created.
+            content for as long as your account is active.
           </p>
         </Section>
 

@@ -76,7 +76,7 @@ function TermsPage() {
           <p>
             The Free plan includes 5 unmesses per calendar month, resetting on the first
             of each month. UNMESS Pro is a monthly subscription billed through Lemon
-            Squeezy and includes unlimited unmesses and email reminders. You can cancel
+            Squeezy and includes unlimited unmesses and priority email support. You can cancel
             anytime; your plan stays Pro until the end of the paid period, then returns
             to Free. Payments are non-refundable except where required by law.
           </p>

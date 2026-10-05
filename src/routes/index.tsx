@@ -567,7 +567,7 @@ function Landing() {
               <ul className="mt-4 space-y-2 text-sm text-foreground">
                 <li>Unlimited unmesses</li>
                 <li>Everything in Free</li>
-                <li>Email reminders for dated items</li>
+                <li>Priority support — answered first</li>
                 <li>Support an indie tool</li>
               </ul>
               <Link
