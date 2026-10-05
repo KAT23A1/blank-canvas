@@ -22,9 +22,9 @@ type VaporizeTextCycleProps = {
     fontSize?: string;
     fontWeight?: number;
   };
-  color?: string;
-  spread?: number;
-  density?: number;
+  color?: string | undefined;
+  spread?: number | undefined;
+  density?: number | undefined;
   animation?: {
     vaporizeDuration?: number;
     fadeInDuration?: number;
@@ -189,6 +189,7 @@ export default function VaporizeTextCycle({
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
       }
+      return undefined;
     }
   }, [isInView]);
 
