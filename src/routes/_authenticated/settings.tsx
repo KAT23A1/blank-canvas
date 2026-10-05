@@ -192,7 +192,7 @@ function SettingsPage() {
               )}
             </button>
             <p className="mt-2.5 text-xs text-muted-foreground">
-              Unlimited unmesses, full history, and email reminders.
+              Unlimited unmesses, full history, and priority support.
             </p>
             {proComingSoon && (
               <p className="mt-3 text-sm text-muted-foreground">

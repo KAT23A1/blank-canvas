@@ -16,13 +16,13 @@ export const Route = createFileRoute("/pricing")({
       {
         name: "description",
         content:
-          "UNMESS is free for 5 unmesses a month. Go Pro for unlimited unmesses and email reminders.",
+          "UNMESS is free for 5 unmesses a month. Go Pro for unlimited unmesses and priority support.",
       },
       { property: "og:title", content: "Pricing — UNMESS" },
       {
         property: "og:description",
         content:
-          "UNMESS is free for 5 unmesses a month. Go Pro for unlimited unmesses and email reminders.",
+          "UNMESS is free for 5 unmesses a month. Go Pro for unlimited unmesses and priority support.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -41,7 +41,7 @@ const freeFeatures = [
 const proFeatures = [
   "Unlimited unmesses",
   "Everything in Free",
-  "Email reminders — the morning items are due, and the day before",
+  "Priority support — your emails answered first",
   "Manage your subscription anytime",
 ];
 

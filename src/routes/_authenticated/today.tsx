@@ -36,7 +36,7 @@ export const Route = createFileRoute("/_authenticated/today")({
   loader: ({ context }) => context.queryClient.ensureQueryData(todayQueryOptions),
   errorComponent: ({ error }) => (
     <div role="alert" className="p-8 text-center text-sm text-destructive">
-      Couldn't load your items: {error.message}
+      Couldn't load your items: {error instanceof Error ? error.message : "Unknown error"}
     </div>
   ),
   notFoundComponent: () => <div className="p-8 text-center">Not found.</div>,
