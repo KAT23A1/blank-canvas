@@ -33,6 +33,8 @@ type VaporizeTextCycleProps = {
   direction?: "left-to-right" | "right-to-left";
   alignment?: "left" | "center" | "right";
   tag?: Tag;
+  onComplete?: () => void;
+  initialDelay?: number;
 };
 
 type Particle = {
@@ -80,6 +82,8 @@ export default function VaporizeTextCycle({
   direction = "left-to-right",
   alignment = "center",
   tag = Tag.P,
+  onComplete,
+  initialDelay = 0,
 }: VaporizeTextCycleProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -180,7 +184,7 @@ export default function VaporizeTextCycle({
     if (isInView) {
       const startAnimationTimeout = setTimeout(() => {
         setAnimationState("vaporizing");
-      }, 0);
+      }, initialDelay);
       return () => clearTimeout(startAnimationTimeout);
     } else {
       // When the component goes out of view, reset to the static state
@@ -191,7 +195,7 @@ export default function VaporizeTextCycle({
       }
       return undefined;
     }
-  }, [isInView]);
+  }, [isInView, initialDelay]);
 
   // Animation loop - only run when in view
   useEffect(() => {
@@ -246,6 +250,10 @@ export default function VaporizeTextCycle({
 
           // Check if vaporization is complete
           if (vaporizeProgressRef.current >= 100 && allVaporized) {
+            if (onComplete) {
+              onComplete();
+              return;
+            }
             setCurrentTextIndex((prevIndex) => (prevIndex + 1) % texts.length);
             setAnimationState("fadingIn");
             fadeOpacityRef.current = 0;
@@ -297,6 +305,7 @@ export default function VaporizeTextCycle({
     };
   }, [
     animationState,
+    onComplete,
     isInView,
     texts.length,
     direction,
