@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { User } from "@supabase/supabase-js";
@@ -13,7 +13,7 @@ import { extractFile } from "@/lib/files.functions";
 import { SplineSceneBasic } from "@/components/spline-scene-basic";
 import { RotatingTagline } from "@/components/rotating-tagline";
 import { Logo } from "@/components/logo";
-import VaporizeTextCycle, { Tag } from "@/components/ui/vapour-text-effect";
+import { UnmessIntro } from "@/components/unmess-intro";
 import {
   Tour,
   TOUR_STEPS,
@@ -71,6 +71,17 @@ function groupByPriority(items: UnmessItem[]) {
 function Index() {
   const [user, setUser] = useState<User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
+  const finishIntro = useCallback(() => {
+    setShowIntro(false);
+    try { sessionStorage.setItem("unmess_intro_seen", "1"); } catch { /* Storage is optional. */ }
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem("unmess_intro_seen")) setShowIntro(false);
+    } catch { /* The intro still works without storage. */ }
+  }, []);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -86,8 +97,7 @@ function Index() {
     return () => subscription.unsubscribe();
   }, []);
 
-  if (!authChecked) {
-    return (
+  const home = !authChecked ? (
       <main className="flex min-h-screen flex-col items-center px-6 pb-12 sm:px-8">
         <div className="w-full max-w-2xl pt-24">
           <div className="mx-auto h-10 w-40 animate-pulse rounded-xl bg-muted" />
@@ -95,10 +105,14 @@ function Index() {
           <div className="mt-12 h-64 animate-pulse rounded-2xl border border-border bg-card" />
         </div>
       </main>
-    );
-  }
+    ) : user ? <AppHome user={user} /> : <Landing introComplete={!showIntro} />;
 
-  return user ? <AppHome user={user} /> : <Landing />;
+  return (
+    <>
+      <div inert={showIntro} aria-hidden={showIntro || undefined}>{home}</div>
+      {showIntro && <UnmessIntro onDone={finishIntro} />}
+    </>
+  );
 }
 
 /* ---------------------------------- shared --------------------------------- */
@@ -408,7 +422,7 @@ function ResultGroups({ items }: { items: UnmessItem[] }) {
 
 /* --------------------------------- landing --------------------------------- */
 
-function Landing() {
+function Landing({ introComplete }: { introComplete: boolean }) {
   const [input, setInput] = useState("");
   const [items, setItems] = useState<UnmessItem[]>([]);
   const [status, setStatus] = useState<Status>("idle");
@@ -422,6 +436,7 @@ function Landing() {
 
   // Kick off the walkthrough a beat after a first-time visitor lands.
   useEffect(() => {
+    if (!introComplete) return;
     const replay = localStorage.getItem(TOUR_REPLAY_KEY);
     if (replay) localStorage.removeItem(TOUR_REPLAY_KEY);
     if (replay || !localStorage.getItem(TOUR_SEEN_KEY)) {
@@ -429,7 +444,7 @@ function Landing() {
       return () => clearTimeout(t);
     }
     return undefined;
-  }, []);
+  }, [introComplete]);
 
   const finishTour = () => {
     localStorage.setItem(TOUR_SEEN_KEY, "1");
@@ -473,28 +488,6 @@ function Landing() {
 
       <div className="w-full max-w-2xl">
         <div className="mb-10 mt-8 text-center sm:mb-12 sm:mt-14">
-          <div
-            className="mx-auto mb-5 h-28 w-full overflow-hidden sm:h-32"
-            aria-label="UNMESS"
-          >
-            <VaporizeTextCycle
-              texts={["UNMESS"]}
-              font={{
-                fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
-                fontSize: "72px",
-                fontWeight: 700,
-              }}
-              spread={4}
-              density={6}
-              animation={{
-                vaporizeDuration: 2.4,
-                fadeInDuration: 0.9,
-                waitDuration: 1.5,
-              }}
-              alignment="center"
-              tag={Tag.P}
-            />
-          </div>
           <h1 className="text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
             Your brain is messy.
             <br />
