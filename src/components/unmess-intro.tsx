@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import VaporizeTextCycle from "@/components/ui/vapour-text-effect";
 
 const INTRO_TEXT = ["UNMESS"];
@@ -52,9 +50,6 @@ export function UnmessIntro({ onDone }: { onDone: () => void }) {
           <p className="flex h-full items-center justify-center text-5xl font-bold text-foreground">UNMESS</p>
         )}
       </div>
-      <Button autoFocus variant="ghost" onClick={finish} className="absolute bottom-8 right-6 gap-2 text-muted-foreground" aria-label="Continue to home page">
-        Continue <ArrowRight aria-hidden="true" />
-      </Button>
     </div>
   );
 }
