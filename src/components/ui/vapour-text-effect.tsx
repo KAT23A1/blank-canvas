@@ -83,7 +83,7 @@ export default function VaporizeTextCycle({
 }: VaporizeTextCycleProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const isInView = useIsInView(wrapperRef as React.RefObject<HTMLElement>);
+  const isInView = useIsInView(wrapperRef);
   const lastFontRef = useRef<string | null>(null);
   const particlesRef = useRef<Particle[]>([]);
   const animationFrameRef = useRef<number | null>(null);
@@ -389,7 +389,7 @@ export default function VaporizeTextCycle({
   }, []);
 
   return (
-    <div ref={wrapperRef} style={wrapperStyle}>
+    <div ref={wrapperRef} style={wrapperStyle} className="text-foreground">
       <canvas ref={canvasRef} style={canvasStyle} />
       <SeoElement tag={tag} texts={texts} />
     </div>
@@ -531,7 +531,7 @@ const renderCanvas = ({
   const font = `${framerProps.font?.fontWeight ?? 400} ${fontSize * globalDpr}px ${
     framerProps.font?.fontFamily ?? "sans-serif"
   }`;
-  const color = parseColor(framerProps.color ?? "rgb(153, 153, 153)");
+  const color = parseColor(framerProps.color ?? getComputedStyle(canvas).color);
 
   // Calculate text position
   let textX;
@@ -634,7 +634,10 @@ const createParticles = (
   for (let y = 0; y < canvas.height; y += sampleRate) {
     for (let x = 0; x < canvas.width; x += sampleRate) {
       const index = (y * canvas.width + x) * 4;
-      const alpha = data[index + 3];
+      const red = data[index] ?? 0;
+      const green = data[index + 1] ?? 0;
+      const blue = data[index + 2] ?? 0;
+      const alpha = data[index + 3] ?? 0;
 
       if (alpha > 0) {
         // Remove density from the opacity calculation
@@ -644,7 +647,7 @@ const createParticles = (
           y,
           originalX: x,
           originalY: y,
-          color: `rgba(${data[index]}, ${data[index + 1]}, ${data[index + 2]}, ${originalAlpha})`,
+          color: `rgba(${red}, ${green}, ${blue}, ${originalAlpha})`,
           opacity: originalAlpha,
           originalAlpha,
           // Animation properties
@@ -797,27 +800,10 @@ const resetParticles = (particles: Particle[]) => {
 // ------------------------------------------------------------ //
 const calculateVaporizeSpread = (fontSize: number) => {
   const size = typeof fontSize === "string" ? parseInt(fontSize) : fontSize;
-
-  // Define our known points for interpolation
-  const points = [
-    { size: 20, spread: 0.2 },
-    { size: 50, spread: 0.5 },
-    { size: 100, spread: 1.5 },
-  ];
-
-  // Handle edge cases
-  if (size <= points[0].size) return points[0].spread;
-  if (size >= points[points.length - 1].size) return points[points.length - 1].spread;
-
-  // Find the two points to interpolate between
-  let i = 0;
-  while (i < points.length - 1 && points[i + 1].size < size) i++;
-
-  // Linear interpolation between the two closest points
-  const p1 = points[i];
-  const p2 = points[i + 1];
-
-  return p1.spread + ((size - p1.size) * (p2.spread - p1.spread)) / (p2.size - p1.size);
+  if (size <= 20) return 0.2;
+  if (size >= 100) return 1.5;
+  if (size <= 50) return 0.2 + ((size - 20) * 0.3) / 30;
+  return 0.5 + ((size - 50) * 1) / 50;
 };
 
 // ------------------------------------------------------------ //
@@ -848,8 +834,8 @@ const parseColor = (color: string) => {
  */
 function transformValue(
   input: number,
-  inputRange: number[],
-  outputRange: number[],
+  inputRange: readonly [number, number],
+  outputRange: readonly [number, number],
   clamp = false,
 ): number {
   const [inputMin, inputMax] = inputRange;
@@ -872,7 +858,7 @@ function transformValue(
 /**
  * Custom hook to check if an element is in the viewport
  */
-function useIsInView(ref: React.RefObject<HTMLElement>) {
+function useIsInView<T extends HTMLElement>(ref: React.RefObject<T | null>) {
   const [isInView, setIsInView] = useState(false);
 
   useEffect(() => {
@@ -880,6 +866,7 @@ function useIsInView(ref: React.RefObject<HTMLElement>) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (!entry) return;
         setIsInView(entry.isIntersecting);
       },
       { threshold: 0, rootMargin: "50px" },

@@ -13,6 +13,7 @@ import { extractFile } from "@/lib/files.functions";
 import { SplineSceneBasic } from "@/components/spline-scene-basic";
 import { RotatingTagline } from "@/components/rotating-tagline";
 import { Logo } from "@/components/logo";
+import VaporizeTextCycle, { Tag } from "@/components/ui/vapour-text-effect";
 import {
   Tour,
   TOUR_STEPS,
@@ -472,6 +473,28 @@ function Landing() {
 
       <div className="w-full max-w-2xl">
         <div className="mb-10 mt-8 text-center sm:mb-12 sm:mt-14">
+          <div
+            className="mx-auto mb-5 h-28 w-full overflow-hidden sm:h-32"
+            aria-label="UNMESS"
+          >
+            <VaporizeTextCycle
+              texts={["UNMESS"]}
+              font={{
+                fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+                fontSize: "72px",
+                fontWeight: 700,
+              }}
+              spread={4}
+              density={6}
+              animation={{
+                vaporizeDuration: 2.4,
+                fadeInDuration: 0.9,
+                waitDuration: 1.5,
+              }}
+              alignment="center"
+              tag={Tag.P}
+            />
+          </div>
           <h1 className="text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
             Your brain is messy.
             <br />
