@@ -83,7 +83,7 @@ export default function VaporizeTextCycle({
 }: VaporizeTextCycleProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const isInView = useIsInView(wrapperRef as React.RefObject<HTMLElement>);
+  const isInView = useIsInView(wrapperRef);
   const lastFontRef = useRef<string | null>(null);
   const particlesRef = useRef<Particle[]>([]);
   const animationFrameRef = useRef<number | null>(null);
@@ -389,7 +389,7 @@ export default function VaporizeTextCycle({
   }, []);
 
   return (
-    <div ref={wrapperRef} style={wrapperStyle}>
+    <div ref={wrapperRef} style={wrapperStyle} className="text-foreground">
       <canvas ref={canvasRef} style={canvasStyle} />
       <SeoElement tag={tag} texts={texts} />
     </div>
@@ -531,7 +531,7 @@ const renderCanvas = ({
   const font = `${framerProps.font?.fontWeight ?? 400} ${fontSize * globalDpr}px ${
     framerProps.font?.fontFamily ?? "sans-serif"
   }`;
-  const color = parseColor(framerProps.color ?? "rgb(153, 153, 153)");
+  const color = parseColor(framerProps.color ?? getComputedStyle(canvas).color);
 
   // Calculate text position
   let textX;
@@ -634,7 +634,10 @@ const createParticles = (
   for (let y = 0; y < canvas.height; y += sampleRate) {
     for (let x = 0; x < canvas.width; x += sampleRate) {
       const index = (y * canvas.width + x) * 4;
-      const alpha = data[index + 3];
+      const red = data[index] ?? 0;
+      const green = data[index + 1] ?? 0;
+      const blue = data[index + 2] ?? 0;
+      const alpha = data[index + 3] ?? 0;
 
       if (alpha > 0) {
         // Remove density from the opacity calculation
@@ -644,7 +647,7 @@ const createParticles = (
           y,
           originalX: x,
           originalY: y,
-          color: `rgba(${data[index]}, ${data[index + 1]}, ${data[index + 2]}, ${originalAlpha})`,
+          color: `rgba(${red}, ${green}, ${blue}, ${originalAlpha})`,
           opacity: originalAlpha,
           originalAlpha,
           // Animation properties
@@ -799,7 +802,11 @@ const calculateVaporizeSpread = (fontSize: number) => {
   const size = typeof fontSize === "string" ? parseInt(fontSize) : fontSize;
 
   // Define our known points for interpolation
-  const points = [
+  const points: readonly [
+    { size: number; spread: number },
+    { size: number; spread: number },
+    { size: number; spread: number },
+  ] = [
     { size: 20, spread: 0.2 },
     { size: 50, spread: 0.5 },
     { size: 100, spread: 1.5 },
@@ -848,8 +855,8 @@ const parseColor = (color: string) => {
  */
 function transformValue(
   input: number,
-  inputRange: number[],
-  outputRange: number[],
+  inputRange: readonly [number, number],
+  outputRange: readonly [number, number],
   clamp = false,
 ): number {
   const [inputMin, inputMax] = inputRange;
@@ -880,6 +887,7 @@ function useIsInView(ref: React.RefObject<HTMLElement>) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (!entry) return;
         setIsInView(entry.isIntersecting);
       },
       { threshold: 0, rootMargin: "50px" },
