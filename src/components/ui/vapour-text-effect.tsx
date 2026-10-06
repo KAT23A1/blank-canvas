@@ -800,35 +800,10 @@ const resetParticles = (particles: Particle[]) => {
 // ------------------------------------------------------------ //
 const calculateVaporizeSpread = (fontSize: number) => {
   const size = typeof fontSize === "string" ? parseInt(fontSize) : fontSize;
-
-  // Define our known points for interpolation
-  const points: readonly [
-    { size: number; spread: number },
-    { size: number; spread: number },
-    { size: number; spread: number },
-  ] = [
-    { size: 20, spread: 0.2 },
-    { size: 50, spread: 0.5 },
-    { size: 100, spread: 1.5 },
-  ];
-
-  // Handle edge cases
-  const firstPoint = points[0];
-  const lastPoint = points[2];
-  if (size <= firstPoint.size) return firstPoint.spread;
-  if (size >= lastPoint.size) return lastPoint.spread;
-
-  // Find the two points to interpolate between
-  let i = 0;
-  while (i < points.length - 1 && points[i + 1].size < size) i++;
-
-  // Linear interpolation between the two closest points
-  const p1 = points[i];
-  const p2 = points[i + 1];
-
-  if (!p1 || !p2) return firstPoint.spread;
-
-  return p1.spread + ((size - p1.size) * (p2.spread - p1.spread)) / (p2.size - p1.size);
+  if (size <= 20) return 0.2;
+  if (size >= 100) return 1.5;
+  if (size <= 50) return 0.2 + ((size - 20) * 0.3) / 30;
+  return 0.5 + ((size - 50) * 1) / 50;
 };
 
 // ------------------------------------------------------------ //
