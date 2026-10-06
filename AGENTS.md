@@ -10,4 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Keep the landing-page UNMESS intro as a client-rendered canvas effect with a stable reserved height, because animation failure must not shift or blank the primary input experience.
-- Present the canvas intro in a session-once overlay above the mounted home page, with completion, skip and timeout exits; defer guest onboarding until it closes so the input remains reachable.
+- Present the canvas intro in a session-once overlay above the mounted home page, with automatic completion and timeout exits; defer guest onboarding until it closes so the input remains reachable without requiring a button.
