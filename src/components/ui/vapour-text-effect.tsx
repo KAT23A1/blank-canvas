@@ -813,8 +813,10 @@ const calculateVaporizeSpread = (fontSize: number) => {
   ];
 
   // Handle edge cases
-  if (size <= points[0].size) return points[0].spread;
-  if (size >= points[points.length - 1].size) return points[points.length - 1].spread;
+  const firstPoint = points[0];
+  const lastPoint = points[2];
+  if (size <= firstPoint.size) return firstPoint.spread;
+  if (size >= lastPoint.size) return lastPoint.spread;
 
   // Find the two points to interpolate between
   let i = 0;
@@ -823,6 +825,8 @@ const calculateVaporizeSpread = (fontSize: number) => {
   // Linear interpolation between the two closest points
   const p1 = points[i];
   const p2 = points[i + 1];
+
+  if (!p1 || !p2) return firstPoint.spread;
 
   return p1.spread + ((size - p1.size) * (p2.spread - p1.spread)) / (p2.size - p1.size);
 };
@@ -879,7 +883,7 @@ function transformValue(
 /**
  * Custom hook to check if an element is in the viewport
  */
-function useIsInView(ref: React.RefObject<HTMLElement>) {
+function useIsInView<T extends HTMLElement>(ref: React.RefObject<T | null>) {
   const [isInView, setIsInView] = useState(false);
 
   useEffect(() => {
