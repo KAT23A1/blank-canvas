@@ -155,22 +155,22 @@ function SiteFooter() {
         Terms
       </Link>
       <Link
-        to="/adhd-brain-dump"
+        to="/brain-dump"
         className="font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline"
       >
-        ADHD brain dump
+        Brain dump
       </Link>
       <Link
-        to="/adhd-planner"
+        to="/planner"
         className="font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline"
       >
-        ADHD planner
+        Planner
       </Link>
       <Link
-        to="/adhd-paralysis"
+        to="/task-paralysis"
         className="font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline"
       >
-        ADHD paralysis
+        Task paralysis
       </Link>
       <Link
         to="/settings"

@@ -1,33 +1,34 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/logo";
 
-export const Route = createFileRoute("/adhd-planner")({
+export const Route = createFileRoute("/planner")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "ADHD Planner — Planning Without the Paperwork | UNMESS" },
+      { title: "Planner — Planning Without the Paperwork | UNMESS" },
       {
         name: "description",
         content:
-          "An ADHD planner that organises itself. UNMESS turns your messy thoughts into a prioritised plan — no templates, no sorting, no upkeep.",
+          "A planner that organises itself. UNMESS turns your messy thoughts into a prioritised plan — no templates, no sorting, no upkeep.",
       },
       {
         property: "og:title",
-        content: "ADHD Planner — Planning Without the Paperwork | UNMESS",
+        content: "Planner — Planning Without the Paperwork | UNMESS",
       },
       {
         property: "og:description",
         content:
-          "An ADHD planner that organises itself. UNMESS turns your messy thoughts into a prioritised plan — no templates, no sorting, no upkeep.",
+          "A planner that organises itself. UNMESS turns your messy thoughts into a prioritised plan — no templates, no sorting, no upkeep.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://unmess.lovable.app/planner" }],
   }),
-  component: AdhdPlanner,
+  component: Planner,
 });
 
-function AdhdPlanner() {
+function Planner() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="flex items-center justify-between px-6 py-5">
@@ -44,13 +45,13 @@ function AdhdPlanner() {
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-6 pb-16 pt-8">
         <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          An ADHD planner that does the organising for you
+          A planner that does the organising for you
         </h1>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          Most ADHD planners ask you to do the hard part first: pick a
-          template, categorise your tasks, set dates and priorities. For a
-          brain that already struggles with exactly those steps, the planner
-          itself becomes another task on the list.
+          Most planners ask you to do the hard part first: pick a template,
+          categorise your tasks, set dates and priorities. If those are the
+          steps that usually stop you, the planner itself becomes another task
+          on the list.
         </p>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
           UNMESS works the other way round. You pour out everything on your
@@ -59,21 +60,25 @@ function AdhdPlanner() {
         </p>
 
         <h2 className="mt-10 text-xl font-semibold text-foreground">
-          Why traditional planners often fail ADHD brains
+          Why traditional planners so often get abandoned
         </h2>
         <ul className="mt-4 space-y-3 text-base leading-relaxed text-muted-foreground">
           <li className="flex gap-3">
             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/40" />
             <span>
-              <strong className="font-medium text-foreground">Upfront decisions.</strong>{" "}
+              <strong className="font-medium text-foreground">
+                Upfront decisions.
+              </strong>{" "}
               Choosing categories, priorities and due dates before you can even
-              start is exactly where executive function runs out.
+              start is where most people lose the plot.
             </span>
           </li>
           <li className="flex gap-3">
             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/40" />
             <span>
-              <strong className="font-medium text-foreground">Constant upkeep.</strong>{" "}
+              <strong className="font-medium text-foreground">
+                Constant upkeep.
+              </strong>{" "}
               A planner only works if you keep maintaining it — and maintenance
               is the first thing to slip.
             </span>
@@ -81,7 +86,9 @@ function AdhdPlanner() {
           <li className="flex gap-3">
             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/40" />
             <span>
-              <strong className="font-medium text-foreground">All-or-nothing lists.</strong>{" "}
+              <strong className="font-medium text-foreground">
+                All-or-nothing lists.
+              </strong>{" "}
               A flat wall of tasks with no clear starting point leads straight
               back to overwhelm.
             </span>
@@ -104,8 +111,8 @@ function AdhdPlanner() {
             <span className="font-medium text-foreground">2.</span>
             <span>
               UNMESS sorts it into clear tasks with a priority, a when, and
-              whether each one is a quick win or needs real focus. It even
-              spots when one task depends on another.
+              whether each one is a quick win or needs real focus. It even spots
+              when one task depends on another.
             </span>
           </li>
           <li className="flex gap-3">
@@ -121,10 +128,10 @@ function AdhdPlanner() {
           Planning that survives real life
         </h2>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          Because there's nothing to maintain, there's nothing to abandon.
-          Miss a week? Just dump whatever is in your head and UNMESS builds a
-          fresh plan from where you are now — not from where some template
-          thought you'd be.
+          Because there's nothing to maintain, there's nothing to abandon. Miss a
+          week? Just dump whatever is in your head and UNMESS builds a fresh plan
+          from where you are now — not from where some template thought you'd
+          be.
         </p>
 
         <div className="mt-12 rounded-xl border border-border bg-card p-6 text-center">
@@ -132,8 +139,8 @@ function AdhdPlanner() {
             Skip the template. Keep the plan.
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Paste what's on your mind. Get a prioritised plan. No account
-            needed for your first try.
+            Paste what's on your mind. Get a prioritised plan. No account needed
+            for your first try.
           </p>
           <Link
             to="/"

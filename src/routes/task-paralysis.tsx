@@ -1,34 +1,36 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/logo";
 
-export const Route = createFileRoute("/adhd-paralysis")({
+export const Route = createFileRoute("/task-paralysis")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "ADHD Paralysis — Why You Freeze and How to Start | UNMESS" },
+      { title: "Task Paralysis — Why You Freeze and How to Start | UNMESS" },
       {
         name: "description",
         content:
-          "ADHD paralysis happens when too many open decisions overload executive function. UNMESS removes the deciding — pour out the mess, get one clear first step.",
+          "Task paralysis happens when too many open decisions pile up and nothing can start. UNMESS removes the deciding — pour out the mess, get one clear first step.",
       },
       {
         property: "og:title",
-        content: "ADHD Paralysis — Why You Freeze and How to Start | UNMESS",
+        content: "Task Paralysis — Why You Freeze and How to Start | UNMESS",
       },
       {
         property: "og:description",
         content:
-          "ADHD paralysis happens when too many open decisions overload executive function. UNMESS removes the deciding — pour out the mess, get one clear first step.",
+          "Task paralysis happens when too many open decisions pile up and nothing can start. UNMESS removes the deciding — pour out the mess, get one clear first step.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://unmess.lovable.app/adhd-paralysis" }],
+    links: [
+      { rel: "canonical", href: "https://unmess.lovable.app/task-paralysis" },
+    ],
   }),
-  component: AdhdParalysis,
+  component: TaskParalysis,
 });
 
-function AdhdParalysis() {
+function TaskParalysis() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="flex items-center justify-between px-6 py-5">
@@ -45,14 +47,13 @@ function AdhdParalysis() {
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-6 pb-16 pt-8">
         <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          ADHD paralysis: why you freeze, and how to get moving again
+          Task paralysis: why you freeze, and how to get moving again
         </h1>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          ADHD paralysis — sometimes called task paralysis — is that stuck
-          feeling where you have a dozen things to do and somehow can't start
-          any of them. You're not lazy and you're not broken. Your brain is
-          overloaded with open decisions, and deciding is exactly the thing
-          ADHD makes hardest.
+          Task paralysis is that stuck feeling where you have a dozen things to
+          do and somehow can't start any of them. You're not lazy and you're not
+          broken. Your head is overloaded with open decisions, and deciding is
+          the expensive part.
         </p>
 
         <h2 className="mt-10 text-xl font-semibold text-foreground">
@@ -62,8 +63,10 @@ function AdhdParalysis() {
           <li className="flex gap-3">
             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/40" />
             <span>
-              <strong className="font-medium text-foreground">Too many open loops.</strong>{" "}
-              Every unfinished task sits in working memory, competing for
+              <strong className="font-medium text-foreground">
+                Too many open loops.
+              </strong>{" "}
+              Every unfinished task sits in the back of your mind, competing for
               attention. The more there are, the harder any single one is to
               pick up.
             </span>
@@ -71,18 +74,22 @@ function AdhdParalysis() {
           <li className="flex gap-3">
             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/40" />
             <span>
-              <strong className="font-medium text-foreground">Decision overload.</strong>{" "}
+              <strong className="font-medium text-foreground">
+                Decision overload.
+              </strong>{" "}
               "Which one first? How urgent is it? Where do I even begin?" Each
-              question costs executive function — and there are dozens of them
-              before you can do anything at all.
+              question costs you something — and there are dozens of them before
+              you can do anything at all.
             </span>
           </li>
           <li className="flex gap-3">
             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/40" />
             <span>
-              <strong className="font-medium text-foreground">No obvious first step.</strong>{" "}
-              Big vague tasks ("sort out the flat", "deal with admin") don't
-              tell your brain where to grab on, so it doesn't.
+              <strong className="font-medium text-foreground">
+                No obvious first step.
+              </strong>{" "}
+              Big vague tasks ("sort out the flat", "deal with admin") don't tell
+              you where to grab on, so you don't.
             </span>
           </li>
         </ul>
@@ -91,10 +98,10 @@ function AdhdParalysis() {
           The way out: remove the deciding
         </h2>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          The most reliable trick for task paralysis is to take the decisions
-          out of your hands. That's what UNMESS does. You don't prioritise,
-          categorise, or estimate anything — you just pour out everything on
-          your mind, exactly as it comes.
+          The most reliable way past task paralysis is to take the decisions out
+          of your hands. That's what UNMESS does. You don't prioritise,
+          categorise, or estimate anything — you just pour out everything on your
+          mind, exactly as it comes.
         </p>
         <ol className="mt-4 space-y-3 text-base leading-relaxed text-muted-foreground">
           <li className="flex gap-3">
@@ -124,16 +131,15 @@ function AdhdParalysis() {
           Why one suggested first step matters
         </h2>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          Paralysis breaks when starting becomes smaller than staying stuck.
-          A single, concrete, already-chosen first step — "email Sarah about
-          the weekend" rather than "social stuff" — gives your brain something
-          it can simply do, no deliberation required. Momentum tends to take
-          care of the rest.
+          Paralysis breaks when starting becomes smaller than staying stuck. A
+          single, concrete, already-chosen first step — "email Sarah about the
+          weekend" rather than "social stuff" — is something you can simply do,
+          no deliberation required. Momentum tends to take care of the rest.
         </p>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
           And if a task keeps coming back week after week, UNMESS notices and
-          gently flags it — so the thing you've been avoiding stops hiding in
-          the pile.
+          gently flags it — so the thing you've been avoiding stops hiding in the
+          pile.
         </p>
 
         <div className="mt-12 rounded-xl border border-border bg-card p-6 text-center">
