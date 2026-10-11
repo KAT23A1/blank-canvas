@@ -1,33 +1,34 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/logo";
 
-export const Route = createFileRoute("/adhd-planner")({
+export const Route = createFileRoute("/brain-dump")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "ADHD Planner — Planning Without the Paperwork | UNMESS" },
+      { title: "Brain Dump — Turn Racing Thoughts into a Plan | UNMESS" },
       {
         name: "description",
         content:
-          "An ADHD planner that organises itself. UNMESS turns your messy thoughts into a prioritised plan — no templates, no sorting, no upkeep.",
+          "A brain dump gets every racing thought out of your head. UNMESS turns that messy dump into a calm, prioritised plan — no sorting required.",
       },
       {
         property: "og:title",
-        content: "ADHD Planner — Planning Without the Paperwork | UNMESS",
+        content: "Brain Dump — Turn Racing Thoughts into a Plan | UNMESS",
       },
       {
         property: "og:description",
         content:
-          "An ADHD planner that organises itself. UNMESS turns your messy thoughts into a prioritised plan — no templates, no sorting, no upkeep.",
+          "A brain dump gets every racing thought out of your head. UNMESS turns that messy dump into a calm, prioritised plan — no sorting required.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://unmess.lovable.app/brain-dump" }],
   }),
-  component: AdhdPlanner,
+  component: BrainDump,
 });
 
-function AdhdPlanner() {
+function BrainDump() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="flex items-center justify-between px-6 py-5">
@@ -38,64 +39,68 @@ function AdhdPlanner() {
           to="/"
           className="glow inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
         >
-          Try the planner
+          Try a brain dump
         </Link>
       </header>
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-6 pb-16 pt-8">
         <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          An ADHD planner that does the organising for you
+          Brain dump: get it all out, then get a plan
         </h1>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          Most ADHD planners ask you to do the hard part first: pick a
-          template, categorise your tasks, set dates and priorities. For a
-          brain that already struggles with exactly those steps, the planner
-          itself becomes another task on the list.
+          A brain dump is exactly what it sounds like: you empty every thought,
+          task and worry onto one page, in whatever order they arrive. If your
+          head is holding dozens of open loops at once, this alone brings real
+          relief. The hard part is what comes next: turning that chaos into
+          something you can actually do.
         </p>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          UNMESS works the other way round. You pour out everything on your
-          mind — messy, half-formed, in any order — and it turns that into a
-          prioritised plan for you.
+          That is the part UNMESS handles for you.
         </p>
 
         <h2 className="mt-10 text-xl font-semibold text-foreground">
-          Why traditional planners often fail ADHD brains
+          Why a brain dump helps
         </h2>
         <ul className="mt-4 space-y-3 text-base leading-relaxed text-muted-foreground">
           <li className="flex gap-3">
             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/40" />
             <span>
-              <strong className="font-medium text-foreground">Upfront decisions.</strong>{" "}
-              Choosing categories, priorities and due dates before you can even
-              start is exactly where executive function runs out.
+              <strong className="font-medium text-foreground">
+                Mental space back.
+              </strong>{" "}
+              Holding tasks in your head is exhausting. Writing them down frees
+              that space.
             </span>
           </li>
           <li className="flex gap-3">
             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/40" />
             <span>
-              <strong className="font-medium text-foreground">Constant upkeep.</strong>{" "}
-              A planner only works if you keep maintaining it — and maintenance
-              is the first thing to slip.
+              <strong className="font-medium text-foreground">
+                Less overwhelm.
+              </strong>{" "}
+              A vague sense of "so much to do" becomes a concrete list you can
+              look at calmly.
             </span>
           </li>
           <li className="flex gap-3">
             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/40" />
             <span>
-              <strong className="font-medium text-foreground">All-or-nothing lists.</strong>{" "}
-              A flat wall of tasks with no clear starting point leads straight
-              back to overwhelm.
+              <strong className="font-medium text-foreground">
+                No blank-page stall.
+              </strong>{" "}
+              You don't organise as you go — you just pour. Messy is fine.
             </span>
           </li>
         </ul>
 
         <h2 className="mt-10 text-xl font-semibold text-foreground">
-          How UNMESS plans your day instead
+          How UNMESS turns your dump into a plan
         </h2>
         <ol className="mt-4 space-y-3 text-base leading-relaxed text-muted-foreground">
           <li className="flex gap-3">
             <span className="font-medium text-foreground">1.</span>
             <span>
-              Type or paste everything on your mind — shorthand, half-sentences,
+              Paste or type everything on your mind — half-sentences, shorthand,
               whatever comes out. You can even attach a photo of scribbled
               notes.
             </span>
@@ -104,8 +109,8 @@ function AdhdPlanner() {
             <span className="font-medium text-foreground">2.</span>
             <span>
               UNMESS sorts it into clear tasks with a priority, a when, and
-              whether each one is a quick win or needs real focus. It even
-              spots when one task depends on another.
+              whether each one is a quick win or needs real focus. It even spots
+              when one task depends on another.
             </span>
           </li>
           <li className="flex gap-3">
@@ -118,28 +123,45 @@ function AdhdPlanner() {
         </ol>
 
         <h2 className="mt-10 text-xl font-semibold text-foreground">
-          Planning that survives real life
+          What a brain dump looks like
         </h2>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          Because there's nothing to maintain, there's nothing to abandon.
-          Miss a week? Just dump whatever is in your head and UNMESS builds a
-          fresh plan from where you are now — not from where some template
-          thought you'd be.
+          There's no wrong way. People paste things like:
+        </p>
+        <div className="mt-4 rounded-lg border border-border bg-card p-4 text-sm italic text-muted-foreground">
+          "finish presentation, call mum back, flight to book before prices go
+          up, groceries, reply to sarah about the weekend, dentist??, assignment
+          due friday, clean kitchen, buy birthday gift for tom"
+        </div>
+        <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+          Ten seconds later that mess is a prioritised plan — the urgent
+          deadline at the top, the quick calls grouped together, and nothing
+          forgotten.
+        </p>
+
+        <h2 className="mt-10 text-xl font-semibold text-foreground">
+          Made for people who don't do neat lists
+        </h2>
+        <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+          Most to-do apps ask you to be organised before you can use them: pick
+          a project, set a due date, choose a priority. That is exactly the kind
+          of upfront decision-making that stalls you before you've started.
+          UNMESS skips all of it. You bring the mess; it brings the order.
         </p>
 
         <div className="mt-12 rounded-xl border border-border bg-card p-6 text-center">
           <p className="text-lg font-semibold text-foreground">
-            Skip the template. Keep the plan.
+            Ready to empty your head?
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Paste what's on your mind. Get a prioritised plan. No account
-            needed for your first try.
+            Paste your brain dump. Get a plan. No account needed for your first
+            try.
           </p>
           <Link
             to="/"
             className="glow mt-4 inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Plan my day with UNMESS
+            Unmess my brain dump
           </Link>
         </div>
       </main>

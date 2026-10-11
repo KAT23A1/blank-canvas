@@ -11,13 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AdhdBrainDumpRouteImport } from './routes/adhd-brain-dump'
-import { Route as AdhdParalysisRouteImport } from './routes/adhd-paralysis'
-import { Route as AdhdPlannerRouteImport } from './routes/adhd-planner'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BrainDumpRouteImport } from './routes/brain-dump'
+import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TaskParalysisRouteImport } from './routes/task-paralysis'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedTodayRouteImport } from './routes/_authenticated/today'
@@ -35,24 +35,19 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdhdBrainDumpRoute = AdhdBrainDumpRouteImport.update({
-  id: '/adhd-brain-dump',
-  path: '/adhd-brain-dump',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdhdParalysisRoute = AdhdParalysisRouteImport.update({
-  id: '/adhd-paralysis',
-  path: '/adhd-paralysis',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdhdPlannerRoute = AdhdPlannerRouteImport.update({
-  id: '/adhd-planner',
-  path: '/adhd-planner',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrainDumpRoute = BrainDumpRouteImport.update({
+  id: '/brain-dump',
+  path: '/brain-dump',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlannerRoute = PlannerRouteImport.update({
+  id: '/planner',
+  path: '/planner',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -68,6 +63,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TaskParalysisRoute = TaskParalysisRouteImport.update({
+  id: '/task-paralysis',
+  path: '/task-paralysis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -111,13 +111,13 @@ const ApiPublicHooksLemonsqueezyRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/adhd-brain-dump': typeof AdhdBrainDumpRoute
-  '/adhd-paralysis': typeof AdhdParalysisRoute
-  '/adhd-planner': typeof AdhdPlannerRoute
   '/auth': typeof AuthRoute
+  '/brain-dump': typeof BrainDumpRoute
+  '/planner': typeof PlannerRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/task-paralysis': typeof TaskParalysisRoute
   '/terms': typeof TermsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/today': typeof AuthenticatedTodayRoute
@@ -128,13 +128,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/adhd-brain-dump': typeof AdhdBrainDumpRoute
-  '/adhd-paralysis': typeof AdhdParalysisRoute
-  '/adhd-planner': typeof AdhdPlannerRoute
   '/auth': typeof AuthRoute
+  '/brain-dump': typeof BrainDumpRoute
+  '/planner': typeof PlannerRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/task-paralysis': typeof TaskParalysisRoute
   '/terms': typeof TermsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/today': typeof AuthenticatedTodayRoute
@@ -147,13 +147,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/adhd-brain-dump': typeof AdhdBrainDumpRoute
-  '/adhd-paralysis': typeof AdhdParalysisRoute
-  '/adhd-planner': typeof AdhdPlannerRoute
   '/auth': typeof AuthRoute
+  '/brain-dump': typeof BrainDumpRoute
+  '/planner': typeof PlannerRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/task-paralysis': typeof TaskParalysisRoute
   '/terms': typeof TermsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/today': typeof AuthenticatedTodayRoute
@@ -166,13 +166,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/adhd-brain-dump'
-    | '/adhd-paralysis'
-    | '/adhd-planner'
     | '/auth'
+    | '/brain-dump'
+    | '/planner'
     | '/pricing'
     | '/privacy'
     | '/sitemap.xml'
+    | '/task-paralysis'
     | '/terms'
     | '/settings'
     | '/today'
@@ -183,13 +183,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/adhd-brain-dump'
-    | '/adhd-paralysis'
-    | '/adhd-planner'
     | '/auth'
+    | '/brain-dump'
+    | '/planner'
     | '/pricing'
     | '/privacy'
     | '/sitemap.xml'
+    | '/task-paralysis'
     | '/terms'
     | '/settings'
     | '/today'
@@ -201,13 +201,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/adhd-brain-dump'
-    | '/adhd-paralysis'
-    | '/adhd-planner'
     | '/auth'
+    | '/brain-dump'
+    | '/planner'
     | '/pricing'
     | '/privacy'
     | '/sitemap.xml'
+    | '/task-paralysis'
     | '/terms'
     | '/_authenticated/settings'
     | '/_authenticated/today'
@@ -220,13 +220,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AdhdBrainDumpRoute: typeof AdhdBrainDumpRoute
-  AdhdParalysisRoute: typeof AdhdParalysisRoute
-  AdhdPlannerRoute: typeof AdhdPlannerRoute
   AuthRoute: typeof AuthRoute
+  BrainDumpRoute: typeof BrainDumpRoute
+  PlannerRoute: typeof PlannerRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TaskParalysisRoute: typeof TaskParalysisRoute
   TermsRoute: typeof TermsRoute
   ApiPublicHooksDailyRemindersRoute: typeof ApiPublicHooksDailyRemindersRoute
   ApiPublicHooksHealthRoute: typeof ApiPublicHooksHealthRoute
@@ -249,32 +249,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/adhd-brain-dump': {
-      id: '/adhd-brain-dump'
-      path: '/adhd-brain-dump'
-      fullPath: '/adhd-brain-dump'
-      preLoaderRoute: typeof AdhdBrainDumpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/adhd-paralysis': {
-      id: '/adhd-paralysis'
-      path: '/adhd-paralysis'
-      fullPath: '/adhd-paralysis'
-      preLoaderRoute: typeof AdhdParalysisRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/adhd-planner': {
-      id: '/adhd-planner'
-      path: '/adhd-planner'
-      fullPath: '/adhd-planner'
-      preLoaderRoute: typeof AdhdPlannerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brain-dump': {
+      id: '/brain-dump'
+      path: '/brain-dump'
+      fullPath: '/brain-dump'
+      preLoaderRoute: typeof BrainDumpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planner': {
+      id: '/planner'
+      path: '/planner'
+      fullPath: '/planner'
+      preLoaderRoute: typeof PlannerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -296,6 +289,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/task-paralysis': {
+      id: '/task-paralysis'
+      path: '/task-paralysis'
+      fullPath: '/task-paralysis'
+      preLoaderRoute: typeof TaskParalysisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -368,13 +368,13 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AdhdBrainDumpRoute: AdhdBrainDumpRoute,
-  AdhdParalysisRoute: AdhdParalysisRoute,
-  AdhdPlannerRoute: AdhdPlannerRoute,
   AuthRoute: AuthRoute,
+  BrainDumpRoute: BrainDumpRoute,
+  PlannerRoute: PlannerRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TaskParalysisRoute: TaskParalysisRoute,
   TermsRoute: TermsRoute,
   ApiPublicHooksDailyRemindersRoute: ApiPublicHooksDailyRemindersRoute,
   ApiPublicHooksHealthRoute: ApiPublicHooksHealthRoute,
