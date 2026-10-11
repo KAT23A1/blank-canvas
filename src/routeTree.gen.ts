@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AdhdBrainDumpRouteImport } from './routes/adhd-brain-dump'
+import { Route as AdhdParalysisRouteImport } from './routes/adhd-paralysis'
 import { Route as AdhdPlannerRouteImport } from './routes/adhd-planner'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -37,6 +38,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AdhdBrainDumpRoute = AdhdBrainDumpRouteImport.update({
   id: '/adhd-brain-dump',
   path: '/adhd-brain-dump',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdhdParalysisRoute = AdhdParalysisRouteImport.update({
+  id: '/adhd-paralysis',
+  path: '/adhd-paralysis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdhdPlannerRoute = AdhdPlannerRouteImport.update({
@@ -106,6 +112,7 @@ const ApiPublicHooksLemonsqueezyRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/adhd-brain-dump': typeof AdhdBrainDumpRoute
+  '/adhd-paralysis': typeof AdhdParalysisRoute
   '/adhd-planner': typeof AdhdPlannerRoute
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/adhd-brain-dump': typeof AdhdBrainDumpRoute
+  '/adhd-paralysis': typeof AdhdParalysisRoute
   '/adhd-planner': typeof AdhdPlannerRoute
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/adhd-brain-dump': typeof AdhdBrainDumpRoute
+  '/adhd-paralysis': typeof AdhdParalysisRoute
   '/adhd-planner': typeof AdhdPlannerRoute
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/adhd-brain-dump'
+    | '/adhd-paralysis'
     | '/adhd-planner'
     | '/auth'
     | '/pricing'
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/adhd-brain-dump'
+    | '/adhd-paralysis'
     | '/adhd-planner'
     | '/auth'
     | '/pricing'
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/adhd-brain-dump'
+    | '/adhd-paralysis'
     | '/adhd-planner'
     | '/auth'
     | '/pricing'
@@ -209,6 +221,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AdhdBrainDumpRoute: typeof AdhdBrainDumpRoute
+  AdhdParalysisRoute: typeof AdhdParalysisRoute
   AdhdPlannerRoute: typeof AdhdPlannerRoute
   AuthRoute: typeof AuthRoute
   PricingRoute: typeof PricingRoute
@@ -241,6 +254,13 @@ declare module '@tanstack/react-router' {
       path: '/adhd-brain-dump'
       fullPath: '/adhd-brain-dump'
       preLoaderRoute: typeof AdhdBrainDumpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/adhd-paralysis': {
+      id: '/adhd-paralysis'
+      path: '/adhd-paralysis'
+      fullPath: '/adhd-paralysis'
+      preLoaderRoute: typeof AdhdParalysisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/adhd-planner': {
@@ -349,6 +369,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AdhdBrainDumpRoute: AdhdBrainDumpRoute,
+  AdhdParalysisRoute: AdhdParalysisRoute,
   AdhdPlannerRoute: AdhdPlannerRoute,
   AuthRoute: AuthRoute,
   PricingRoute: PricingRoute,
