@@ -167,6 +167,12 @@ function SiteFooter() {
         ADHD planner
       </Link>
       <Link
+        to="/adhd-paralysis"
+        className="font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline"
+      >
+        ADHD paralysis
+      </Link>
+      <Link
         to="/settings"
         className="font-medium text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline"
       >
