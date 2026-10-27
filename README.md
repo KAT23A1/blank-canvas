@@ -1,6 +1,6 @@
 # Blank Canvas
 
-dont do anything yet
+
 
 This project was built with [Lovable](https://lovable.dev).
 
